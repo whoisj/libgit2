@@ -31,9 +31,9 @@ GIT_BEGIN_DECL
  * @return 0 on success or error code
  */
 GIT_EXTERN(int) git_annotated_commit_from_ref(
-	git_annotated_commit **out,
-	git_repository *repo,
-	const git_reference *ref);
+    git_annotated_commit **out,
+    git_repository *repo,
+    const git_reference *ref);
 
 /**
  * Creates a `git_annotated_commit` from the given fetch head data.
@@ -48,11 +48,11 @@ GIT_EXTERN(int) git_annotated_commit_from_ref(
  * @return 0 on success or error code
  */
 GIT_EXTERN(int) git_annotated_commit_from_fetchhead(
-	git_annotated_commit **out,
-	git_repository *repo,
-	const char *branch_name,
-	const char *remote_url,
-	const git_oid *id);
+    git_annotated_commit **out,
+    git_repository *repo,
+    const char *branch_name,
+    const char *remote_url,
+    const git_oid *id);
 
 /**
  * Creates a `git_annotated_commit` from the given commit id.
@@ -73,9 +73,9 @@ GIT_EXTERN(int) git_annotated_commit_from_fetchhead(
  * @return 0 on success or error code
  */
 GIT_EXTERN(int) git_annotated_commit_lookup(
-	git_annotated_commit **out,
-	git_repository *repo,
-	const git_oid *id);
+    git_annotated_commit **out,
+    git_repository *repo,
+    const git_oid *id);
 
 /**
  * Creates a `git_annotated_comit` from a revision string.
@@ -90,9 +90,9 @@ GIT_EXTERN(int) git_annotated_commit_lookup(
  * @return 0 on success or error code
  */
 GIT_EXTERN(int) git_annotated_commit_from_revspec(
-	git_annotated_commit **out,
-	git_repository *repo,
-	const char *revspec);
+    git_annotated_commit **out,
+    git_repository *repo,
+    const char *revspec);
 
 /**
  * Gets the commit ID that the given `git_annotated_commit` refers to.
@@ -101,7 +101,7 @@ GIT_EXTERN(int) git_annotated_commit_from_revspec(
  * @return commit id
  */
 GIT_EXTERN(const git_oid *) git_annotated_commit_id(
-	const git_annotated_commit *commit);
+    const git_annotated_commit *commit);
 
 /**
  * Frees a `git_annotated_commit`.
@@ -109,7 +109,7 @@ GIT_EXTERN(const git_oid *) git_annotated_commit_id(
  * @param commit annotated commit to free
  */
 GIT_EXTERN(void) git_annotated_commit_free(
-	git_annotated_commit *commit);
+    git_annotated_commit *commit);
 
 /** @} */
 GIT_END_DECL

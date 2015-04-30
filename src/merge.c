@@ -62,9 +62,9 @@ struct merge_diff_df_data {
 };
 
 GIT_INLINE(int) merge_diff_detect_binary(
-	bool *binary_out,
-	git_repository *repo,
-	const git_merge_diff *conflict);
+    bool *binary_out,
+    git_repository *repo,
+    const git_merge_diff *conflict);
 
 
 /* Merge base computation */
@@ -91,6 +91,7 @@ int merge_bases_many(git_commit_list **out, git_revwalk **walk_out, git_reposito
 
 	for (i = 1; i < length; i++) {
 		commit = git_revwalk__commit_lookup(walk, &input_array[i]);
+
 		if (commit == NULL)
 			goto on_error;
 
@@ -98,6 +99,7 @@ int merge_bases_many(git_commit_list **out, git_revwalk **walk_out, git_reposito
 	}
 
 	commit = git_revwalk__commit_lookup(walk, &input_array[0]);
+
 	if (commit == NULL)
 		goto on_error;
 
@@ -112,10 +114,8 @@ int merge_bases_many(git_commit_list **out, git_revwalk **walk_out, git_reposito
 
 	*out = result;
 	*walk_out = walk;
-
 	git_vector_free(&list);
 	return 0;
-
 on_error:
 	git_vector_free(&list);
 	git_revwalk_free(walk);
@@ -127,17 +127,14 @@ int git_merge_base_many(git_oid *out, git_repository *repo, size_t length, const
 	git_revwalk *walk;
 	git_commit_list *result = NULL;
 	int error = 0;
-
 	assert(out && repo && input_array);
 
 	if ((error = merge_bases_many(&result, &walk, repo, length, input_array)) < 0)
 		return error;
 
 	git_oid_cpy(out, &result->item->oid);
-
 	git_commit_list_free(&result);
 	git_revwalk_free(walk);
-
 	return 0;
 }
 
@@ -147,17 +144,17 @@ int git_merge_bases_many(git_oidarray *out, git_repository *repo, size_t length,
 	git_commit_list *list, *result = NULL;
 	int error = 0;
 	git_array_oid_t array;
-
 	assert(out && repo && input_array);
 
 	if ((error = merge_bases_many(&result, &walk, repo, length, input_array)) < 0)
 		return error;
 
 	git_array_init(array);
-
 	list = result;
+
 	while (list) {
 		git_oid *id = git_array_alloc(array);
+
 		if (id == NULL) {
 			error = -1;
 			goto cleanup;
@@ -168,11 +165,9 @@ int git_merge_bases_many(git_oidarray *out, git_repository *repo, size_t length,
 	}
 
 	git_oidarray__from_array(out, &array);
-
 cleanup:
 	git_commit_list_free(&result);
 	git_revwalk_free(walk);
-
 	return error;
 }
 
@@ -181,7 +176,6 @@ int git_merge_base_octopus(git_oid *out, git_repository *repo, size_t length, co
 	git_oid result;
 	unsigned int i;
 	int error = -1;
-
 	assert(out && repo && input_array);
 
 	if (length < 2) {
@@ -190,14 +184,15 @@ int git_merge_base_octopus(git_oid *out, git_repository *repo, size_t length, co
 	}
 
 	result = input_array[0];
+
 	for (i = 1; i < length; i++) {
 		error = git_merge_base(&result, repo, &result, &input_array[i]);
+
 		if (error < 0)
 			return error;
 	}
 
 	*out = result;
-
 	return 0;
 }
 
@@ -213,6 +208,7 @@ static int merge_bases(git_commit_list **out, git_revwalk **walk_out, git_reposi
 		return -1;
 
 	commit = git_revwalk__commit_lookup(walk, two);
+
 	if (commit == NULL)
 		goto on_error;
 
@@ -221,8 +217,8 @@ static int merge_bases(git_commit_list **out, git_revwalk **walk_out, git_reposi
 	contents[0] = commit;
 	list.length = 1;
 	list.contents = contents;
-
 	commit = git_revwalk__commit_lookup(walk, one);
+
 	if (commit == NULL)
 		goto on_error;
 
@@ -237,13 +233,10 @@ static int merge_bases(git_commit_list **out, git_revwalk **walk_out, git_reposi
 
 	*out = result;
 	*walk_out = walk;
-
 	return 0;
-
 on_error:
 	git_revwalk_free(walk);
 	return -1;
-
 }
 
 int git_merge_base(git_oid *out, git_repository *repo, const git_oid *one, const git_oid *two)
@@ -258,25 +251,25 @@ int git_merge_base(git_oid *out, git_repository *repo, const git_oid *one, const
 	git_oid_cpy(out, &result->item->oid);
 	git_commit_list_free(&result);
 	git_revwalk_free(walk);
-
 	return 0;
 }
 
 int git_merge_bases(git_oidarray *out, git_repository *repo, const git_oid *one, const git_oid *two)
 {
 	int error;
-        git_revwalk *walk;
+	git_revwalk *walk;
 	git_commit_list *result, *list;
 	git_array_oid_t array;
-
 	git_array_init(array);
 
 	if ((error = merge_bases(&result, &walk, repo, one, two)) < 0)
 		return error;
 
 	list = result;
+
 	while (list) {
 		git_oid *id = git_array_alloc(array);
+
 		if (id == NULL)
 			goto on_error;
 
@@ -287,9 +280,7 @@ int git_merge_bases(git_oidarray *out, git_repository *repo, const git_oid *one,
 	git_oidarray__from_array(out, &array);
 	git_commit_list_free(&result);
 	git_revwalk_free(walk);
-
 	return 0;
-
 on_error:
 	git_commit_list_free(&result);
 	git_revwalk_free(walk);
@@ -302,6 +293,7 @@ static int interesting(git_pqueue *list)
 
 	for (i = 0; i < git_pqueue_size(list); i++) {
 		git_commit_list_node *commit = git_pqueue_get(list, i);
+
 		if ((commit->flags & STALE) == 0)
 			return 1;
 	}
@@ -336,6 +328,7 @@ int git_merge__bases_many(git_commit_list **out, git_revwalk *walk, git_commit_l
 		return -1;
 
 	one->flags |= PARENT1;
+
 	if (git_pqueue_insert(&list, one) < 0)
 		return -1;
 
@@ -358,18 +351,22 @@ int git_merge__bases_many(git_commit_list **out, git_revwalk *walk, git_commit_l
 			break;
 
 		flags = commit->flags & (PARENT1 | PARENT2 | STALE);
+
 		if (flags == (PARENT1 | PARENT2)) {
 			if (!(commit->flags & RESULT)) {
 				commit->flags |= RESULT;
+
 				if (git_commit_list_insert(commit, &result) == NULL)
 					return -1;
 			}
+
 			/* we mark the parents of a merge stale */
 			flags |= STALE;
 		}
 
 		for (i = 0; i < commit->out_degree; i++) {
 			git_commit_list_node *p = commit->parents[i];
+
 			if ((p->flags & flags) == flags)
 				continue;
 
@@ -377,19 +374,20 @@ int git_merge__bases_many(git_commit_list **out, git_revwalk *walk, git_commit_l
 				return error;
 
 			p->flags |= flags;
+
 			if (git_pqueue_insert(&list, p) < 0)
 				return -1;
 		}
 	}
 
 	git_pqueue_free(&list);
-
 	/* filter out any stale commits in the results */
 	tmp = result;
 	result = NULL;
 
 	while (tmp) {
 		struct git_commit_list *next = tmp->next;
+
 		if (!(tmp->item->flags & STALE))
 			if (git_commit_list_insert_by_date(tmp->item, &result) == NULL)
 				return -1;
@@ -403,24 +401,23 @@ int git_merge__bases_many(git_commit_list **out, git_revwalk *walk, git_commit_l
 }
 
 int git_repository_mergehead_foreach(
-	git_repository *repo,
-	git_repository_mergehead_foreach_cb cb,
-	void *payload)
+    git_repository *repo,
+    git_repository_mergehead_foreach_cb cb,
+    void *payload)
 {
 	git_buf merge_head_path = GIT_BUF_INIT, merge_head_file = GIT_BUF_INIT;
 	char *buffer, *line;
 	size_t line_num = 1;
 	git_oid oid;
 	int error = 0;
-
 	assert(repo && cb);
 
 	if ((error = git_buf_joinpath(&merge_head_path, repo->path_repository,
-		GIT_MERGE_HEAD_FILE)) < 0)
+	                              GIT_MERGE_HEAD_FILE)) < 0)
 		return error;
 
 	if ((error = git_futils_readbuffer(&merge_head_file,
-		git_buf_cstr(&merge_head_path))) < 0)
+	                                   git_buf_cstr(&merge_head_path))) < 0)
 		goto cleanup;
 
 	buffer = merge_head_file.ptr;
@@ -452,7 +449,6 @@ int git_repository_mergehead_foreach(
 cleanup:
 	git_buf_free(&merge_head_path);
 	git_buf_free(&merge_head_file);
-
 	return error;
 }
 
@@ -464,7 +460,7 @@ GIT_INLINE(int) index_entry_cmp(const git_index_entry *a, const git_index_entry 
 		return (b->path == NULL) ? 0 : 1;
 
 	if ((value = a->mode - b->mode) == 0 &&
-		(value = git_oid__cmp(&a->id, &b->id)) == 0)
+	    (value = git_oid__cmp(&a->id, &b->id)) == 0)
 		value = strcmp(a->path, b->path);
 
 	return value;
@@ -473,34 +469,31 @@ GIT_INLINE(int) index_entry_cmp(const git_index_entry *a, const git_index_entry 
 /* Conflict resolution */
 
 static int merge_conflict_resolve_trivial(
-	int *resolved,
-	git_merge_diff_list *diff_list,
-	const git_merge_diff *conflict)
+    int *resolved,
+    git_merge_diff_list *diff_list,
+    const git_merge_diff *conflict)
 {
 	int ours_empty, theirs_empty;
 	int ours_changed, theirs_changed, ours_theirs_differ;
 	git_index_entry const *result = NULL;
 	int error = 0;
-
 	assert(resolved && diff_list && conflict);
-
 	*resolved = 0;
 
 	if (conflict->type == GIT_MERGE_DIFF_DIRECTORY_FILE ||
-		conflict->type == GIT_MERGE_DIFF_RENAMED_ADDED)
+	    conflict->type == GIT_MERGE_DIFF_RENAMED_ADDED)
 		return 0;
 
 	if (conflict->our_status == GIT_DELTA_RENAMED ||
-		conflict->their_status == GIT_DELTA_RENAMED)
+	    conflict->their_status == GIT_DELTA_RENAMED)
 		return 0;
 
 	ours_empty = !GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry);
 	theirs_empty = !GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry);
-
 	ours_changed = (conflict->our_status != GIT_DELTA_UNMODIFIED);
 	theirs_changed = (conflict->their_status != GIT_DELTA_UNMODIFIED);
 	ours_theirs_differ = ours_changed && theirs_changed &&
-		index_entry_cmp(&conflict->our_entry, &conflict->their_entry);
+	                     index_entry_cmp(&conflict->our_entry, &conflict->their_entry);
 
 	/*
 	 * Note: with only one ancestor, some cases are not distinct:
@@ -547,35 +540,31 @@ static int merge_conflict_resolve_trivial(
 		*resolved = 0;
 
 	if (result != NULL &&
-		GIT_MERGE_INDEX_ENTRY_EXISTS(*result) &&
-		(error = git_vector_insert(&diff_list->staged, (void *)result)) >= 0)
-		*resolved = 1;
+	    GIT_MERGE_INDEX_ENTRY_EXISTS(*result) &&
+	    (error = git_vector_insert(&diff_list->staged, (void *)result)) >= 0)
+		* resolved = 1;
 
 	/* Note: trivial resolution does not update the REUC. */
-
 	return error;
 }
 
 static int merge_conflict_resolve_one_removed(
-	int *resolved,
-	git_merge_diff_list *diff_list,
-	const git_merge_diff *conflict)
+    int *resolved,
+    git_merge_diff_list *diff_list,
+    const git_merge_diff *conflict)
 {
 	int ours_empty, theirs_empty;
 	int ours_changed, theirs_changed;
 	int error = 0;
-
 	assert(resolved && diff_list && conflict);
-
 	*resolved = 0;
 
 	if (conflict->type == GIT_MERGE_DIFF_DIRECTORY_FILE ||
-		conflict->type == GIT_MERGE_DIFF_RENAMED_ADDED)
+	    conflict->type == GIT_MERGE_DIFF_RENAMED_ADDED)
 		return 0;
 
 	ours_empty = !GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry);
 	theirs_empty = !GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry);
-
 	ours_changed = (conflict->our_status != GIT_DELTA_UNMODIFIED);
 	theirs_changed = (conflict->their_status != GIT_DELTA_UNMODIFIED);
 
@@ -596,21 +585,19 @@ static int merge_conflict_resolve_one_removed(
 }
 
 static int merge_conflict_resolve_one_renamed(
-	int *resolved,
-	git_merge_diff_list *diff_list,
-	const git_merge_diff *conflict)
+    int *resolved,
+    git_merge_diff_list *diff_list,
+    const git_merge_diff *conflict)
 {
 	int ours_renamed, theirs_renamed;
 	int ours_changed, theirs_changed;
 	git_index_entry *merged;
 	int error = 0;
-
 	assert(resolved && diff_list && conflict);
-
 	*resolved = 0;
 
 	if (!GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry) ||
-		!GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry))
+	    !GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry))
 		return 0;
 
 	ours_renamed = (conflict->our_status == GIT_DELTA_RENAMED);
@@ -621,8 +608,8 @@ static int merge_conflict_resolve_one_renamed(
 
 	/* Reject one file in a 2->1 conflict */
 	if (conflict->type == GIT_MERGE_DIFF_BOTH_RENAMED_2_TO_1 ||
-		conflict->type == GIT_MERGE_DIFF_BOTH_RENAMED_1_TO_2 ||
-		conflict->type == GIT_MERGE_DIFF_RENAMED_ADDED)
+	    conflict->type == GIT_MERGE_DIFF_BOTH_RENAMED_1_TO_2 ||
+	    conflict->type == GIT_MERGE_DIFF_RENAMED_ADDED)
 		return 0;
 
 	ours_changed = (git_oid__cmp(&conflict->ancestor_entry.id, &conflict->our_entry.id) != 0);
@@ -630,7 +617,7 @@ static int merge_conflict_resolve_one_renamed(
 
 	/* if both are modified (and not to a common target) require a merge */
 	if (ours_changed && theirs_changed &&
-		git_oid__cmp(&conflict->our_entry.id, &conflict->their_entry.id) != 0)
+	    git_oid__cmp(&conflict->our_entry.id, &conflict->their_entry.id) != 0)
 		return 0;
 
 	if ((merged = git_pool_malloc(&diff_list->pool, sizeof(git_index_entry))) == NULL)
@@ -647,19 +634,17 @@ static int merge_conflict_resolve_one_renamed(
 		merged->path = conflict->their_entry.path;
 
 	*resolved = 1;
-
 	git_vector_insert(&diff_list->staged, merged);
 	git_vector_insert(&diff_list->resolved, (git_merge_diff *)conflict);
-
 	return error;
 }
 
 static int merge_conflict_resolve_automerge(
-	int *resolved,
-	git_merge_diff_list *diff_list,
-	const git_merge_diff *conflict,
-	unsigned int merge_file_favor,
-	unsigned int file_flags)
+    int *resolved,
+    git_merge_diff_list *diff_list,
+    const git_merge_diff *conflict,
+    unsigned int merge_file_favor,
+    unsigned int file_flags)
 {
 	const git_index_entry *ancestor = NULL, *ours = NULL, *theirs = NULL;
 	git_merge_file_options opts = GIT_MERGE_FILE_OPTIONS_INIT;
@@ -669,13 +654,11 @@ static int merge_conflict_resolve_automerge(
 	git_oid automerge_oid;
 	int error = 0;
 	bool binary = false;
-
 	assert(resolved && diff_list && conflict);
-
 	*resolved = 0;
 
 	if (!GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry) ||
-		!GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry))
+	    !GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry))
 		return 0;
 
 	/* Reject D/F conflicts */
@@ -684,79 +667,73 @@ static int merge_conflict_resolve_automerge(
 
 	/* Reject submodules. */
 	if (S_ISGITLINK(conflict->ancestor_entry.mode) ||
-		S_ISGITLINK(conflict->our_entry.mode) ||
-		S_ISGITLINK(conflict->their_entry.mode))
+	    S_ISGITLINK(conflict->our_entry.mode) ||
+	    S_ISGITLINK(conflict->their_entry.mode))
 		return 0;
 
 	/* Reject link/file conflicts. */
 	if ((S_ISLNK(conflict->ancestor_entry.mode) ^ S_ISLNK(conflict->our_entry.mode)) ||
-		(S_ISLNK(conflict->ancestor_entry.mode) ^ S_ISLNK(conflict->their_entry.mode)))
+	    (S_ISLNK(conflict->ancestor_entry.mode) ^ S_ISLNK(conflict->their_entry.mode)))
 		return 0;
 
 	/* Reject name conflicts */
 	if (conflict->type == GIT_MERGE_DIFF_BOTH_RENAMED_2_TO_1 ||
-		conflict->type == GIT_MERGE_DIFF_RENAMED_ADDED)
+	    conflict->type == GIT_MERGE_DIFF_RENAMED_ADDED)
 		return 0;
 
 	if ((conflict->our_status & GIT_DELTA_RENAMED) == GIT_DELTA_RENAMED &&
-		(conflict->their_status & GIT_DELTA_RENAMED) == GIT_DELTA_RENAMED &&
-		strcmp(conflict->ancestor_entry.path, conflict->their_entry.path) != 0)
+	    (conflict->their_status & GIT_DELTA_RENAMED) == GIT_DELTA_RENAMED &&
+	    strcmp(conflict->ancestor_entry.path, conflict->their_entry.path) != 0)
 		return 0;
 
 	/* Reject binary conflicts */
 	if ((error = merge_diff_detect_binary(&binary, diff_list->repo, conflict)) < 0)
 		return error;
+
 	if (binary)
 		return 0;
 
 	ancestor = GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->ancestor_entry) ?
-		&conflict->ancestor_entry : NULL;
+	           &conflict->ancestor_entry : NULL;
 	ours = GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry) ?
-		&conflict->our_entry : NULL;
+	       &conflict->our_entry : NULL;
 	theirs = GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry) ?
-		&conflict->their_entry : NULL;
-
+	         &conflict->their_entry : NULL;
 	opts.favor = merge_file_favor;
 	opts.flags = file_flags;
 
 	if ((error = git_repository_odb(&odb, diff_list->repo)) < 0 ||
-		(error = git_merge_file_from_index(&result, diff_list->repo, ancestor, ours, theirs, &opts)) < 0 ||
-		!result.automergeable ||
-		(error = git_odb_write(&automerge_oid, odb, result.ptr, result.len, GIT_OBJ_BLOB)) < 0)
+	    (error = git_merge_file_from_index(&result, diff_list->repo, ancestor, ours, theirs, &opts)) < 0 ||
+	    !result.automergeable ||
+	    (error = git_odb_write(&automerge_oid, odb, result.ptr, result.len, GIT_OBJ_BLOB)) < 0)
 		goto done;
 
 	if ((index_entry = git_pool_malloc(&diff_list->pool, sizeof(git_index_entry))) == NULL)
-	GITERR_CHECK_ALLOC(index_entry);
+		GITERR_CHECK_ALLOC(index_entry);
 
 	index_entry->path = git_pool_strdup(&diff_list->pool, result.path);
 	GITERR_CHECK_ALLOC(index_entry->path);
-
 	index_entry->file_size = result.len;
 	index_entry->mode = result.mode;
 	git_oid_cpy(&index_entry->id, &automerge_oid);
-
 	git_vector_insert(&diff_list->staged, index_entry);
 	git_vector_insert(&diff_list->resolved, (git_merge_diff *)conflict);
-
 	*resolved = 1;
-
 done:
 	git_merge_file_result_free(&result);
 	git_odb_free(odb);
-
 	return error;
 }
 
 static int merge_conflict_resolve(
-	int *out,
-	git_merge_diff_list *diff_list,
-	const git_merge_diff *conflict,
-	unsigned int merge_file_favor,
-	unsigned int file_flags)
+    int *out,
+    git_merge_diff_list *diff_list,
+    const git_merge_diff *conflict,
+    unsigned int merge_file_favor,
+    unsigned int file_flags)
 {
 	int resolved = 0;
 	int error = 0;
-
 	*out = 0;
 
 	if ((error = merge_conflict_resolve_trivial(&resolved, diff_list, conflict)) < 0)
@@ -769,11 +746,10 @@ static int merge_conflict_resolve(
 		goto done;
 
 	if (!resolved && (error = merge_conflict_resolve_automerge(&resolved, diff_list, conflict,
-		merge_file_favor, file_flags)) < 0)
+	                          merge_file_favor, file_flags)) < 0)
 		goto done;
 
 	*out = resolved;
-
 done:
 	return error;
 }
@@ -786,13 +762,13 @@ struct merge_diff_similarity {
 };
 
 static int index_entry_similarity_exact(
-	git_repository *repo,
-	git_index_entry *a,
-	size_t a_idx,
-	git_index_entry *b,
-	size_t b_idx,
-	void **cache,
-	const git_merge_options *opts)
+    git_repository *repo,
+    git_index_entry *a,
+    size_t a_idx,
+    git_index_entry *b,
+    size_t b_idx,
+    void **cache,
+    const git_merge_options *opts)
 {
 	GIT_UNUSED(repo);
 	GIT_UNUSED(a_idx);
@@ -807,16 +783,15 @@ static int index_entry_similarity_exact(
 }
 
 static int index_entry_similarity_calc(
-	void **out,
-	git_repository *repo,
-	git_index_entry *entry,
-	const git_merge_options *opts)
+    void **out,
+    git_repository *repo,
+    git_index_entry *entry,
+    const git_merge_options *opts)
 {
 	git_blob *blob;
 	git_diff_file diff_file = {{{0}}};
 	git_off_t blobsize;
 	int error;
-
 	*out = NULL;
 
 	if ((error = git_blob_lookup(&blob, repo, &entry->id)) < 0)
@@ -827,7 +802,6 @@ static int index_entry_similarity_calc(
 	diff_file.size = entry->file_size;
 	diff_file.mode = entry->mode;
 	diff_file.flags = 0;
-
 	blobsize = git_blob_rawsize(blob);
 
 	/* file too big for rename processing */
@@ -835,22 +809,20 @@ static int index_entry_similarity_calc(
 		return 0;
 
 	error = opts->metric->buffer_signature(out, &diff_file,
-		git_blob_rawcontent(blob), (size_t)blobsize,
-		opts->metric->payload);
-
+	                                       git_blob_rawcontent(blob), (size_t)blobsize,
+	                                       opts->metric->payload);
 	git_blob_free(blob);
-
 	return error;
 }
 
 static int index_entry_similarity_inexact(
-	git_repository *repo,
-	git_index_entry *a,
-	size_t a_idx,
-	git_index_entry *b,
-	size_t b_idx,
-	void **cache,
-	const git_merge_options *opts)
+    git_repository *repo,
+    git_index_entry *a,
+    size_t a_idx,
+    git_index_entry *b,
+    size_t b_idx,
+    void **cache,
+    const git_merge_options *opts)
 {
 	int score = 0;
 	int error = 0;
@@ -861,6 +833,7 @@ static int index_entry_similarity_inexact(
 	/* update signature cache if needed */
 	if (!cache[a_idx] && (error = index_entry_similarity_calc(&cache[a_idx], repo, a, opts)) < 0)
 		return error;
+
 	if (!cache[b_idx] && (error = index_entry_similarity_calc(&cache[b_idx], repo, b, opts)) < 0)
 		return error;
 
@@ -870,7 +843,7 @@ static int index_entry_similarity_inexact(
 
 	/* compare signatures */
 	if (opts->metric->similarity(
-		&score, cache[a_idx], cache[b_idx], opts->metric->payload) < 0)
+	        &score, cache[a_idx], cache[b_idx], opts->metric->payload) < 0)
 		return -1;
 
 	/* clip score */
@@ -883,24 +856,23 @@ static int index_entry_similarity_inexact(
 }
 
 static int merge_diff_mark_similarity(
-	git_repository *repo,
-	git_merge_diff_list *diff_list,
-	struct merge_diff_similarity *similarity_ours,
-	struct merge_diff_similarity *similarity_theirs,
-	int (*similarity_fn)(git_repository *, git_index_entry *, size_t, git_index_entry *, size_t, void **, const git_merge_options *),
-	void **cache,
-	const git_merge_options *opts)
+    git_repository *repo,
+    git_merge_diff_list *diff_list,
+    struct merge_diff_similarity *similarity_ours,
+    struct merge_diff_similarity *similarity_theirs,
+    int (*similarity_fn)(git_repository *, git_index_entry *, size_t, git_index_entry *, size_t, void **, const git_merge_options *),
+    void **cache,
+    const git_merge_options *opts)
 {
 	size_t i, j;
 	git_merge_diff *conflict_src, *conflict_tgt;
 	int similarity;
-
 	git_vector_foreach(&diff_list->conflicts, i, conflict_src) {
 		/* Items can be the source of a rename iff they have an item in the
 		 * ancestor slot and lack an item in the ours or theirs slot. */
 		if (!GIT_MERGE_INDEX_ENTRY_EXISTS(conflict_src->ancestor_entry) ||
-			(GIT_MERGE_INDEX_ENTRY_EXISTS(conflict_src->our_entry) &&
-			 GIT_MERGE_INDEX_ENTRY_EXISTS(conflict_src->their_entry)))
+		    (GIT_MERGE_INDEX_ENTRY_EXISTS(conflict_src->our_entry) &&
+		     GIT_MERGE_INDEX_ENTRY_EXISTS(conflict_src->their_entry)))
 			continue;
 
 		git_vector_foreach(&diff_list->conflicts, j, conflict_tgt) {
@@ -911,7 +883,7 @@ static int merge_diff_mark_similarity(
 				continue;
 
 			if (GIT_MERGE_INDEX_ENTRY_EXISTS(conflict_tgt->our_entry) &&
-				!GIT_MERGE_INDEX_ENTRY_EXISTS(conflict_src->our_entry)) {
+			    !GIT_MERGE_INDEX_ENTRY_EXISTS(conflict_src->our_entry)) {
 				similarity = similarity_fn(repo, &conflict_src->ancestor_entry, i, &conflict_tgt->our_entry, our_idx, cache, opts);
 
 				if (similarity == GIT_EBUFS)
@@ -920,7 +892,7 @@ static int merge_diff_mark_similarity(
 					return similarity;
 
 				if (similarity > similarity_ours[i].similarity &&
-					similarity > similarity_ours[j].similarity) {
+				    similarity > similarity_ours[j].similarity) {
 					/* Clear previous best similarity */
 					if (similarity_ours[i].similarity > 0)
 						similarity_ours[similarity_ours[i].other_idx].similarity = 0;
@@ -930,18 +902,17 @@ static int merge_diff_mark_similarity(
 
 					similarity_ours[i].similarity = similarity;
 					similarity_ours[i].other_idx = j;
-
 					similarity_ours[j].similarity = similarity;
 					similarity_ours[j].other_idx = i;
 				}
 			}
 
 			if (GIT_MERGE_INDEX_ENTRY_EXISTS(conflict_tgt->their_entry) &&
-				!GIT_MERGE_INDEX_ENTRY_EXISTS(conflict_src->their_entry)) {
+			    !GIT_MERGE_INDEX_ENTRY_EXISTS(conflict_src->their_entry)) {
 				similarity = similarity_fn(repo, &conflict_src->ancestor_entry, i, &conflict_tgt->their_entry, their_idx, cache, opts);
 
 				if (similarity > similarity_theirs[i].similarity &&
-					similarity > similarity_theirs[j].similarity) {
+				    similarity > similarity_theirs[j].similarity) {
 					/* Clear previous best similarity */
 					if (similarity_theirs[i].similarity > 0)
 						similarity_theirs[similarity_theirs[i].other_idx].similarity = 0;
@@ -951,14 +922,12 @@ static int merge_diff_mark_similarity(
 
 					similarity_theirs[i].similarity = similarity;
 					similarity_theirs[i].other_idx = j;
-
 					similarity_theirs[j].similarity = similarity;
 					similarity_theirs[j].other_idx = i;
 				}
 			}
 		}
 	}
-
 	return 0;
 }
 
@@ -982,15 +951,15 @@ static int merge_diff_mark_similarity(
  *      B                 C[B]     [C~ours C~theirs]    (automergeable)
  */
 static void merge_diff_mark_rename_conflict(
-	git_merge_diff_list *diff_list,
-	struct merge_diff_similarity *similarity_ours,
-	bool ours_renamed,
-	size_t ours_source_idx,
-	struct merge_diff_similarity *similarity_theirs,
-	bool theirs_renamed,
-	size_t theirs_source_idx,
-	git_merge_diff *target,
-	const git_merge_options *opts)
+    git_merge_diff_list *diff_list,
+    struct merge_diff_similarity *similarity_ours,
+    bool ours_renamed,
+    size_t ours_source_idx,
+    struct merge_diff_similarity *similarity_theirs,
+    bool theirs_renamed,
+    size_t theirs_source_idx,
+    git_merge_diff *target,
+    const git_merge_options *opts)
 {
 	git_merge_diff *ours_source = NULL, *theirs_source = NULL;
 
@@ -1013,54 +982,45 @@ static void merge_diff_mark_rename_conflict(
 		/* If our source was also renamed in theirs, this is a 1->2 */
 		if (similarity_theirs[ours_source_idx].similarity >= opts->rename_threshold)
 			ours_source->type = GIT_MERGE_DIFF_BOTH_RENAMED_1_TO_2;
-
 		else if (GIT_MERGE_INDEX_ENTRY_EXISTS(target->their_entry)) {
 			ours_source->type = GIT_MERGE_DIFF_RENAMED_ADDED;
 			target->type = GIT_MERGE_DIFF_RENAMED_ADDED;
-		}
-
-		else if (!GIT_MERGE_INDEX_ENTRY_EXISTS(ours_source->their_entry))
+		} else if (!GIT_MERGE_INDEX_ENTRY_EXISTS(ours_source->their_entry))
 			ours_source->type = GIT_MERGE_DIFF_RENAMED_DELETED;
-
 		else if (ours_source->type == GIT_MERGE_DIFF_MODIFIED_DELETED)
 			ours_source->type = GIT_MERGE_DIFF_RENAMED_MODIFIED;
 	} else if (theirs_renamed) {
 		/* If their source was also renamed in ours, this is a 1->2 */
 		if (similarity_ours[theirs_source_idx].similarity >= opts->rename_threshold)
 			theirs_source->type = GIT_MERGE_DIFF_BOTH_RENAMED_1_TO_2;
-
 		else if (GIT_MERGE_INDEX_ENTRY_EXISTS(target->our_entry)) {
 			theirs_source->type = GIT_MERGE_DIFF_RENAMED_ADDED;
 			target->type = GIT_MERGE_DIFF_RENAMED_ADDED;
-		}
-
-		else if (!GIT_MERGE_INDEX_ENTRY_EXISTS(theirs_source->our_entry))
+		} else if (!GIT_MERGE_INDEX_ENTRY_EXISTS(theirs_source->our_entry))
 			theirs_source->type = GIT_MERGE_DIFF_RENAMED_DELETED;
-
 		else if (theirs_source->type == GIT_MERGE_DIFF_MODIFIED_DELETED)
 			theirs_source->type = GIT_MERGE_DIFF_RENAMED_MODIFIED;
 	}
 }
 
 GIT_INLINE(void) merge_diff_coalesce_rename(
-	git_index_entry *source_entry,
-	git_delta_t *source_status,
-	git_index_entry *target_entry,
-	git_delta_t *target_status)
+    git_index_entry *source_entry,
+    git_delta_t *source_status,
+    git_index_entry *target_entry,
+    git_delta_t *target_status)
 {
 	/* Coalesce the rename target into the rename source. */
 	memcpy(source_entry, target_entry, sizeof(git_index_entry));
 	*source_status = GIT_DELTA_RENAMED;
-
 	memset(target_entry, 0x0, sizeof(git_index_entry));
 	*target_status = GIT_DELTA_UNMODIFIED;
 }
 
 static void merge_diff_list_coalesce_renames(
-	git_merge_diff_list *diff_list,
-	struct merge_diff_similarity *similarity_ours,
-	struct merge_diff_similarity *similarity_theirs,
-	const git_merge_options *opts)
+    git_merge_diff_list *diff_list,
+    struct merge_diff_similarity *similarity_ours,
+    struct merge_diff_similarity *similarity_theirs,
+    const git_merge_options *opts)
 {
 	size_t i;
 	bool ours_renamed = 0, theirs_renamed = 0;
@@ -1069,80 +1029,67 @@ static void merge_diff_list_coalesce_renames(
 
 	for (i = 0; i < diff_list->conflicts.length; i++) {
 		target = diff_list->conflicts.contents[i];
-
 		ours_renamed = 0;
 		theirs_renamed = 0;
 
 		if (GIT_MERGE_INDEX_ENTRY_EXISTS(target->our_entry) &&
-			similarity_ours[i].similarity >= opts->rename_threshold) {
+		    similarity_ours[i].similarity >= opts->rename_threshold) {
 			ours_source_idx = similarity_ours[i].other_idx;
-
 			ours_source = diff_list->conflicts.contents[ours_source_idx];
-
 			merge_diff_coalesce_rename(
-				&ours_source->our_entry,
-				&ours_source->our_status,
-				&target->our_entry,
-				&target->our_status);
-
+			    &ours_source->our_entry,
+			    &ours_source->our_status,
+			    &target->our_entry,
+			    &target->our_status);
 			similarity_ours[ours_source_idx].similarity = 0;
 			similarity_ours[i].similarity = 0;
-
 			ours_renamed = 1;
 		}
 
 		/* insufficient to determine direction */
 		if (GIT_MERGE_INDEX_ENTRY_EXISTS(target->their_entry) &&
-			similarity_theirs[i].similarity >= opts->rename_threshold) {
+		    similarity_theirs[i].similarity >= opts->rename_threshold) {
 			theirs_source_idx = similarity_theirs[i].other_idx;
-
 			theirs_source = diff_list->conflicts.contents[theirs_source_idx];
-
 			merge_diff_coalesce_rename(
-				&theirs_source->their_entry,
-				&theirs_source->their_status,
-				&target->their_entry,
-				&target->their_status);
-
+			    &theirs_source->their_entry,
+			    &theirs_source->their_status,
+			    &target->their_entry,
+			    &target->their_status);
 			similarity_theirs[theirs_source_idx].similarity = 0;
 			similarity_theirs[i].similarity = 0;
-
 			theirs_renamed = 1;
 		}
 
 		merge_diff_mark_rename_conflict(diff_list,
-			similarity_ours, ours_renamed, ours_source_idx,
-			similarity_theirs, theirs_renamed, theirs_source_idx,
-			target, opts);
+		                                similarity_ours, ours_renamed, ours_source_idx,
+		                                similarity_theirs, theirs_renamed, theirs_source_idx,
+		                                target, opts);
 	}
 }
 
 static int merge_diff_empty(const git_vector *conflicts, size_t idx, void *p)
 {
 	git_merge_diff *conflict = conflicts->contents[idx];
-
 	GIT_UNUSED(p);
-
 	return (!GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->ancestor_entry) &&
-		!GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry) &&
-		!GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry));
+	        !GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry) &&
+	        !GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry));
 }
 
 static void merge_diff_list_count_candidates(
-	git_merge_diff_list *diff_list,
-	size_t *src_count,
-	size_t *tgt_count)
+    git_merge_diff_list *diff_list,
+    size_t *src_count,
+    size_t *tgt_count)
 {
 	git_merge_diff *entry;
 	size_t i;
-
 	*src_count = 0;
 	*tgt_count = 0;
-
 	git_vector_foreach(&diff_list->conflicts, i, entry) {
 		if (GIT_MERGE_INDEX_ENTRY_EXISTS(entry->ancestor_entry) &&
-			(!GIT_MERGE_INDEX_ENTRY_EXISTS(entry->our_entry) ||
-			!GIT_MERGE_INDEX_ENTRY_EXISTS(entry->their_entry)))
+		    (!GIT_MERGE_INDEX_ENTRY_EXISTS(entry->our_entry) ||
+		     !GIT_MERGE_INDEX_ENTRY_EXISTS(entry->their_entry)))
 			src_count++;
 		else if (!GIT_MERGE_INDEX_ENTRY_EXISTS(entry->ancestor_entry))
 			tgt_count++;
@@ -1150,49 +1097,46 @@ static void merge_diff_list_count_candidates(
 }
 
 int git_merge_diff_list__find_renames(
-	git_repository *repo,
-	git_merge_diff_list *diff_list,
-	const git_merge_options *opts)
+    git_repository *repo,
+    git_merge_diff_list *diff_list,
+    const git_merge_options *opts)
 {
 	struct merge_diff_similarity *similarity_ours, *similarity_theirs;
 	void **cache = NULL;
 	size_t cache_size = 0;
 	size_t src_count, tgt_count, i;
 	int error = 0;
-
 	assert(diff_list && opts);
 
 	if ((opts->tree_flags & GIT_MERGE_TREE_FIND_RENAMES) == 0)
 		return 0;
 
 	similarity_ours = git__calloc(diff_list->conflicts.length,
-		sizeof(struct merge_diff_similarity));
+	                              sizeof(struct merge_diff_similarity));
 	GITERR_CHECK_ALLOC(similarity_ours);
-
 	similarity_theirs = git__calloc(diff_list->conflicts.length,
-		sizeof(struct merge_diff_similarity));
+	                                sizeof(struct merge_diff_similarity));
 	GITERR_CHECK_ALLOC(similarity_theirs);
 
 	/* Calculate similarity between items that were deleted from the ancestor
 	 * and added in the other branch.
 	 */
 	if ((error = merge_diff_mark_similarity(repo, diff_list, similarity_ours,
-		similarity_theirs, index_entry_similarity_exact, NULL, opts)) < 0)
+	                                        similarity_theirs, index_entry_similarity_exact, NULL, opts)) < 0)
 		goto done;
 
 	if (diff_list->conflicts.length <= opts->target_limit) {
 		GITERR_CHECK_ALLOC_MULTIPLY(&cache_size, diff_list->conflicts.length, 3);
 		cache = git__calloc(cache_size, sizeof(void *));
 		GITERR_CHECK_ALLOC(cache);
-
 		merge_diff_list_count_candidates(diff_list, &src_count, &tgt_count);
 
 		if (src_count > opts->target_limit || tgt_count > opts->target_limit) {
 			/* TODO: report! */
 		} else {
 			if ((error = merge_diff_mark_similarity(
-				repo, diff_list, similarity_ours, similarity_theirs,
-				index_entry_similarity_inexact, cache, opts)) < 0)
+			                 repo, diff_list, similarity_ours, similarity_theirs,
+			                 index_entry_similarity_inexact, cache, opts)) < 0)
 				goto done;
 		}
 	}
@@ -1201,11 +1145,10 @@ int git_merge_diff_list__find_renames(
 	 * into the old name.
 	 */
 	merge_diff_list_coalesce_renames(diff_list, similarity_ours, similarity_theirs, opts);
-
 	/* And remove any entries that were merged and are now empty. */
 	git_vector_remove_matching(&diff_list->conflicts, merge_diff_empty, NULL);
-
 done:
+
 	if (cache != NULL) {
 		for (i = 0; i < cache_size; ++i) {
 			if (cache[i] != NULL)
@@ -1217,14 +1160,13 @@ done:
 
 	git__free(similarity_ours);
 	git__free(similarity_theirs);
-
 	return error;
 }
 
 /* Directory/file conflict handling */
 
 GIT_INLINE(const char *) merge_diff_path(
-	const git_merge_diff *conflict)
+    const git_merge_diff *conflict)
 {
 	if (GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->ancestor_entry))
 		return conflict->ancestor_entry.path;
@@ -1237,12 +1179,12 @@ GIT_INLINE(const char *) merge_diff_path(
 }
 
 GIT_INLINE(bool) merge_diff_any_side_added_or_modified(
-	const git_merge_diff *conflict)
+    const git_merge_diff *conflict)
 {
 	if (conflict->our_status == GIT_DELTA_ADDED ||
-		conflict->our_status == GIT_DELTA_MODIFIED ||
-		conflict->their_status == GIT_DELTA_ADDED ||
-		conflict->their_status == GIT_DELTA_MODIFIED)
+	    conflict->our_status == GIT_DELTA_MODIFIED ||
+	    conflict->their_status == GIT_DELTA_ADDED ||
+	    conflict->their_status == GIT_DELTA_MODIFIED)
 		return true;
 
 	return false;
@@ -1254,59 +1196,57 @@ GIT_INLINE(bool) path_is_prefixed(const char *parent, const char *child)
 	size_t parent_len = strlen(parent);
 
 	if (child_len < parent_len ||
-		strncmp(parent, child, parent_len) != 0)
+	    strncmp(parent, child, parent_len) != 0)
 		return 0;
 
 	return (child[parent_len] == '/');
 }
 
 GIT_INLINE(int) merge_diff_detect_df_conflict(
-	struct merge_diff_df_data *df_data,
-	git_merge_diff *conflict)
+    struct merge_diff_df_data *df_data,
+    git_merge_diff *conflict)
 {
 	const char *cur_path = merge_diff_path(conflict);
 
 	/* Determine if this is a D/F conflict or the child of one */
 	if (df_data->df_path &&
-		path_is_prefixed(df_data->df_path, cur_path))
+	    path_is_prefixed(df_data->df_path, cur_path))
 		conflict->type = GIT_MERGE_DIFF_DF_CHILD;
-	else if(df_data->df_path)
+	else if (df_data->df_path)
 		df_data->df_path = NULL;
 	else if (df_data->prev_path &&
-		merge_diff_any_side_added_or_modified(df_data->prev_conflict) &&
-		merge_diff_any_side_added_or_modified(conflict) &&
-		path_is_prefixed(df_data->prev_path, cur_path)) {
+	         merge_diff_any_side_added_or_modified(df_data->prev_conflict) &&
+	         merge_diff_any_side_added_or_modified(conflict) &&
+	         path_is_prefixed(df_data->prev_path, cur_path)) {
 		conflict->type = GIT_MERGE_DIFF_DF_CHILD;
-
 		df_data->prev_conflict->type = GIT_MERGE_DIFF_DIRECTORY_FILE;
 		df_data->df_path = df_data->prev_path;
 	}
 
 	df_data->prev_path = cur_path;
 	df_data->prev_conflict = conflict;
-
 	return 0;
 }
 
 /* Conflict handling */
 
 GIT_INLINE(int) merge_diff_detect_type(
-	git_merge_diff *conflict)
+    git_merge_diff *conflict)
 {
 	if (conflict->our_status == GIT_DELTA_ADDED &&
-		conflict->their_status == GIT_DELTA_ADDED)
+	    conflict->their_status == GIT_DELTA_ADDED)
 		conflict->type = GIT_MERGE_DIFF_BOTH_ADDED;
 	else if (conflict->our_status == GIT_DELTA_MODIFIED &&
-			 conflict->their_status == GIT_DELTA_MODIFIED)
+	         conflict->their_status == GIT_DELTA_MODIFIED)
 		conflict->type = GIT_MERGE_DIFF_BOTH_MODIFIED;
 	else if (conflict->our_status == GIT_DELTA_DELETED &&
-			 conflict->their_status == GIT_DELTA_DELETED)
+	         conflict->their_status == GIT_DELTA_DELETED)
 		conflict->type = GIT_MERGE_DIFF_BOTH_DELETED;
 	else if (conflict->our_status == GIT_DELTA_MODIFIED &&
-			 conflict->their_status == GIT_DELTA_DELETED)
+	         conflict->their_status == GIT_DELTA_DELETED)
 		conflict->type = GIT_MERGE_DIFF_MODIFIED_DELETED;
 	else if (conflict->our_status == GIT_DELTA_DELETED &&
-			 conflict->their_status == GIT_DELTA_MODIFIED)
+	         conflict->their_status == GIT_DELTA_MODIFIED)
 		conflict->type = GIT_MERGE_DIFF_MODIFIED_DELETED;
 	else
 		conflict->type = GIT_MERGE_DIFF_NONE;
@@ -1315,9 +1255,9 @@ GIT_INLINE(int) merge_diff_detect_type(
 }
 
 GIT_INLINE(int) merge_diff_detect_binary(
-	bool *binary_out,
-	git_repository *repo,
-	const git_merge_diff *conflict)
+    bool *binary_out,
+    git_repository *repo,
+    const git_merge_diff *conflict)
 {
 	git_blob *ancestor_blob = NULL, *our_blob = NULL, *their_blob = NULL;
 	int error = 0;
@@ -1331,7 +1271,7 @@ GIT_INLINE(int) merge_diff_detect_binary(
 	}
 
 	if (!binary &&
-		GIT_MERGE_INDEX_ENTRY_ISFILE(conflict->our_entry)) {
+	    GIT_MERGE_INDEX_ENTRY_ISFILE(conflict->our_entry)) {
 		if ((error = git_blob_lookup(&our_blob, repo, &conflict->our_entry.id)) < 0)
 			goto done;
 
@@ -1339,7 +1279,7 @@ GIT_INLINE(int) merge_diff_detect_binary(
 	}
 
 	if (!binary &&
-		GIT_MERGE_INDEX_ENTRY_ISFILE(conflict->their_entry)) {
+	    GIT_MERGE_INDEX_ENTRY_ISFILE(conflict->their_entry)) {
 		if ((error = git_blob_lookup(&their_blob, repo, &conflict->their_entry.id)) < 0)
 			goto done;
 
@@ -1347,19 +1287,17 @@ GIT_INLINE(int) merge_diff_detect_binary(
 	}
 
 	*binary_out = binary;
-
 done:
 	git_blob_free(ancestor_blob);
 	git_blob_free(our_blob);
 	git_blob_free(their_blob);
-
 	return error;
 }
 
 GIT_INLINE(int) index_entry_dup_pool(
-	git_index_entry *out,
-	git_pool *pool,
-	const git_index_entry *src)
+    git_index_entry *out,
+    git_pool *pool,
+    const git_index_entry *src)
 {
 	if (src != NULL) {
 		memcpy(out, src, sizeof(git_index_entry));
@@ -1372,8 +1310,8 @@ GIT_INLINE(int) index_entry_dup_pool(
 }
 
 GIT_INLINE(int) merge_delta_type_from_index_entries(
-	const git_index_entry *ancestor,
-	const git_index_entry *other)
+    const git_index_entry *ancestor,
+    const git_index_entry *other)
 {
 	if (ancestor == NULL && other == NULL)
 		return GIT_DELTA_UNMODIFIED;
@@ -1383,18 +1321,18 @@ GIT_INLINE(int) merge_delta_type_from_index_entries(
 		return GIT_DELTA_DELETED;
 	else if (S_ISDIR(ancestor->mode) ^ S_ISDIR(other->mode))
 		return GIT_DELTA_TYPECHANGE;
-	else if(S_ISLNK(ancestor->mode) ^ S_ISLNK(other->mode))
+	else if (S_ISLNK(ancestor->mode) ^ S_ISLNK(other->mode))
 		return GIT_DELTA_TYPECHANGE;
 	else if (git_oid__cmp(&ancestor->id, &other->id) ||
-			 ancestor->mode != other->mode)
+	         ancestor->mode != other->mode)
 		return GIT_DELTA_MODIFIED;
 
 	return GIT_DELTA_UNMODIFIED;
 }
 
 static git_merge_diff *merge_diff_from_index_entries(
-	git_merge_diff_list *diff_list,
-	const git_index_entry **entries)
+    git_merge_diff_list *diff_list,
+    const git_index_entry **entries)
 {
 	git_merge_diff *conflict;
 	git_pool *pool = &diff_list->pool;
@@ -1403,43 +1341,41 @@ static git_merge_diff *merge_diff_from_index_entries(
 		return NULL;
 
 	if (index_entry_dup_pool(&conflict->ancestor_entry, pool, entries[TREE_IDX_ANCESTOR]) < 0 ||
-		index_entry_dup_pool(&conflict->our_entry, pool, entries[TREE_IDX_OURS]) < 0 ||
-		index_entry_dup_pool(&conflict->their_entry, pool, entries[TREE_IDX_THEIRS]) < 0)
+	    index_entry_dup_pool(&conflict->our_entry, pool, entries[TREE_IDX_OURS]) < 0 ||
+	    index_entry_dup_pool(&conflict->their_entry, pool, entries[TREE_IDX_THEIRS]) < 0)
 		return NULL;
 
 	conflict->our_status = merge_delta_type_from_index_entries(
-		entries[TREE_IDX_ANCESTOR], entries[TREE_IDX_OURS]);
+	                           entries[TREE_IDX_ANCESTOR], entries[TREE_IDX_OURS]);
 	conflict->their_status = merge_delta_type_from_index_entries(
-		entries[TREE_IDX_ANCESTOR], entries[TREE_IDX_THEIRS]);
-
+	                             entries[TREE_IDX_ANCESTOR], entries[TREE_IDX_THEIRS]);
 	return conflict;
 }
 
 /* Merge trees */
 
 static int merge_diff_list_insert_conflict(
-	git_merge_diff_list *diff_list,
-	struct merge_diff_df_data *merge_df_data,
-	const git_index_entry *tree_items[3])
+    git_merge_diff_list *diff_list,
+    struct merge_diff_df_data *merge_df_data,
+    const git_index_entry *tree_items[3])
 {
 	git_merge_diff *conflict;
 
 	if ((conflict = merge_diff_from_index_entries(diff_list, tree_items)) == NULL ||
-		merge_diff_detect_type(conflict) < 0 ||
-		merge_diff_detect_df_conflict(merge_df_data, conflict) < 0 ||
-		git_vector_insert(&diff_list->conflicts, conflict) < 0)
+	    merge_diff_detect_type(conflict) < 0 ||
+	    merge_diff_detect_df_conflict(merge_df_data, conflict) < 0 ||
+	    git_vector_insert(&diff_list->conflicts, conflict) < 0)
 		return -1;
 
 	return 0;
 }
 
 static int merge_diff_list_insert_unmodified(
-	git_merge_diff_list *diff_list,
-	const git_index_entry *tree_items[3])
+    git_merge_diff_list *diff_list,
+    const git_index_entry *tree_items[3])
 {
 	int error = 0;
 	git_index_entry *entry;
-
 	entry = git_pool_malloc(&diff_list->pool, sizeof(git_index_entry));
 	GITERR_CHECK_ALLOC(entry);
 
@@ -1450,10 +1386,10 @@ static int merge_diff_list_insert_unmodified(
 }
 
 int git_merge_diff_list__find_differences(
-	git_merge_diff_list *diff_list,
-	const git_tree *ancestor_tree,
-	const git_tree *our_tree,
-	const git_tree *their_tree)
+    git_merge_diff_list *diff_list,
+    const git_tree *ancestor_tree,
+    const git_tree *our_tree,
+    const git_tree *their_tree)
 {
 	git_iterator *iterators[3] = {0};
 	const git_index_entry *items[3] = {0}, *best_cur_item, *cur_items[3];
@@ -1462,12 +1398,11 @@ int git_merge_diff_list__find_differences(
 	int cur_item_modified;
 	size_t i, j;
 	int error = 0;
-
 	assert(diff_list && (our_tree || their_tree));
 
 	if ((error = git_iterator_for_tree(&iterators[TREE_IDX_ANCESTOR], (git_tree *)ancestor_tree, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL)) < 0 ||
-		(error = git_iterator_for_tree(&iterators[TREE_IDX_OURS], (git_tree *)our_tree, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL)) < 0 ||
-		(error = git_iterator_for_tree(&iterators[TREE_IDX_THEIRS], (git_tree *)their_tree, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL)) < 0)
+	    (error = git_iterator_for_tree(&iterators[TREE_IDX_OURS], (git_tree *)our_tree, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL)) < 0 ||
+	    (error = git_iterator_for_tree(&iterators[TREE_IDX_THEIRS], (git_tree *)their_tree, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL)) < 0)
 		goto done;
 
 	/* Set up the iterators */
@@ -1528,6 +1463,7 @@ int git_merge_diff_list__find_differences(
 			error = merge_diff_list_insert_conflict(diff_list, &df_data, cur_items);
 		else
 			error = merge_diff_list_insert_unmodified(diff_list, cur_items);
+
 		if (error < 0)
 			goto done;
 
@@ -1544,6 +1480,7 @@ int git_merge_diff_list__find_differences(
 	}
 
 done:
+
 	for (i = 0; i < 3; i++)
 		git_iterator_free(iterators[i]);
 
@@ -1563,9 +1500,9 @@ git_merge_diff_list *git_merge_diff_list__alloc(git_repository *repo)
 	diff_list->repo = repo;
 
 	if (git_vector_init(&diff_list->staged, 0, NULL) < 0 ||
-		git_vector_init(&diff_list->conflicts, 0, NULL) < 0 ||
-		git_vector_init(&diff_list->resolved, 0, NULL) < 0 ||
-		git_pool_init(&diff_list->pool, 1, 0) < 0) {
+	    git_vector_init(&diff_list->conflicts, 0, NULL) < 0 ||
+	    git_vector_init(&diff_list->resolved, 0, NULL) < 0 ||
+	    git_pool_init(&diff_list->pool, 1, 0) < 0) {
 		git_merge_diff_list__free(diff_list);
 		return NULL;
 	}
@@ -1586,13 +1523,12 @@ void git_merge_diff_list__free(git_merge_diff_list *diff_list)
 }
 
 static int merge_normalize_opts(
-	git_repository *repo,
-	git_merge_options *opts,
-	const git_merge_options *given)
+    git_repository *repo,
+    git_merge_options *opts,
+    const git_merge_options *given)
 {
 	git_config *cfg = NULL;
 	int error = 0;
-
 	assert(repo && opts);
 
 	if ((error = git_repository_config__weakptr(&cfg, repo)) < 0)
@@ -1603,7 +1539,6 @@ static int merge_normalize_opts(
 	else {
 		git_merge_options init = GIT_MERGE_OPTIONS_INIT;
 		memcpy(opts, &init, sizeof(init));
-
 		opts->tree_flags = GIT_MERGE_TREE_FIND_RENAMES;
 		opts->rename_threshold = GIT_MERGE_TREE_RENAME_THRESHOLD;
 	}
@@ -1615,14 +1550,13 @@ static int merge_normalize_opts(
 			limit = git_config__get_int_force(cfg, "diff.renamelimit", 0);
 
 		opts->target_limit = (limit <= 0) ?
-			GIT_MERGE_TREE_TARGET_LIMIT : (unsigned int)limit;
+		                     GIT_MERGE_TREE_TARGET_LIMIT : (unsigned int)limit;
 	}
 
 	/* assign the internal metric with whitespace flag as payload */
 	if (!opts->metric) {
 		opts->metric = git__malloc(sizeof(git_diff_similarity_metric));
 		GITERR_CHECK_ALLOC(opts->metric);
-
 		opts->metric->file_signature = git_diff_find_similar__hashsig_for_file;
 		opts->metric->buffer_signature = git_diff_find_similar__hashsig_for_buf;
 		opts->metric->free_signature = git_diff_find_similar__hashsig_free;
@@ -1635,9 +1569,9 @@ static int merge_normalize_opts(
 
 
 static int merge_index_insert_reuc(
-	git_index *index,
-	size_t idx,
-	const git_index_entry *entry)
+    git_index *index,
+    size_t idx,
+    const git_index_entry *entry)
 {
 	const git_index_reuc_entry *reuc;
 	int mode[3] = { 0, 0, 0 };
@@ -1656,9 +1590,8 @@ static int merge_index_insert_reuc(
 
 	mode[idx] = entry->mode;
 	oid[idx] = &entry->id;
-
 	return git_index_reuc_add(index, entry->path,
-		mode[0], oid[0], mode[1], oid[1], mode[2], oid[2]);
+	                          mode[0], oid[0], mode[1], oid[1], mode[2], oid[2]);
 }
 
 int index_from_diff_list(git_index **out, git_merge_diff_list *diff_list)
@@ -1668,7 +1601,6 @@ int index_from_diff_list(git_index **out, git_merge_diff_list *diff_list)
 	git_index_entry *entry;
 	git_merge_diff *conflict;
 	int error = 0;
-
 	*out = NULL;
 
 	if ((error = git_index_new(&index)) < 0)
@@ -1678,24 +1610,20 @@ int index_from_diff_list(git_index **out, git_merge_diff_list *diff_list)
 		if ((error = git_index_add(index, entry)) < 0)
 			goto on_error;
 	}
-
 	git_vector_foreach(&diff_list->conflicts, i, conflict) {
 		const git_index_entry *ancestor =
-			GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->ancestor_entry) ?
-			&conflict->ancestor_entry : NULL;
-
+		    GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->ancestor_entry) ?
+		    &conflict->ancestor_entry : NULL;
 		const git_index_entry *ours =
-			GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry) ?
-			&conflict->our_entry : NULL;
-
+		    GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry) ?
+		    &conflict->our_entry : NULL;
 		const git_index_entry *theirs =
-			GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry) ?
-			&conflict->their_entry : NULL;
+		    GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry) ?
+		    &conflict->their_entry : NULL;
 
 		if ((error = git_index_conflict_add(index, ancestor, ours, theirs)) < 0)
 			goto on_error;
 	}
-
 	/* Add each rename entry to the rename portion of the index. */
 	git_vector_foreach(&diff_list->conflicts, i, conflict) {
 		const char *ancestor_path, *our_path, *their_path;
@@ -1704,66 +1632,58 @@ int index_from_diff_list(git_index **out, git_merge_diff_list *diff_list)
 			continue;
 
 		ancestor_path = conflict->ancestor_entry.path;
-
 		our_path =
-			GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry) ?
-			conflict->our_entry.path : NULL;
-
+		    GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry) ?
+		    conflict->our_entry.path : NULL;
 		their_path =
-			GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry) ?
-			conflict->their_entry.path : NULL;
+		    GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry) ?
+		    conflict->their_entry.path : NULL;
 
 		if ((our_path && strcmp(ancestor_path, our_path) != 0) ||
-			(their_path && strcmp(ancestor_path, their_path) != 0)) {
+		    (their_path && strcmp(ancestor_path, their_path) != 0)) {
 			if ((error = git_index_name_add(index, ancestor_path, our_path, their_path)) < 0)
 				goto on_error;
 		}
 	}
-
 	/* Add each entry in the resolved conflict to the REUC independently, since
 	 * the paths may differ due to renames. */
 	git_vector_foreach(&diff_list->resolved, i, conflict) {
 		const git_index_entry *ancestor =
-			GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->ancestor_entry) ?
-			&conflict->ancestor_entry : NULL;
-
+		    GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->ancestor_entry) ?
+		    &conflict->ancestor_entry : NULL;
 		const git_index_entry *ours =
-			GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry) ?
-			&conflict->our_entry : NULL;
-
+		    GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->our_entry) ?
+		    &conflict->our_entry : NULL;
 		const git_index_entry *theirs =
-			GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry) ?
-			&conflict->their_entry : NULL;
+		    GIT_MERGE_INDEX_ENTRY_EXISTS(conflict->their_entry) ?
+		    &conflict->their_entry : NULL;
 
 		if (ancestor != NULL &&
-			(error = merge_index_insert_reuc(index, TREE_IDX_ANCESTOR, ancestor)) < 0)
+		    (error = merge_index_insert_reuc(index, TREE_IDX_ANCESTOR, ancestor)) < 0)
 			goto on_error;
 
 		if (ours != NULL &&
-			(error = merge_index_insert_reuc(index, TREE_IDX_OURS, ours)) < 0)
+		    (error = merge_index_insert_reuc(index, TREE_IDX_OURS, ours)) < 0)
 			goto on_error;
 
 		if (theirs != NULL &&
-			(error = merge_index_insert_reuc(index, TREE_IDX_THEIRS, theirs)) < 0)
+		    (error = merge_index_insert_reuc(index, TREE_IDX_THEIRS, theirs)) < 0)
 			goto on_error;
 	}
-
 	*out = index;
 	return 0;
-
 on_error:
 	git_index_free(index);
-
 	return error;
 }
 
 int git_merge_trees(
-	git_index **out,
-	git_repository *repo,
-	const git_tree *ancestor_tree,
-	const git_tree *our_tree,
-	const git_tree *their_tree,
-	const git_merge_options *given_opts)
+    git_index **out,
+    git_repository *repo,
+    const git_tree *ancestor_tree,
+    const git_tree *our_tree,
+    const git_tree *their_tree,
+    const git_merge_options *given_opts)
 {
 	git_merge_diff_list *diff_list;
 	git_merge_options opts;
@@ -1771,11 +1691,8 @@ int git_merge_trees(
 	git_vector changes;
 	size_t i;
 	int error = 0;
-
 	assert(out && repo && (our_tree || their_tree));
-
 	*out = NULL;
-
 	GITERR_CHECK_VERSION(given_opts, GIT_MERGE_OPTIONS_VERSION, "git_merge_options");
 
 	if ((error = merge_normalize_opts(repo, &opts, given_opts)) < 0)
@@ -1785,12 +1702,11 @@ int git_merge_trees(
 	GITERR_CHECK_ALLOC(diff_list);
 
 	if ((error = git_merge_diff_list__find_differences(diff_list, ancestor_tree, our_tree, their_tree)) < 0 ||
-		(error = git_merge_diff_list__find_renames(repo, diff_list, &opts)) < 0)
+	    (error = git_merge_diff_list__find_renames(repo, diff_list, &opts)) < 0)
 		goto done;
 
 	memcpy(&changes, &diff_list->conflicts, sizeof(git_vector));
 	git_vector_clear(&diff_list->conflicts);
-
 	git_vector_foreach(&changes, i, conflict) {
 		int resolved = 0;
 
@@ -1805,19 +1721,17 @@ int git_merge_trees(
 		git__free(opts.metric);
 
 	error = index_from_diff_list(out, diff_list);
-
 done:
 	git_merge_diff_list__free(diff_list);
-
 	return error;
 }
 
 int git_merge_commits(
-	git_index **out,
-	git_repository *repo,
-	const git_commit *our_commit,
-	const git_commit *their_commit,
-	const git_merge_options *opts)
+    git_index **out,
+    git_repository *repo,
+    const git_commit *our_commit,
+    const git_commit *their_commit,
+    const git_merge_options *opts)
 {
 	git_oid ancestor_oid;
 	git_commit *ancestor_commit = NULL;
@@ -1825,16 +1739,16 @@ int git_merge_commits(
 	int error = 0;
 
 	if ((error = git_merge_base(&ancestor_oid, repo, git_commit_id(our_commit), git_commit_id(their_commit))) < 0 &&
-		error == GIT_ENOTFOUND)
+	    error == GIT_ENOTFOUND)
 		giterr_clear();
 	else if (error < 0 ||
-		(error = git_commit_lookup(&ancestor_commit, repo, &ancestor_oid)) < 0 ||
-		(error = git_commit_tree(&ancestor_tree, ancestor_commit)) < 0)
+	         (error = git_commit_lookup(&ancestor_commit, repo, &ancestor_oid)) < 0 ||
+	         (error = git_commit_tree(&ancestor_tree, ancestor_commit)) < 0)
 		goto done;
 
 	if ((error = git_commit_tree(&our_tree, our_commit)) < 0 ||
-		(error = git_commit_tree(&their_tree, their_commit)) < 0 ||
-		(error = git_merge_trees(out, repo, ancestor_tree, our_tree, their_tree, opts)) < 0)
+	    (error = git_commit_tree(&their_tree, their_commit)) < 0 ||
+	    (error = git_merge_trees(out, repo, ancestor_tree, our_tree, their_tree, opts)) < 0)
 		goto done;
 
 done:
@@ -1842,26 +1756,24 @@ done:
 	git_tree_free(our_tree);
 	git_tree_free(their_tree);
 	git_tree_free(ancestor_tree);
-
 	return error;
 }
 
 /* Merge setup / cleanup */
 
 static int write_merge_head(
-	git_repository *repo,
-	const git_annotated_commit *heads[],
-	size_t heads_len)
+    git_repository *repo,
+    const git_annotated_commit *heads[],
+    size_t heads_len)
 {
 	git_filebuf file = GIT_FILEBUF_INIT;
 	git_buf file_path = GIT_BUF_INIT;
 	size_t i;
 	int error = 0;
-
 	assert(repo && heads);
 
 	if ((error = git_buf_joinpath(&file_path, repo->path_repository, GIT_MERGE_HEAD_FILE)) < 0 ||
-		(error = git_filebuf_open(&file, file_path.ptr, GIT_FILEBUF_FORCE, GIT_MERGE_FILE_MODE)) < 0)
+	    (error = git_filebuf_open(&file, file_path.ptr, GIT_FILEBUF_FORCE, GIT_MERGE_FILE_MODE)) < 0)
 		goto cleanup;
 
 	for (i = 0; i < heads_len; i++) {
@@ -1870,13 +1782,12 @@ static int write_merge_head(
 	}
 
 	error = git_filebuf_commit(&file);
-
 cleanup:
+
 	if (error < 0)
 		git_filebuf_cleanup(&file);
 
 	git_buf_free(&file_path);
-
 	return error;
 }
 
@@ -1885,24 +1796,22 @@ static int write_merge_mode(git_repository *repo)
 	git_filebuf file = GIT_FILEBUF_INIT;
 	git_buf file_path = GIT_BUF_INIT;
 	int error = 0;
-
 	assert(repo);
 
 	if ((error = git_buf_joinpath(&file_path, repo->path_repository, GIT_MERGE_MODE_FILE)) < 0 ||
-		(error = git_filebuf_open(&file, file_path.ptr, GIT_FILEBUF_FORCE, GIT_MERGE_FILE_MODE)) < 0)
+	    (error = git_filebuf_open(&file, file_path.ptr, GIT_FILEBUF_FORCE, GIT_MERGE_FILE_MODE)) < 0)
 		goto cleanup;
 
 	if ((error = git_filebuf_write(&file, "no-ff", 5)) < 0)
 		goto cleanup;
 
 	error = git_filebuf_commit(&file);
-
 cleanup:
+
 	if (error < 0)
 		git_filebuf_cleanup(&file);
 
 	git_buf_free(&file_path);
-
 	return error;
 }
 
@@ -1912,50 +1821,46 @@ struct merge_msg_entry {
 };
 
 static int msg_entry_is_branch(
-	const struct merge_msg_entry *entry,
-	git_vector *entries)
+    const struct merge_msg_entry *entry,
+    git_vector *entries)
 {
 	GIT_UNUSED(entries);
-
 	return (entry->written == 0 &&
-		entry->merge_head->remote_url == NULL &&
-		entry->merge_head->ref_name != NULL &&
-		git__strncmp(GIT_REFS_HEADS_DIR, entry->merge_head->ref_name, strlen(GIT_REFS_HEADS_DIR)) == 0);
+	        entry->merge_head->remote_url == NULL &&
+	        entry->merge_head->ref_name != NULL &&
+	        git__strncmp(GIT_REFS_HEADS_DIR, entry->merge_head->ref_name, strlen(GIT_REFS_HEADS_DIR)) == 0);
 }
 
 static int msg_entry_is_tracking(
-	const struct merge_msg_entry *entry,
-	git_vector *entries)
+    const struct merge_msg_entry *entry,
+    git_vector *entries)
 {
 	GIT_UNUSED(entries);
-
 	return (entry->written == 0 &&
-		entry->merge_head->remote_url == NULL &&
-		entry->merge_head->ref_name != NULL &&
-		git__strncmp(GIT_REFS_REMOTES_DIR, entry->merge_head->ref_name, strlen(GIT_REFS_REMOTES_DIR)) == 0);
+	        entry->merge_head->remote_url == NULL &&
+	        entry->merge_head->ref_name != NULL &&
+	        git__strncmp(GIT_REFS_REMOTES_DIR, entry->merge_head->ref_name, strlen(GIT_REFS_REMOTES_DIR)) == 0);
 }
 
 static int msg_entry_is_tag(
-	const struct merge_msg_entry *entry,
-	git_vector *entries)
+    const struct merge_msg_entry *entry,
+    git_vector *entries)
 {
 	GIT_UNUSED(entries);
-
 	return (entry->written == 0 &&
-		entry->merge_head->remote_url == NULL &&
-		entry->merge_head->ref_name != NULL &&
-		git__strncmp(GIT_REFS_TAGS_DIR, entry->merge_head->ref_name, strlen(GIT_REFS_TAGS_DIR)) == 0);
+	        entry->merge_head->remote_url == NULL &&
+	        entry->merge_head->ref_name != NULL &&
+	        git__strncmp(GIT_REFS_TAGS_DIR, entry->merge_head->ref_name, strlen(GIT_REFS_TAGS_DIR)) == 0);
 }
 
 static int msg_entry_is_remote(
-	const struct merge_msg_entry *entry,
-	git_vector *entries)
+    const struct merge_msg_entry *entry,
+    git_vector *entries)
 {
 	if (entry->written == 0 &&
-		entry->merge_head->remote_url != NULL &&
-		entry->merge_head->ref_name != NULL &&
-		git__strncmp(GIT_REFS_HEADS_DIR, entry->merge_head->ref_name, strlen(GIT_REFS_HEADS_DIR)) == 0)
-	{
+	    entry->merge_head->remote_url != NULL &&
+	    entry->merge_head->ref_name != NULL &&
+	    git__strncmp(GIT_REFS_HEADS_DIR, entry->merge_head->ref_name, strlen(GIT_REFS_HEADS_DIR)) == 0) {
 		struct merge_msg_entry *existing;
 
 		/* Match only branches from the same remote */
@@ -1963,37 +1868,35 @@ static int msg_entry_is_remote(
 			return 1;
 
 		existing = git_vector_get(entries, 0);
-
 		return (git__strcmp(existing->merge_head->remote_url,
-			entry->merge_head->remote_url) == 0);
+		                    entry->merge_head->remote_url) == 0);
 	}
 
 	return 0;
 }
 
 static int msg_entry_is_oid(
-	const struct merge_msg_entry *merge_msg_entry)
+    const struct merge_msg_entry *merge_msg_entry)
 {
 	return (merge_msg_entry->written == 0 &&
-		merge_msg_entry->merge_head->ref_name == NULL &&
-		merge_msg_entry->merge_head->remote_url == NULL);
+	        merge_msg_entry->merge_head->ref_name == NULL &&
+	        merge_msg_entry->merge_head->remote_url == NULL);
 }
 
 static int merge_msg_entry_written(
-	const struct merge_msg_entry *merge_msg_entry)
+    const struct merge_msg_entry *merge_msg_entry)
 {
 	return (merge_msg_entry->written == 1);
 }
 
 static int merge_msg_entries(
-	git_vector *v,
-	const struct merge_msg_entry *entries,
-	size_t len,
-	int (*match)(const struct merge_msg_entry *entry, git_vector *entries))
+    git_vector *v,
+    const struct merge_msg_entry *entries,
+    size_t len,
+    int (*match)(const struct merge_msg_entry *entry, git_vector *entries))
 {
 	size_t i;
 	int matches, total = 0;
-
 	git_vector_clear(v);
 
 	for (i = 0; i < len; i++) {
@@ -2010,13 +1913,13 @@ static int merge_msg_entries(
 }
 
 static int merge_msg_write_entries(
-	git_filebuf *file,
-	git_vector *entries,
-	const char *item_name,
-	const char *item_plural_name,
-	size_t ref_name_skip,
-	const char *source,
-	char sep)
+    git_filebuf *file,
+    git_vector *entries,
+    const char *item_name,
+    const char *item_plural_name,
+    size_t ref_name_skip,
+    const char *source,
+    char sep)
 {
 	struct merge_msg_entry *entry;
 	size_t i;
@@ -2029,12 +1932,12 @@ static int merge_msg_write_entries(
 		goto done;
 
 	if ((error = git_filebuf_printf(file, "%s ",
-		(entries->length == 1) ? item_name : item_plural_name)) < 0)
+	                                (entries->length == 1) ? item_name : item_plural_name)) < 0)
 		goto done;
 
 	git_vector_foreach(entries, i, entry) {
 		if (i > 0 &&
-			(error = git_filebuf_printf(file, "%s", (i == entries->length - 1) ? " and " : ", ")) < 0)
+		    (error = git_filebuf_printf(file, "%s", (i == entries->length - 1) ? " and " : ", ")) < 0)
 			goto done;
 
 		if ((error = git_filebuf_printf(file, "'%s'", entry->merge_head->ref_name + ref_name_skip)) < 0)
@@ -2051,36 +1954,36 @@ done:
 }
 
 static int merge_msg_write_branches(
-	git_filebuf *file,
-	git_vector *entries,
-	char sep)
+    git_filebuf *file,
+    git_vector *entries,
+    char sep)
 {
 	return merge_msg_write_entries(file, entries,
-		"branch", "branches", strlen(GIT_REFS_HEADS_DIR), NULL, sep);
+	                               "branch", "branches", strlen(GIT_REFS_HEADS_DIR), NULL, sep);
 }
 
 static int merge_msg_write_tracking(
-	git_filebuf *file,
-	git_vector *entries,
-	char sep)
+    git_filebuf *file,
+    git_vector *entries,
+    char sep)
 {
 	return merge_msg_write_entries(file, entries,
-		"remote-tracking branch", "remote-tracking branches", 0, NULL, sep);
+	                               "remote-tracking branch", "remote-tracking branches", 0, NULL, sep);
 }
 
 static int merge_msg_write_tags(
-	git_filebuf *file,
-	git_vector *entries,
-	char sep)
+    git_filebuf *file,
+    git_vector *entries,
+    char sep)
 {
 	return merge_msg_write_entries(file, entries,
-		"tag", "tags", strlen(GIT_REFS_TAGS_DIR), NULL, sep);
+	                               "tag", "tags", strlen(GIT_REFS_TAGS_DIR), NULL, sep);
 }
 
 static int merge_msg_write_remotes(
-	git_filebuf *file,
-	git_vector *entries,
-	char sep)
+    git_filebuf *file,
+    git_vector *entries,
+    char sep)
 {
 	const char *source;
 
@@ -2088,15 +1991,14 @@ static int merge_msg_write_remotes(
 		return 0;
 
 	source = ((struct merge_msg_entry *)entries->contents[0])->merge_head->remote_url;
-
 	return merge_msg_write_entries(file, entries,
-		"branch", "branches", strlen(GIT_REFS_HEADS_DIR), source, sep);
+	                               "branch", "branches", strlen(GIT_REFS_HEADS_DIR), source, sep);
 }
 
 static int write_merge_msg(
-	git_repository *repo,
-	const git_annotated_commit *heads[],
-	size_t heads_len)
+    git_repository *repo,
+    const git_annotated_commit *heads[],
+    size_t heads_len)
 {
 	git_filebuf file = GIT_FILEBUF_INIT;
 	git_buf file_path = GIT_BUF_INIT;
@@ -2105,11 +2007,9 @@ static int write_merge_msg(
 	size_t i;
 	char sep = 0;
 	int error = 0;
-
 	assert(repo && heads);
-
 	entries = git__calloc(heads_len, sizeof(struct merge_msg_entry));
-	GITERR_CHECK_ALLOC(entries); 
+	GITERR_CHECK_ALLOC(entries);
 
 	if (git_vector_init(&matching, heads_len, NULL) < 0) {
 		git__free(entries);
@@ -2120,8 +2020,8 @@ static int write_merge_msg(
 		entries[i].merge_head = heads[i];
 
 	if ((error = git_buf_joinpath(&file_path, repo->path_repository, GIT_MERGE_MSG_FILE)) < 0 ||
-		(error = git_filebuf_open(&file, file_path.ptr, GIT_FILEBUF_FORCE, GIT_MERGE_FILE_MODE)) < 0 ||
-		(error = git_filebuf_write(&file, "Merge ", 6)) < 0)
+	    (error = git_filebuf_open(&file, file_path.ptr, GIT_FILEBUF_FORCE, GIT_MERGE_FILE_MODE)) < 0 ||
+	    (error = git_filebuf_write(&file, "Merge ", 6)) < 0)
 		goto cleanup;
 
 	/*
@@ -2140,8 +2040,8 @@ static int write_merge_msg(
 			break;
 
 		if ((error = git_filebuf_printf(&file,
-			"%scommit '%s'", (i > 0) ? "; " : "",
-			entries[i].merge_head->id_str)) < 0)
+		                                "%scommit '%s'", (i > 0) ? "; " : "",
+		                                entries[i].merge_head->id_str)) < 0)
 			goto cleanup;
 
 		entries[i].written = 1;
@@ -2151,25 +2051,25 @@ static int write_merge_msg(
 		sep = ';';
 
 	if ((error = merge_msg_entries(&matching, entries, heads_len, msg_entry_is_branch)) < 0 ||
-		(error = merge_msg_write_branches(&file, &matching, sep)) < 0)
+	    (error = merge_msg_write_branches(&file, &matching, sep)) < 0)
 		goto cleanup;
 
 	if (matching.length)
-		sep =',';
+		sep = ',';
 
 	if ((error = merge_msg_entries(&matching, entries, heads_len, msg_entry_is_tracking)) < 0 ||
-		(error = merge_msg_write_tracking(&file, &matching, sep)) < 0)
+	    (error = merge_msg_write_tracking(&file, &matching, sep)) < 0)
 		goto cleanup;
 
 	if (matching.length)
-		sep =',';
-	
+		sep = ',';
+
 	if ((error = merge_msg_entries(&matching, entries, heads_len, msg_entry_is_tag)) < 0 ||
-		(error = merge_msg_write_tags(&file, &matching, sep)) < 0)
+	    (error = merge_msg_write_tags(&file, &matching, sep)) < 0)
 		goto cleanup;
 
 	if (matching.length)
-		sep =',';
+		sep = ',';
 
 	/* We should never be called with multiple remote branches, but handle
 	 * it in case we are... */
@@ -2178,7 +2078,7 @@ static int write_merge_msg(
 			goto cleanup;
 
 		if (matching.length)
-			sep =',';
+			sep = ',';
 	}
 
 	if (error < 0)
@@ -2189,41 +2089,38 @@ static int write_merge_msg(
 			continue;
 
 		if ((error = git_filebuf_printf(&file, "; commit '%s'",
-			entries[i].merge_head->id_str)) < 0)
+		                                entries[i].merge_head->id_str)) < 0)
 			goto cleanup;
 	}
 
 	if ((error = git_filebuf_printf(&file, "\n")) < 0 ||
-		(error = git_filebuf_commit(&file)) < 0)
+	    (error = git_filebuf_commit(&file)) < 0)
 		goto cleanup;
 
 cleanup:
+
 	if (error < 0)
 		git_filebuf_cleanup(&file);
 
 	git_buf_free(&file_path);
-
 	git_vector_free(&matching);
 	git__free(entries);
-
 	return error;
 }
 
 int git_merge__setup(
-	git_repository *repo,
-	const git_annotated_commit *our_head,
-	const git_annotated_commit *heads[],
-	size_t heads_len)
+    git_repository *repo,
+    const git_annotated_commit *our_head,
+    const git_annotated_commit *heads[],
+    size_t heads_len)
 {
 	int error = 0;
-
 	assert (repo && our_head && heads);
 
 	if ((error = git_repository__set_orig_head(repo, git_annotated_commit_id(our_head))) == 0 &&
-		(error = write_merge_head(repo, heads, heads_len)) == 0 &&
-		(error = write_merge_mode(repo)) == 0) {
+	    (error = write_merge_head(repo, heads, heads_len)) == 0 &&
+	    (error = write_merge_mode(repo)) == 0)
 		error = write_merge_msg(repo, heads, heads_len);
-	}
 
 	return error;
 }
@@ -2231,22 +2128,19 @@ int git_merge__setup(
 /* Merge branches */
 
 static int merge_ancestor_head(
-	git_annotated_commit **ancestor_head,
-	git_repository *repo,
-	const git_annotated_commit *our_head,
-	const git_annotated_commit **their_heads,
-	size_t their_heads_len)
+    git_annotated_commit **ancestor_head,
+    git_repository *repo,
+    const git_annotated_commit *our_head,
+    const git_annotated_commit **their_heads,
+    size_t their_heads_len)
 {
 	git_oid *oids, ancestor_oid;
 	size_t i, alloc_len;
 	int error = 0;
-
 	assert(repo && our_head && their_heads);
-
 	GITERR_CHECK_ALLOC_ADD(&alloc_len, their_heads_len, 1);
 	oids = git__calloc(alloc_len, sizeof(git_oid));
 	GITERR_CHECK_ALLOC(oids);
-
 	git_oid_cpy(&oids[0], git_commit_id(our_head->commit));
 
 	for (i = 0; i < their_heads_len; i++)
@@ -2256,7 +2150,6 @@ static int merge_ancestor_head(
 		goto on_error;
 
 	error = git_annotated_commit_lookup(ancestor_head, repo, &ancestor_oid);
-
 on_error:
 	git__free(oids);
 	return error;
@@ -2269,23 +2162,22 @@ const char *merge_their_label(const char *branchname)
 	if ((slash = strrchr(branchname, '/')) == NULL)
 		return branchname;
 
-	if (*(slash+1) == '\0')
+	if (*(slash + 1) == '\0')
 		return "theirs";
 
-	return slash+1;
+	return slash + 1;
 }
 
 static int merge_normalize_checkout_opts(
-	git_repository *repo,
-	git_checkout_options *checkout_opts,
-	const git_checkout_options *given_checkout_opts,
-	const git_annotated_commit *ancestor_head,
-	const git_annotated_commit *our_head,
-	size_t their_heads_len,
-	const git_annotated_commit **their_heads)
+    git_repository *repo,
+    git_checkout_options *checkout_opts,
+    const git_checkout_options *given_checkout_opts,
+    const git_annotated_commit *ancestor_head,
+    const git_annotated_commit *our_head,
+    size_t their_heads_len,
+    const git_annotated_commit **their_heads)
 {
 	int error = 0;
-
 	GIT_UNUSED(repo);
 
 	if (given_checkout_opts != NULL)
@@ -2293,7 +2185,6 @@ static int merge_normalize_checkout_opts(
 	else {
 		git_checkout_options default_checkout_opts = GIT_CHECKOUT_OPTIONS_INIT;
 		default_checkout_opts.checkout_strategy =  GIT_CHECKOUT_SAFE;
-
 		memcpy(checkout_opts, &default_checkout_opts, sizeof(git_checkout_options));
 	}
 
@@ -2335,9 +2226,7 @@ static int merge_check_index(size_t *conflicts, git_repository *repo, git_index 
 	git_vector staged_paths = GIT_VECTOR_INIT;
 	size_t i;
 	int error = 0;
-
 	GIT_UNUSED(merged_paths);
-
 	*conflicts = 0;
 
 	/* No staged changes may exist unless the change staged is identical to
@@ -2346,8 +2235,8 @@ static int merge_check_index(size_t *conflicts, git_repository *repo, git_index 
 	 * a reset merge.
 	 */
 	if ((error = git_repository_head_tree(&head_tree, repo)) < 0 ||
-		(error = git_repository_index(&index_repo, repo)) < 0 ||
-		(error = git_diff_tree_to_index(&staged_diff_list, repo, head_tree, index_repo, &opts)) < 0)
+	    (error = git_repository_index(&index_repo, repo)) < 0 ||
+	    (error = git_diff_tree_to_index(&staged_diff_list, repo, head_tree, index_repo, &opts)) < 0)
 		goto done;
 
 	if (staged_diff_list->deltas.length == 0)
@@ -2357,17 +2246,15 @@ static int merge_check_index(size_t *conflicts, git_repository *repo, git_index 
 		if ((error = git_vector_insert(&staged_paths, (char *)delta->new_file.path)) < 0)
 			goto done;
 	}
-
 	opts.pathspec.count = staged_paths.length;
 	opts.pathspec.strings = (char **)staged_paths.contents;
 
 	if ((error = git_iterator_for_index(&iter_repo, index_repo, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL)) < 0 ||
-		(error = git_iterator_for_index(&iter_new, index_new, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL)) < 0 ||
-		(error = git_diff__from_iterators(&index_diff_list, repo, iter_repo, iter_new, &opts)) < 0)
+	    (error = git_iterator_for_index(&iter_new, index_new, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL)) < 0 ||
+	    (error = git_diff__from_iterators(&index_diff_list, repo, iter_repo, iter_new, &opts)) < 0)
 		goto done;
 
 	*conflicts = index_diff_list->deltas.length;
-
 done:
 	git_tree_free(head_tree);
 	git_index_free(index_repo);
@@ -2376,7 +2263,6 @@ done:
 	git_diff_free(staged_diff_list);
 	git_diff_free(index_diff_list);
 	git_vector_free(&staged_paths);
-
 	return error;
 }
 
@@ -2385,9 +2271,7 @@ static int merge_check_workdir(size_t *conflicts, git_repository *repo, git_inde
 	git_diff *wd_diff_list = NULL;
 	git_diff_options opts = GIT_DIFF_OPTIONS_INIT;
 	int error = 0;
-
 	GIT_UNUSED(index_new);
-
 	*conflicts = 0;
 
 	/* We need to have merged at least 1 file for the possibility to exist to
@@ -2401,7 +2285,6 @@ static int merge_check_workdir(size_t *conflicts, git_repository *repo, git_inde
 		return 0;
 
 	opts.flags |= GIT_DIFF_INCLUDE_UNTRACKED;
-
 	/* Workdir changes may exist iff they do not conflict with changes that
 	 * will be applied by the merge (including conflicts).  Ensure that there
 	 * are no changes in the workdir to these paths.
@@ -2413,10 +2296,8 @@ static int merge_check_workdir(size_t *conflicts, git_repository *repo, git_inde
 		goto done;
 
 	*conflicts = wd_diff_list->deltas.length;
-
 done:
 	git_diff_free(wd_diff_list);
-
 	return error;
 }
 
@@ -2433,9 +2314,9 @@ int git_merge__check_result(git_repository *repo, git_index *index_new)
 	int error = 0;
 
 	if ((error = git_repository_head_tree(&head_tree, repo)) < 0 ||
-		(error = git_iterator_for_tree(&iter_head, head_tree, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL)) < 0 ||
-		(error = git_iterator_for_index(&iter_new, index_new, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL)) < 0 ||
-		(error = git_diff__from_iterators(&merged_list, repo, iter_head, iter_new, &opts)) < 0)
+	    (error = git_iterator_for_tree(&iter_head, head_tree, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL)) < 0 ||
+	    (error = git_iterator_for_index(&iter_new, index_new, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL)) < 0 ||
+	    (error = git_diff__from_iterators(&merged_list, repo, iter_head, iter_new, &opts)) < 0)
 		goto done;
 
 	git_vector_foreach(&merged_list->deltas, i, delta) {
@@ -2447,9 +2328,8 @@ int git_merge__check_result(git_repository *repo, git_index *index_new)
 		e = git_index_get_byindex(index_new, i);
 
 		if (git_index_entry_stage(e) != 0 &&
-			(git_vector_last(&paths) == NULL ||
-			strcmp(git_vector_last(&paths), e->path) != 0)) {
-
+		    (git_vector_last(&paths) == NULL ||
+		     strcmp(git_vector_last(&paths), e->path) != 0)) {
 			if ((error = git_vector_insert(&paths, (char *)e->path)) < 0)
 				goto done;
 		}
@@ -2457,12 +2337,12 @@ int git_merge__check_result(git_repository *repo, git_index *index_new)
 
 	/* Make sure the index and workdir state do not prevent merging */
 	if ((error = merge_check_index(&index_conflicts, repo, index_new, &paths)) < 0 ||
-		(error = merge_check_workdir(&wd_conflicts, repo, index_new, &paths)) < 0)
+	    (error = merge_check_workdir(&wd_conflicts, repo, index_new, &paths)) < 0)
 		goto done;
 
 	if ((conflicts = index_conflicts + wd_conflicts) > 0) {
 		giterr_set(GITERR_MERGE, "%d uncommitted change%s would be overwritten by merge",
-			conflicts, (conflicts != 1) ? "s" : "");
+		           conflicts, (conflicts != 1) ? "s" : "");
 		error = GIT_EMERGECONFLICT;
 	}
 
@@ -2472,13 +2352,12 @@ done:
 	git_iterator_free(iter_head);
 	git_iterator_free(iter_new);
 	git_diff_free(merged_list);
-
 	return error;
 }
 
 int git_merge__append_conflicts_to_merge_msg(
-	git_repository *repo,
-	git_index *index)
+    git_repository *repo,
+    git_index *index)
 {
 	git_filebuf file = GIT_FILEBUF_INIT;
 	git_buf file_path = GIT_BUF_INIT;
@@ -2490,7 +2369,7 @@ int git_merge__append_conflicts_to_merge_msg(
 		return 0;
 
 	if ((error = git_buf_joinpath(&file_path, repo->path_repository, GIT_MERGE_MSG_FILE)) < 0 ||
-		(error = git_filebuf_open(&file, file_path.ptr, GIT_FILEBUF_APPEND, GIT_MERGE_FILE_MODE)) < 0)
+	    (error = git_filebuf_open(&file, file_path.ptr, GIT_FILEBUF_APPEND, GIT_MERGE_FILE_MODE)) < 0)
 		goto cleanup;
 
 	git_filebuf_printf(&file, "\nConflicts:\n");
@@ -2508,13 +2387,12 @@ int git_merge__append_conflicts_to_merge_msg(
 	}
 
 	error = git_filebuf_commit(&file);
-
 cleanup:
+
 	if (error < 0)
 		git_filebuf_cleanup(&file);
 
 	git_buf_free(&file_path);
-
 	return error;
 }
 
@@ -2525,21 +2403,19 @@ static int merge_state_cleanup(git_repository *repo)
 		GIT_MERGE_MODE_FILE,
 		GIT_MERGE_MSG_FILE,
 	};
-
 	return git_repository__cleanup_files(repo, state_files, ARRAY_SIZE(state_files));
 }
 
 static int merge_heads(
-	git_annotated_commit **ancestor_head_out,
-	git_annotated_commit **our_head_out,
-	git_repository *repo,
-	const git_annotated_commit **their_heads,
-	size_t their_heads_len)
+    git_annotated_commit **ancestor_head_out,
+    git_annotated_commit **our_head_out,
+    git_repository *repo,
+    const git_annotated_commit **their_heads,
+    size_t their_heads_len)
 {
 	git_annotated_commit *ancestor_head = NULL, *our_head = NULL;
 	git_reference *our_ref = NULL;
 	int error = 0;
-
 	*ancestor_head_out = NULL;
 	*our_head_out = NULL;
 
@@ -2547,7 +2423,7 @@ static int merge_heads(
 		goto done;
 
 	if ((error = git_reference_lookup(&our_ref, repo, GIT_HEAD_FILE)) < 0 ||
-		(error = git_annotated_commit_from_ref(&our_head, repo, our_ref)) < 0)
+	    (error = git_annotated_commit_from_ref(&our_head, repo, our_ref)) < 0)
 		goto done;
 
 	if ((error = merge_ancestor_head(&ancestor_head, repo, our_head, their_heads, their_heads_len)) < 0) {
@@ -2560,15 +2436,14 @@ static int merge_heads(
 
 	*ancestor_head_out = ancestor_head;
 	*our_head_out = our_head;
-
 done:
+
 	if (error < 0) {
 		git_annotated_commit_free(ancestor_head);
 		git_annotated_commit_free(our_head);
 	}
 
 	git_reference_free(our_ref);
-
 	return error;
 }
 
@@ -2577,7 +2452,6 @@ static int merge_preference(git_merge_preference_t *out, git_repository *repo)
 	git_config *config;
 	const char *value;
 	int bool_value, error = 0;
-
 	*out = GIT_MERGE_PREFERENCE_NONE;
 
 	if ((error = git_repository_config_snapshot(&config, repo)) < 0)
@@ -2606,15 +2480,14 @@ done:
 }
 
 int git_merge_analysis(
-	git_merge_analysis_t *analysis_out,
-	git_merge_preference_t *preference_out,
-	git_repository *repo,
-	const git_annotated_commit **their_heads,
-	size_t their_heads_len)
+    git_merge_analysis_t *analysis_out,
+    git_merge_preference_t *preference_out,
+    git_repository *repo,
+    const git_annotated_commit **their_heads,
+    size_t their_heads_len)
 {
 	git_annotated_commit *ancestor_head = NULL, *our_head = NULL;
 	int error = 0;
-
 	assert(analysis_out && preference_out && repo && their_heads);
 
 	if (their_heads_len != 1) {
@@ -2638,14 +2511,12 @@ int git_merge_analysis(
 
 	/* We're up-to-date if we're trying to merge our own common ancestor. */
 	if (ancestor_head && git_oid_equal(
-		git_annotated_commit_id(ancestor_head), git_annotated_commit_id(their_heads[0])))
+	        git_annotated_commit_id(ancestor_head), git_annotated_commit_id(their_heads[0])))
 		*analysis_out |= GIT_MERGE_ANALYSIS_UP_TO_DATE;
-
 	/* We're fastforwardable if we're our own common ancestor. */
 	else if (ancestor_head && git_oid_equal(
-		git_annotated_commit_id(ancestor_head), git_annotated_commit_id(our_head)))
+	             git_annotated_commit_id(ancestor_head), git_annotated_commit_id(our_head)))
 		*analysis_out |= GIT_MERGE_ANALYSIS_FASTFORWARD | GIT_MERGE_ANALYSIS_NORMAL;
-
 	/* Otherwise, just a normal merge is possible. */
 	else
 		*analysis_out |= GIT_MERGE_ANALYSIS_NORMAL;
@@ -2657,11 +2528,11 @@ done:
 }
 
 int git_merge(
-	git_repository *repo,
-	const git_annotated_commit **their_heads,
-	size_t their_heads_len,
-	const git_merge_options *merge_opts,
-	const git_checkout_options *given_checkout_opts)
+    git_repository *repo,
+    const git_annotated_commit **their_heads,
+    size_t their_heads_len,
+    const git_merge_options *merge_opts,
+    const git_checkout_options *given_checkout_opts)
 {
 	git_reference *our_ref = NULL;
 	git_checkout_options checkout_opts;
@@ -2671,7 +2542,6 @@ int git_merge(
 	git_indexwriter indexwriter = GIT_INDEXWRITER_INIT;
 	size_t i;
 	int error = 0;
-
 	assert(repo && their_heads);
 
 	if (their_heads_len != 1) {
@@ -2683,9 +2553,9 @@ int git_merge(
 	GITERR_CHECK_ALLOC(their_trees);
 
 	if ((error = merge_heads(&ancestor_head, &our_head, repo, their_heads, their_heads_len)) < 0 ||
-		(error = merge_normalize_checkout_opts(repo, &checkout_opts, given_checkout_opts,
-			ancestor_head, our_head, their_heads_len, their_heads)) < 0 ||
-		(error = git_indexwriter_init_for_operation(&indexwriter, repo, &checkout_opts.checkout_strategy)) < 0)
+	    (error = merge_normalize_checkout_opts(repo, &checkout_opts, given_checkout_opts,
+	             ancestor_head, our_head, their_heads_len, their_heads)) < 0 ||
+	    (error = git_indexwriter_init_for_operation(&indexwriter, repo, &checkout_opts.checkout_strategy)) < 0)
 		goto on_error;
 
 	/* Write the merge files to the repository. */
@@ -2693,8 +2563,8 @@ int git_merge(
 		goto on_error;
 
 	if (ancestor_head != NULL &&
-		(error = git_commit_tree(&ancestor_tree, ancestor_head->commit)) < 0)
-			goto on_error;
+	    (error = git_commit_tree(&ancestor_tree, ancestor_head->commit)) < 0)
+		goto on_error;
 
 	if ((error = git_commit_tree(&our_tree, our_head->commit)) < 0)
 		goto on_error;
@@ -2707,22 +2577,18 @@ int git_merge(
 	/* TODO: recursive, octopus, etc... */
 
 	if ((error = git_merge_trees(&index, repo, ancestor_tree, our_tree, their_trees[0], merge_opts)) < 0 ||
-		(error = git_merge__check_result(repo, index)) < 0 ||
-		(error = git_merge__append_conflicts_to_merge_msg(repo, index)) < 0 ||
-		(error = git_checkout_index(repo, index, &checkout_opts)) < 0 ||
-		(error = git_indexwriter_commit(&indexwriter)) < 0)
+	    (error = git_merge__check_result(repo, index)) < 0 ||
+	    (error = git_merge__append_conflicts_to_merge_msg(repo, index)) < 0 ||
+	    (error = git_checkout_index(repo, index, &checkout_opts)) < 0 ||
+	    (error = git_indexwriter_commit(&indexwriter)) < 0)
 		goto on_error;
 
 	goto done;
-
 on_error:
 	merge_state_cleanup(repo);
-
 done:
 	git_indexwriter_cleanup(&indexwriter);
-
 	git_index_free(index);
-
 	git_tree_free(ancestor_tree);
 	git_tree_free(our_tree);
 
@@ -2730,33 +2596,30 @@ done:
 		git_tree_free(their_trees[i]);
 
 	git__free(their_trees);
-
 	git_annotated_commit_free(our_head);
 	git_annotated_commit_free(ancestor_head);
-
 	git_reference_free(our_ref);
-
 	return error;
 }
 
 int git_merge_init_options(git_merge_options *opts, unsigned int version)
 {
 	GIT_INIT_STRUCTURE_FROM_TEMPLATE(
-		opts, version, git_merge_options, GIT_MERGE_OPTIONS_INIT);
+	    opts, version, git_merge_options, GIT_MERGE_OPTIONS_INIT);
 	return 0;
 }
 
 int git_merge_file_init_input(git_merge_file_input *input, unsigned int version)
 {
 	GIT_INIT_STRUCTURE_FROM_TEMPLATE(
-		input, version, git_merge_file_input, GIT_MERGE_FILE_INPUT_INIT);
+	    input, version, git_merge_file_input, GIT_MERGE_FILE_INPUT_INIT);
 	return 0;
 }
 
 int git_merge_file_init_options(
-	git_merge_file_options *opts, unsigned int version)
+    git_merge_file_options *opts, unsigned int version)
 {
 	GIT_INIT_STRUCTURE_FROM_TEMPLATE(
-		opts, version, git_merge_file_options, GIT_MERGE_FILE_OPTIONS_INIT);
+	    opts, version, git_merge_file_options, GIT_MERGE_FILE_OPTIONS_INIT);
 	return 0;
 }

@@ -154,7 +154,7 @@ typedef enum {
 
 	/** Include unreadable files in the diff */
 	GIT_DIFF_INCLUDE_UNREADABLE = (1u << 16),
-	
+
 	/** Include unreadable files in the diff */
 	GIT_DIFF_INCLUDE_UNREADABLE_AS_UNTRACKED = (1u << 17),
 
@@ -334,10 +334,10 @@ typedef struct {
  *		continues.
  */
 typedef int (*git_diff_notify_cb)(
-	const git_diff *diff_so_far,
-	const git_diff_delta *delta_to_add,
-	const char *matched_pathspec,
-	void *payload);
+    const git_diff *diff_so_far,
+    const git_diff_delta *delta_to_add,
+    const char *matched_pathspec,
+    void *payload);
 
 /**
  * Structure describing options about how the diff should be executed.
@@ -403,8 +403,8 @@ typedef struct {
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_diff_init_options(
-	git_diff_options *opts,
-	unsigned int version);
+    git_diff_options *opts,
+    unsigned int version);
 
 /**
  * When iterating over a diff, callback that will be made per file.
@@ -414,9 +414,9 @@ GIT_EXTERN(int) git_diff_init_options(
  * @param payload User-specified pointer from foreach function
  */
 typedef int (*git_diff_file_cb)(
-	const git_diff_delta *delta,
-	float progress,
-	void *payload);
+    const git_diff_delta *delta,
+    float progress,
+    void *payload);
 
 /**
  * Structure describing a hunk of a diff.
@@ -434,9 +434,9 @@ typedef struct {
  * When iterating over a diff, callback that will be made per hunk.
  */
 typedef int (*git_diff_hunk_cb)(
-	const git_diff_delta *delta,
-	const git_diff_hunk *hunk,
-	void *payload);
+    const git_diff_delta *delta,
+    const git_diff_hunk *hunk,
+    void *payload);
 
 /**
  * Line origin constants.
@@ -487,10 +487,10 @@ typedef struct {
  * of lines of file and hunk headers.
  */
 typedef int (*git_diff_line_cb)(
-	const git_diff_delta *delta, /**< delta that contains this data */
-	const git_diff_hunk *hunk,   /**< hunk containing this data */
-	const git_diff_line *line,   /**< line data */
-	void *payload);              /**< user reference data */
+    const git_diff_delta *delta, /**< delta that contains this data */
+    const git_diff_hunk *hunk,   /**< hunk containing this data */
+    const git_diff_line *line,   /**< line data */
+    void *payload);              /**< user reference data */
 
 /**
  * Flags to control the behavior of diff rename/copy detection.
@@ -521,7 +521,7 @@ typedef enum {
 	GIT_DIFF_BREAK_REWRITES = (1u << 5),
 	/** Mark rewrites for split and break into delete/add pairs */
 	GIT_DIFF_FIND_AND_BREAK_REWRITES =
-		(GIT_DIFF_FIND_REWRITES | GIT_DIFF_BREAK_REWRITES),
+	    (GIT_DIFF_FIND_REWRITES | GIT_DIFF_BREAK_REWRITES),
 
 	/** Find renames/copies for UNTRACKED items in working directory.
 	 *
@@ -571,11 +571,11 @@ typedef enum {
  */
 typedef struct {
 	int (*file_signature)(
-		void **out, const git_diff_file *file,
-		const char *fullpath, void *payload);
+	    void **out, const git_diff_file *file,
+	    const char *fullpath, void *payload);
 	int (*buffer_signature)(
-		void **out, const git_diff_file *file,
-		const char *buf, size_t buflen, void *payload);
+	    void **out, const git_diff_file *file,
+	    const char *buf, size_t buflen, void *payload);
 	void (*free_signature)(void *sig, void *payload);
 	int (*similarity)(int *score, void *siga, void *sigb, void *payload);
 	void *payload;
@@ -641,8 +641,8 @@ typedef struct {
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_diff_find_init_options(
-	git_diff_find_options *opts,
-	unsigned int version);
+    git_diff_find_options *opts,
+    unsigned int version);
 
 /** @name Diff Generator Functions
  *
@@ -675,11 +675,11 @@ GIT_EXTERN(void) git_diff_free(git_diff *diff);
  * @param opts Structure with options to influence diff or NULL for defaults.
  */
 GIT_EXTERN(int) git_diff_tree_to_tree(
-	git_diff **diff,
-	git_repository *repo,
-	git_tree *old_tree,
-	git_tree *new_tree,
-	const git_diff_options *opts); /**< can be NULL for defaults */
+    git_diff **diff,
+    git_repository *repo,
+    git_tree *old_tree,
+    git_tree *new_tree,
+    const git_diff_options *opts); /**< can be NULL for defaults */
 
 /**
  * Create a diff between a tree and repository index.
@@ -701,11 +701,11 @@ GIT_EXTERN(int) git_diff_tree_to_tree(
  * @param opts Structure with options to influence diff or NULL for defaults.
  */
 GIT_EXTERN(int) git_diff_tree_to_index(
-	git_diff **diff,
-	git_repository *repo,
-	git_tree *old_tree,
-	git_index *index,
-	const git_diff_options *opts); /**< can be NULL for defaults */
+    git_diff **diff,
+    git_repository *repo,
+    git_tree *old_tree,
+    git_index *index,
+    const git_diff_options *opts); /**< can be NULL for defaults */
 
 /**
  * Create a diff between the repository index and the workdir directory.
@@ -728,10 +728,10 @@ GIT_EXTERN(int) git_diff_tree_to_index(
  * @param opts Structure with options to influence diff or NULL for defaults.
  */
 GIT_EXTERN(int) git_diff_index_to_workdir(
-	git_diff **diff,
-	git_repository *repo,
-	git_index *index,
-	const git_diff_options *opts); /**< can be NULL for defaults */
+    git_diff **diff,
+    git_repository *repo,
+    git_index *index,
+    const git_diff_options *opts); /**< can be NULL for defaults */
 
 /**
  * Create a diff between a tree and the working directory.
@@ -757,10 +757,10 @@ GIT_EXTERN(int) git_diff_index_to_workdir(
  * @param opts Structure with options to influence diff or NULL for defaults.
  */
 GIT_EXTERN(int) git_diff_tree_to_workdir(
-	git_diff **diff,
-	git_repository *repo,
-	git_tree *old_tree,
-	const git_diff_options *opts); /**< can be NULL for defaults */
+    git_diff **diff,
+    git_repository *repo,
+    git_tree *old_tree,
+    const git_diff_options *opts); /**< can be NULL for defaults */
 
 /**
  * Create a diff between a tree and the working directory using index data
@@ -776,10 +776,10 @@ GIT_EXTERN(int) git_diff_tree_to_workdir(
  * @param opts Structure with options to influence diff or NULL for defaults.
  */
 GIT_EXTERN(int) git_diff_tree_to_workdir_with_index(
-	git_diff **diff,
-	git_repository *repo,
-	git_tree *old_tree,
-	const git_diff_options *opts); /**< can be NULL for defaults */
+    git_diff **diff,
+    git_repository *repo,
+    git_tree *old_tree,
+    const git_diff_options *opts); /**< can be NULL for defaults */
 
 /**
  * Merge one diff into another.
@@ -795,8 +795,8 @@ GIT_EXTERN(int) git_diff_tree_to_workdir_with_index(
  * @param from Diff to merge.
  */
 GIT_EXTERN(int) git_diff_merge(
-	git_diff *onto,
-	const git_diff *from);
+    git_diff *onto,
+    const git_diff *from);
 
 /**
  * Transform a diff marking file renames, copies, etc.
@@ -811,8 +811,8 @@ GIT_EXTERN(int) git_diff_merge(
  * @return 0 on success, -1 on failure
  */
 GIT_EXTERN(int) git_diff_find_similar(
-	git_diff *diff,
-	const git_diff_find_options *options);
+    git_diff *diff,
+    const git_diff_find_options *options);
 
 /**@}*/
 
@@ -844,7 +844,7 @@ GIT_EXTERN(size_t) git_diff_num_deltas(const git_diff *diff);
  * @return Count of number of deltas matching delta_t type
  */
 GIT_EXTERN(size_t) git_diff_num_deltas_of_type(
-	const git_diff *diff, git_delta_t type);
+    const git_diff *diff, git_delta_t type);
 
 /**
  * Return the diff delta for an entry in the diff list.
@@ -864,7 +864,7 @@ GIT_EXTERN(size_t) git_diff_num_deltas_of_type(
  * @return Pointer to git_diff_delta (or NULL if `idx` out of range)
  */
 GIT_EXTERN(const git_diff_delta *) git_diff_get_delta(
-	const git_diff *diff, size_t idx);
+    const git_diff *diff, size_t idx);
 
 /**
  * Check if deltas are sorted case sensitively or insensitively.
@@ -900,11 +900,11 @@ GIT_EXTERN(int) git_diff_is_sorted_icase(const git_diff *diff);
  * @return 0 on success, non-zero callback return value, or error code
  */
 GIT_EXTERN(int) git_diff_foreach(
-	git_diff *diff,
-	git_diff_file_cb file_cb,
-	git_diff_hunk_cb hunk_cb,
-	git_diff_line_cb line_cb,
-	void *payload);
+    git_diff *diff,
+    git_diff_file_cb file_cb,
+    git_diff_hunk_cb hunk_cb,
+    git_diff_line_cb line_cb,
+    void *payload);
 
 /**
  * Look up the single character abbreviation for a delta status code.
@@ -943,10 +943,10 @@ typedef enum {
  * @return 0 on success, non-zero callback return value, or error code
  */
 GIT_EXTERN(int) git_diff_print(
-	git_diff *diff,
-	git_diff_format_t format,
-	git_diff_line_cb print_cb,
-	void *payload);
+    git_diff *diff,
+    git_diff_format_t format,
+    git_diff_line_cb print_cb,
+    void *payload);
 
 /**@}*/
 
@@ -983,15 +983,15 @@ GIT_EXTERN(int) git_diff_print(
  * @return 0 on success, non-zero callback return value, or error code
  */
 GIT_EXTERN(int) git_diff_blobs(
-	const git_blob *old_blob,
-	const char *old_as_path,
-	const git_blob *new_blob,
-	const char *new_as_path,
-	const git_diff_options *options,
-	git_diff_file_cb file_cb,
-	git_diff_hunk_cb hunk_cb,
-	git_diff_line_cb line_cb,
-	void *payload);
+    const git_blob *old_blob,
+    const char *old_as_path,
+    const git_blob *new_blob,
+    const char *new_as_path,
+    const git_diff_options *options,
+    git_diff_file_cb file_cb,
+    git_diff_hunk_cb hunk_cb,
+    git_diff_line_cb line_cb,
+    void *payload);
 
 /**
  * Directly run a diff between a blob and a buffer.
@@ -1018,16 +1018,16 @@ GIT_EXTERN(int) git_diff_blobs(
  * @return 0 on success, non-zero callback return value, or error code
  */
 GIT_EXTERN(int) git_diff_blob_to_buffer(
-	const git_blob *old_blob,
-	const char *old_as_path,
-	const char *buffer,
-	size_t buffer_len,
-	const char *buffer_as_path,
-	const git_diff_options *options,
-	git_diff_file_cb file_cb,
-	git_diff_hunk_cb hunk_cb,
-	git_diff_line_cb line_cb,
-	void *payload);
+    const git_blob *old_blob,
+    const char *old_as_path,
+    const char *buffer,
+    size_t buffer_len,
+    const char *buffer_as_path,
+    const git_diff_options *options,
+    git_diff_file_cb file_cb,
+    git_diff_hunk_cb hunk_cb,
+    git_diff_line_cb line_cb,
+    void *payload);
 
 /**
  * Directly run a diff between two buffers.
@@ -1050,17 +1050,17 @@ GIT_EXTERN(int) git_diff_blob_to_buffer(
  * @return 0 on success, non-zero callback return value, or error code
  */
 GIT_EXTERN(int) git_diff_buffers(
-	const void *old_buffer,
-	size_t old_len,
-	const char *old_as_path,
-	const void *new_buffer,
-	size_t new_len,
-	const char *new_as_path,
-	const git_diff_options *options,
-	git_diff_file_cb file_cb,
-	git_diff_hunk_cb hunk_cb,
-	git_diff_line_cb line_cb,
-	void *payload);
+    const void *old_buffer,
+    size_t old_len,
+    const char *old_as_path,
+    const void *new_buffer,
+    size_t new_len,
+    const char *new_as_path,
+    const git_diff_options *options,
+    git_diff_file_cb file_cb,
+    git_diff_hunk_cb hunk_cb,
+    git_diff_line_cb line_cb,
+    void *payload);
 
 /**
  * This is an opaque structure which is allocated by `git_diff_get_stats`.
@@ -1097,8 +1097,8 @@ typedef enum {
  * @return 0 on success; non-zero on error
  */
 GIT_EXTERN(int) git_diff_get_stats(
-	git_diff_stats **out,
-	git_diff *diff);
+    git_diff_stats **out,
+    git_diff *diff);
 
 /**
  * Get the total number of files changed in a diff
@@ -1107,7 +1107,7 @@ GIT_EXTERN(int) git_diff_get_stats(
  * @return total number of files changed in the diff
  */
 GIT_EXTERN(size_t) git_diff_stats_files_changed(
-	const git_diff_stats *stats);
+    const git_diff_stats *stats);
 
 /**
  * Get the total number of insertions in a diff
@@ -1116,7 +1116,7 @@ GIT_EXTERN(size_t) git_diff_stats_files_changed(
  * @return total number of insertions in the diff
  */
 GIT_EXTERN(size_t) git_diff_stats_insertions(
-	const git_diff_stats *stats);
+    const git_diff_stats *stats);
 
 /**
  * Get the total number of deletions in a diff
@@ -1125,7 +1125,7 @@ GIT_EXTERN(size_t) git_diff_stats_insertions(
  * @return total number of deletions in the diff
  */
 GIT_EXTERN(size_t) git_diff_stats_deletions(
-	const git_diff_stats *stats);
+    const git_diff_stats *stats);
 
 /**
  * Print diff statistics to a `git_buf`.
@@ -1137,10 +1137,10 @@ GIT_EXTERN(size_t) git_diff_stats_deletions(
  * @return 0 on success; non-zero on error
  */
 GIT_EXTERN(int) git_diff_stats_to_buf(
-	git_buf *out,
-	const git_diff_stats *stats,
-	git_diff_stats_format_t format,
-	size_t width);
+    git_buf *out,
+    const git_diff_stats *stats,
+    git_diff_stats_format_t format,
+    size_t width);
 
 /**
  * Deallocate a `git_diff_stats`.
@@ -1198,9 +1198,9 @@ typedef struct {
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_diff_format_email(
-	git_buf *out,
-	git_diff *diff,
-	const git_diff_format_email_options *opts);
+    git_buf *out,
+    git_diff *diff,
+    const git_diff_format_email_options *opts);
 
 /**
  * Create an e-mail ready patch for a commit.
@@ -1217,13 +1217,13 @@ GIT_EXTERN(int) git_diff_format_email(
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_diff_commit_as_email(
-	git_buf *out,
-	git_repository *repo,
-	git_commit *commit,
-	size_t patch_no,
-	size_t total_patches,
-	git_diff_format_email_flags_t flags,
-	const git_diff_options *diff_opts);
+    git_buf *out,
+    git_repository *repo,
+    git_commit *commit,
+    size_t patch_no,
+    size_t total_patches,
+    git_diff_format_email_flags_t flags,
+    const git_diff_options *diff_opts);
 
 /**
  * Initializes a `git_diff_format_email_options` with default values.
@@ -1235,8 +1235,8 @@ GIT_EXTERN(int) git_diff_commit_as_email(
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_diff_format_email_init_options(
-	git_diff_format_email_options *opts,
-	unsigned int version);
+    git_diff_format_email_options *opts,
+    unsigned int version);
 
 GIT_END_DECL
 

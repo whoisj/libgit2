@@ -24,7 +24,6 @@ static void *iterate_refs(void *arg)
 	git_reference_iterator *i;
 	git_reference *ref;
 	int count = 0;
-
 	cl_git_pass(git_reference_iterator_new(&i, g_repo));
 
 	for (count = 0; !git_reference_next(&ref, i); ++count) {
@@ -36,7 +35,6 @@ static void *iterate_refs(void *arg)
 		cl_assert_equal_i(g_expected, count);
 
 	git_reference_iterator_free(i);
-
 	giterr_clear();
 	return arg;
 }
@@ -50,9 +48,7 @@ void test_threads_refdb__iterator(void)
 	git_reference *ref;
 	char name[128];
 	git_refdb *refdb;
-
 	g_repo = cl_git_sandbox_init("testrepo2");
-
 	cl_git_pass(git_reference_name_to_id(&head, g_repo, "HEAD"));
 
 	/* make a bunch of references */
@@ -66,7 +62,6 @@ void test_threads_refdb__iterator(void)
 	cl_git_pass(git_repository_refdb(&refdb, g_repo));
 	cl_git_pass(git_refdb_compress(refdb));
 	git_refdb_free(refdb);
-
 	g_expected = 206;
 
 	for (r = 0; r < REPEAT; ++r) {
@@ -83,11 +78,11 @@ void test_threads_refdb__iterator(void)
 		}
 
 #ifdef GIT_THREADS
-		for (t = 0; t < THREADS; ++t) {
-			cl_git_pass(git_thread_join(&th[t], NULL));
-		}
-#endif
 
+		for (t = 0; t < THREADS; ++t)
+			cl_git_pass(git_thread_join(&th[t], NULL));
+
+#endif
 		memset(th, 0, sizeof(th));
 	}
 }
@@ -98,7 +93,6 @@ static void *create_refs(void *arg)
 	git_oid head;
 	char name[128];
 	git_reference *ref[10];
-
 	cl_git_pass(git_reference_name_to_id(&head, g_repo, "HEAD"));
 
 	for (i = 0; i < 10; ++i) {
@@ -128,7 +122,7 @@ static void *delete_refs(void *arg)
 
 	for (i = 0; i < 10; ++i) {
 		p_snprintf(
-			name, sizeof(name), "refs/heads/thread-%03d-%02d", (*id) & ~0x3, i);
+		    name, sizeof(name), "refs/heads/thread-%03d-%02d", (*id) & ~0x3, i);
 
 		if (!git_reference_lookup(&ref, g_repo, name)) {
 			cl_git_pass(git_reference_delete(ref));
@@ -155,13 +149,10 @@ void test_threads_refdb__edit_while_iterate(void)
 	git_reference *ref;
 	char name[128];
 	git_refdb *refdb;
-
 #ifdef GIT_THREADS
 	git_thread th[THREADS];
 #endif
-
 	g_repo = cl_git_sandbox_init("testrepo2");
-
 	cl_git_pass(git_reference_name_to_id(&head, g_repo, "HEAD"));
 
 	/* make a bunch of references */
@@ -175,38 +166,42 @@ void test_threads_refdb__edit_while_iterate(void)
 	cl_git_pass(git_repository_refdb(&refdb, g_repo));
 	cl_git_pass(git_refdb_compress(refdb));
 	git_refdb_free(refdb);
-
 	g_expected = -1;
-
 	g_repo = cl_git_sandbox_reopen(); /* reopen to flush caches */
 
 	for (t = 0; t < THREADS; ++t) {
 		void *(*fn)(void *arg);
 
 		switch (t & 0x3) {
-		case 0:  fn = create_refs;  break;
-		case 1:  fn = delete_refs;  break;
-		default: fn = iterate_refs; break;
+		case 0:
+			fn = create_refs;
+			break;
+
+		case 1:
+			fn = delete_refs;
+			break;
+
+		default:
+			fn = iterate_refs;
+			break;
 		}
 
 		id[t] = t;
-
 		/* It appears with all reflog writing changes, etc., that this
 		 * test has started to fail quite frequently, so let's disable it
 		 * for now by just running on a single thread...
 		 */
-/* #ifdef GIT_THREADS */
-/*		cl_git_pass(git_thread_create(&th[t], NULL, fn, &id[t])); */
-/* #else */
+		/* #ifdef GIT_THREADS */
+		/*		cl_git_pass(git_thread_create(&th[t], NULL, fn, &id[t])); */
+		/* #else */
 		fn(&id[t]);
-/* #endif */
+		/* #endif */
 	}
 
 #ifdef GIT_THREADS
-/*	for (t = 0; t < THREADS; ++t) { */
-/*		cl_git_pass(git_thread_join(th[t], NULL)); */
-/*	} */
-
+	/*	for (t = 0; t < THREADS; ++t) { */
+	/*		cl_git_pass(git_thread_join(th[t], NULL)); */
+	/*	} */
 	memset(th, 0, sizeof(th));
 
 	for (t = 0; t < THREADS; ++t) {
@@ -214,8 +209,8 @@ void test_threads_refdb__edit_while_iterate(void)
 		cl_git_pass(git_thread_create(&th[t], NULL, iterate_refs, &id[t]));
 	}
 
-	for (t = 0; t < THREADS; ++t) {
+	for (t = 0; t < THREADS; ++t)
 		cl_git_pass(git_thread_join(&th[t], NULL));
-	}
+
 #endif
 }

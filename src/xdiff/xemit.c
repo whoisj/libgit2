@@ -31,23 +31,21 @@ static int xdl_emit_record(xdfile_t *xdf, long ri, char const *pre, xdemitcb_t *
 
 
 
-static long xdl_get_rec(xdfile_t *xdf, long ri, char const **rec) {
-
+static long xdl_get_rec(xdfile_t *xdf, long ri, char const **rec)
+{
 	*rec = xdf->recs[ri]->ptr;
-
 	return xdf->recs[ri]->size;
 }
 
 
-static int xdl_emit_record(xdfile_t *xdf, long ri, char const *pre, xdemitcb_t *ecb) {
+static int xdl_emit_record(xdfile_t *xdf, long ri, char const *pre, xdemitcb_t *ecb)
+{
 	long size, psize = (long)strlen(pre);
 	char const *rec;
-
 	size = xdl_get_rec(xdf, ri, &rec);
-	if (xdl_emit_diffrec(rec, size, pre, psize, ecb) < 0) {
 
+	if (xdl_emit_diffrec(rec, size, pre, psize, ecb) < 0)
 		return -1;
-	}
 
 	return 0;
 }
@@ -57,7 +55,8 @@ static int xdl_emit_record(xdfile_t *xdf, long ri, char const *pre, xdemitcb_t *
  * Starting at the passed change atom, find the latest change atom to be included
  * inside the differential hunk according to the specified configuration.
  */
-xdchange_t *xdl_get_hunk(xdchange_t *xscr, xdemitconf_t const *xecfg) {
+xdchange_t *xdl_get_hunk(xdchange_t *xscr, xdemitconf_t const *xecfg)
+{
 	xdchange_t *xch, *xchp;
 	long max_common = 2 * xecfg->ctxlen + xecfg->interhunkctxlen;
 
@@ -74,34 +73,39 @@ static long def_ff(const char *rec, long len, char *buf, long sz, void *priv)
 	(void)priv;
 
 	if (len > 0 &&
-			(isalpha((unsigned char)*rec) || /* identifier? */
-			 *rec == '_' ||	/* also identifier? */
-			 *rec == '$')) { /* identifiers from VMS and other esoterico */
+	    (isalpha((unsigned char)*rec) || /* identifier? */
+	     *rec == '_' ||	/* also identifier? */
+	     *rec == '$')) { /* identifiers from VMS and other esoterico */
 		if (len > sz)
 			len = sz;
+
 		while (0 < len && isspace((unsigned char)rec[len - 1]))
 			len--;
+
 		memcpy(buf, rec, len);
 		return len;
 	}
+
 	return -1;
 }
 
 static int xdl_emit_common(xdfenv_t *xe, xdchange_t *xscr, xdemitcb_t *ecb,
-                           xdemitconf_t const *xecfg) {
+                           xdemitconf_t const *xecfg)
+{
 	xdfile_t *xdf = &xe->xdf2;
 	const char *rchg = xdf->rchg;
 	long ix;
-
 	(void)xscr;
 	(void)xecfg;
 
 	for (ix = 0; ix < xdf->nrec; ix++) {
 		if (rchg[ix])
 			continue;
+
 		if (xdl_emit_record(xdf, ix, "", ecb))
 			return -1;
 	}
+
 	return 0;
 }
 
@@ -111,12 +115,11 @@ struct func_line {
 };
 
 static long get_func_line(xdfenv_t *xe, xdemitconf_t const *xecfg,
-			  struct func_line *func_line, long start, long limit)
+                          struct func_line *func_line, long start, long limit)
 {
 	find_func_t ff = xecfg->find_func ? xecfg->find_func : def_ff;
 	long l, size, step = (start > limit) ? -1 : 1;
 	char *buf, dummy[1];
-
 	buf = func_line ? func_line->buf : dummy;
 	size = func_line ? sizeof(func_line->buf) : sizeof(dummy);
 
@@ -124,17 +127,21 @@ static long get_func_line(xdfenv_t *xe, xdemitconf_t const *xecfg,
 		const char *rec;
 		long reclen = xdl_get_rec(&xe->xdf1, l, &rec);
 		long len = ff(rec, reclen, buf, size, xecfg->find_func_priv);
+
 		if (len >= 0) {
 			if (func_line)
 				func_line->len = len;
+
 			return l;
 		}
 	}
+
 	return -1;
 }
 
 int xdl_emit_diff(xdfenv_t *xe, xdchange_t *xscr, xdemitcb_t *ecb,
-		  xdemitconf_t const *xecfg) {
+                  xdemitconf_t const *xecfg)
+{
 	long s1, s2, e1, e2, lctx;
 	xdchange_t *xch, *xche;
 	long funclineprev = -1;
@@ -145,34 +152,36 @@ int xdl_emit_diff(xdfenv_t *xe, xdchange_t *xscr, xdemitcb_t *ecb,
 
 	for (xch = xscr; xch; xch = xche->next) {
 		xche = xdl_get_hunk(xch, xecfg);
-
 		s1 = XDL_MAX(xch->i1 - xecfg->ctxlen, 0);
 		s2 = XDL_MAX(xch->i2 - xecfg->ctxlen, 0);
 
 		if (xecfg->flags & XDL_EMIT_FUNCCONTEXT) {
 			long fs1 = get_func_line(xe, xecfg, NULL, xch->i1, -1);
+
 			if (fs1 < 0)
 				fs1 = 0;
+
 			if (fs1 < s1) {
 				s2 -= s1 - fs1;
 				s1 = fs1;
 			}
 		}
 
- again:
+again:
 		lctx = xecfg->ctxlen;
 		lctx = XDL_MIN(lctx, xe->xdf1.nrec - (xche->i1 + xche->chg1));
 		lctx = XDL_MIN(lctx, xe->xdf2.nrec - (xche->i2 + xche->chg2));
-
 		e1 = xche->i1 + xche->chg1 + lctx;
 		e2 = xche->i2 + xche->chg2 + lctx;
 
 		if (xecfg->flags & XDL_EMIT_FUNCCONTEXT) {
 			long fe1 = get_func_line(xe, xecfg, NULL,
-						 xche->i1 + xche->chg1,
-						 xe->xdf1.nrec);
+			                         xche->i1 + xche->chg1,
+			                         xe->xdf1.nrec);
+
 			if (fe1 < 0)
 				fe1 = xe->xdf1.nrec;
+
 			if (fe1 > e1) {
 				e2 += fe1 - e1;
 				e1 = fe1;
@@ -185,6 +194,7 @@ int xdl_emit_diff(xdfenv_t *xe, xdchange_t *xscr, xdemitcb_t *ecb,
 			 */
 			if (xche->next) {
 				long l = xche->next->i1;
+
 				if (l <= e1 ||
 				    get_func_line(xe, xecfg, NULL, l, e1) < 0) {
 					xche = xche->next;
@@ -199,11 +209,12 @@ int xdl_emit_diff(xdfenv_t *xe, xdchange_t *xscr, xdemitcb_t *ecb,
 
 		if (xecfg->flags & XDL_EMIT_FUNCNAMES) {
 			get_func_line(xe, xecfg, &func_line,
-				      s1 - 1, funclineprev);
+			              s1 - 1, funclineprev);
 			funclineprev = s1 - 1;
 		}
+
 		if (xdl_emit_hunk_hdr(s1 + 1, e1 - s1, s2 + 1, e2 - s2,
-				      func_line.buf, func_line.len, ecb) < 0)
+		                      func_line.buf, func_line.len, ecb) < 0)
 			return -1;
 
 		/*
@@ -237,6 +248,7 @@ int xdl_emit_diff(xdfenv_t *xe, xdchange_t *xscr, xdemitcb_t *ecb,
 
 			if (xch == xche)
 				break;
+
 			s1 = xch->i1 + xch->chg1;
 			s2 = xch->i2 + xch->chg2;
 		}

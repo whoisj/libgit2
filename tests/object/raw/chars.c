@@ -17,13 +17,13 @@ void test_object_raw_chars__find_invalid_chars_in_oid(void)
 
 	for (i = 0; i < 256; i++) {
 		in[38] = (char)i;
+
 		if (git__fromhex(i) >= 0) {
 			exp[19] = (unsigned char)(git__fromhex(i) << 4);
 			cl_git_pass(git_oid_fromstr(&out, in));
 			cl_assert(memcmp(out.id, exp, sizeof(out.id)) == 0);
-		} else {
+		} else
 			cl_git_fail(git_oid_fromstr(&out, in));
-		}
 	}
 }
 

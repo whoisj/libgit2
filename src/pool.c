@@ -22,12 +22,13 @@ static void *pool_alloc_page(git_pool *pool, uint32_t size);
 static void pool_insert_page(git_pool *pool, git_pool_page *page);
 
 int git_pool_init(
-	git_pool *pool, uint32_t item_size, uint32_t items_per_page)
+    git_pool *pool, uint32_t item_size, uint32_t items_per_page)
 {
 	assert(pool);
 
 	if (!item_size)
 		item_size = 1;
+
 	/* round up item_size for decent object alignment */
 	if (item_size > 4)
 		item_size = (item_size + 7) & ~7;
@@ -36,13 +37,13 @@ int git_pool_init(
 
 	if (!items_per_page)
 		items_per_page = git_pool__suggest_items_per_page(item_size);
+
 	if (item_size * items_per_page < GIT_POOL_MIN_PAGESZ)
 		items_per_page = (GIT_POOL_MIN_PAGESZ + item_size - 1) / item_size;
 
 	memset(pool, 0, sizeof(git_pool));
 	pool->item_size = item_size;
 	pool->page_size = item_size * items_per_page;
-
 	return 0;
 }
 
@@ -54,18 +55,17 @@ void git_pool_clear(git_pool *pool)
 		next = scan->next;
 		git__free(scan);
 	}
+
 	pool->open = NULL;
 
 	for (scan = pool->full; scan != NULL; scan = next) {
 		next = scan->next;
 		git__free(scan);
 	}
+
 	pool->full = NULL;
-
 	pool->free_list = NULL;
-
 	pool->items = 0;
-
 	pool->has_string_alloc     = 0;
 	pool->has_multi_item_alloc = 0;
 	pool->has_large_page_alloc = 0;
@@ -98,8 +98,9 @@ static void pool_insert_page(git_pool *pool, git_pool_page *page)
 
 	/* Otherwise insert into sorted position. */
 	for (scan = pool->open;
-		 scan->next && scan->next->avail > page->avail;
-		 scan = scan->next);
+	     scan->next && scan->next->avail > page->avail;
+	     scan = scan->next);
+
 	page->next = scan->next;
 	scan->next = page;
 }
@@ -118,7 +119,7 @@ static void *pool_alloc_page(git_pool *pool, uint32_t size)
 	}
 
 	if (GIT_ADD_SIZET_OVERFLOW(&alloc_size, new_page_size, sizeof(git_pool_page)) ||
-		!(page = git__calloc(1, alloc_size)))
+	    !(page = git__calloc(1, alloc_size)))
 		return NULL;
 
 	page->size  = new_page_size;
@@ -132,12 +133,11 @@ static void *pool_alloc_page(git_pool *pool, uint32_t size)
 	}
 
 	pool->items++;
-
 	return page->data;
 }
 
 GIT_INLINE(void) pool_remove_page(
-	git_pool *pool, git_pool_page *page, git_pool_page *prev)
+    git_pool *pool, git_pool_page *page, git_pool_page *prev)
 {
 	if (prev == NULL)
 		pool->open = page->next;
@@ -150,8 +150,8 @@ void *git_pool_malloc(git_pool *pool, uint32_t items)
 	git_pool_page *scan = pool->open, *prev;
 	uint32_t size = ((items * pool->item_size) + 7) & ~7;
 	void *ptr = NULL;
-
 	pool->has_string_alloc = 0;
+
 	if (items > 1)
 		pool->has_multi_item_alloc = 1;
 	else if (pool->free_list != NULL) {
@@ -168,8 +168,8 @@ void *git_pool_malloc(git_pool *pool, uint32_t items)
 
 	/* find smallest block in free list with space */
 	for (scan = pool->open, prev = NULL;
-		 scan->next && scan->next->avail >= size;
-		 prev = scan, scan = scan->next);
+	     scan->next && scan->next->avail >= size;
+	     prev = scan, scan = scan->next);
 
 	/* allocate space from the block */
 	ptr = &scan->data[scan->size - scan->avail];
@@ -193,7 +193,6 @@ void *git_pool_malloc(git_pool *pool, uint32_t items)
 char *git_pool_strndup(git_pool *pool, const char *str, size_t n)
 {
 	char *ptr = NULL;
-
 	assert(pool && str && pool->item_size == sizeof(char));
 
 	if ((uint32_t)(n + 1) < n)
@@ -205,14 +204,12 @@ char *git_pool_strndup(git_pool *pool, const char *str, size_t n)
 	}
 
 	pool->has_string_alloc = 1;
-
 	return ptr;
 }
 
 char *git_pool_strdup(git_pool *pool, const char *str)
 {
 	assert(pool && str && pool->item_size == sizeof(char));
-
 	return git_pool_strndup(pool, str, strlen(str));
 }
 
@@ -225,29 +222,28 @@ char *git_pool_strcat(git_pool *pool, const char *a, const char *b)
 {
 	void *ptr;
 	size_t len_a, len_b;
-
 	assert(pool && pool->item_size == sizeof(char));
-
 	len_a = a ? strlen(a) : 0;
 	len_b = b ? strlen(b) : 0;
 
 	if ((ptr = git_pool_malloc(pool, (uint32_t)(len_a + len_b + 1))) != NULL) {
 		if (len_a)
 			memcpy(ptr, a, len_a);
+
 		if (len_b)
 			memcpy(((char *)ptr) + len_a, b, len_b);
+
 		*(((char *)ptr) + len_a + len_b) = '\0';
 	}
-	pool->has_string_alloc = 1;
 
+	pool->has_string_alloc = 1;
 	return ptr;
 }
 
 void git_pool_free(git_pool *pool, void *ptr)
 {
 	struct pool_freelist *item = ptr;
-
-	assert(pool && pool->item_size >= sizeof(void*));
+	assert(pool && pool->item_size >= sizeof(void *));
 
 	if (item) {
 		item->next = pool->free_list;
@@ -259,8 +255,7 @@ void git_pool_free_array(git_pool *pool, size_t count, void **ptrs)
 {
 	struct pool_freelist **items = (struct pool_freelist **)ptrs;
 	size_t i;
-
-	assert(pool && ptrs && pool->item_size >= sizeof(void*));
+	assert(pool && ptrs && pool->item_size >= sizeof(void *));
 
 	if (!count)
 		return;
@@ -276,7 +271,9 @@ uint32_t git_pool__open_pages(git_pool *pool)
 {
 	uint32_t ct = 0;
 	git_pool_page *scan;
+
 	for (scan = pool->open; scan != NULL; scan = scan->next) ct++;
+
 	return ct;
 }
 
@@ -284,21 +281,26 @@ uint32_t git_pool__full_pages(git_pool *pool)
 {
 	uint32_t ct = 0;
 	git_pool_page *scan;
+
 	for (scan = pool->full; scan != NULL; scan = scan->next) ct++;
+
 	return ct;
 }
 
 bool git_pool__ptr_in_pool(git_pool *pool, void *ptr)
 {
 	git_pool_page *scan;
+
 	for (scan = pool->open; scan != NULL; scan = scan->next)
 		if ((void *)scan->data <= ptr &&
-			(void *)(((char *)scan->data) + scan->size) > ptr)
+		    (void *)(((char *)scan->data) + scan->size) > ptr)
 			return true;
+
 	for (scan = pool->full; scan != NULL; scan = scan->next)
 		if ((void *)scan->data <= ptr &&
-			(void *)(((char *)scan->data) + scan->size) > ptr)
+		    (void *)(((char *)scan->data) + scan->size) > ptr)
 			return true;
+
 	return false;
 }
 
@@ -308,8 +310,10 @@ uint32_t git_pool__system_page_size(void)
 
 	if (!size) {
 		size_t page_size;
+
 		if (git__page_size(&page_size) < 0)
 			page_size = 4096;
+
 		size = page_size - 2 * sizeof(void *); /* allow space for malloc overhead */
 	}
 
@@ -319,7 +323,7 @@ uint32_t git_pool__system_page_size(void)
 uint32_t git_pool__suggest_items_per_page(uint32_t item_size)
 {
 	uint32_t page_bytes =
-		git_pool__system_page_size() - sizeof(git_pool_page);
+	    git_pool__system_page_size() - sizeof(git_pool_page);
 	return page_bytes / item_size;
 }
 

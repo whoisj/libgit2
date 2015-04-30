@@ -25,14 +25,11 @@ void test_repo_message__message(void)
 {
 	git_buf path = GIT_BUF_INIT, actual = GIT_BUF_INIT;
 	const char expected[] = "Test\n\nThis is a test of the emergency broadcast system\n";
-
 	cl_git_pass(git_buf_joinpath(&path, git_repository_path(_repo), "MERGE_MSG"));
 	cl_git_mkfile(git_buf_cstr(&path), expected);
-
 	cl_git_pass(git_repository_message(&actual, _repo));
 	cl_assert_equal_s(expected, git_buf_cstr(&actual));
 	git_buf_free(&actual);
-
 	cl_git_pass(p_unlink(git_buf_cstr(&path)));
 	cl_assert_equal_i(GIT_ENOTFOUND, git_repository_message(&actual, _repo));
 	git_buf_free(&path);

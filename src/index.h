@@ -29,10 +29,10 @@ struct git_index {
 	git_vector deleted; /* deleted entries if readers > 0 */
 	git_atomic readers; /* number of active iterators */
 
-	unsigned int on_disk:1;
-	unsigned int ignore_case:1;
-	unsigned int distrust_filemode:1;
-	unsigned int no_symlinks:1;
+	unsigned int on_disk: 1;
+	unsigned int ignore_case: 1;
+	unsigned int distrust_filemode: 1;
+	unsigned int no_symlinks: 1;
 
 	git_tree_cache *tree;
 	git_pool tree_pool;
@@ -52,7 +52,7 @@ struct git_index_conflict_iterator {
 };
 
 extern void git_index_entry__init_from_stat(
-	git_index_entry *entry, struct stat *st, bool trust_mode);
+    git_index_entry *entry, struct stat *st, bool trust_mode);
 
 /* Index entry comparison functions for array sorting */
 extern int git_index_entry_cmp(const void *a, const void *b);
@@ -69,7 +69,7 @@ extern int git_index_entry_isrch(const void *a, const void *b);
  * Pass `path_len` as strlen of path or 0 to call strlen internally.
  */
 extern int git_index__find_pos(
-	size_t *at_pos, git_index *index, const char *path, size_t path_len, int stage);
+    size_t *at_pos, git_index *index, const char *path, size_t path_len, int stage);
 
 extern void git_index__set_ignore_case(git_index *index, bool ignore_case);
 
@@ -77,7 +77,7 @@ extern unsigned int git_index__create_mode(unsigned int mode);
 
 GIT_INLINE(const git_futils_filestamp *) git_index__filestamp(git_index *index)
 {
-   return &index->stamp;
+	return &index->stamp;
 }
 
 extern int git_index__changed_relative_to(git_index *index, const git_futils_filestamp *fs);
@@ -90,14 +90,14 @@ extern void git_index_snapshot_release(git_vector *snap, git_index *index);
 
 /* Allow searching in a snapshot; entries must already be sorted! */
 extern int git_index_snapshot_find(
-	size_t *at_pos, git_vector *snap, git_vector_cmp entry_srch,
-	const char *path, size_t path_len, int stage);
+    size_t *at_pos, git_vector *snap, git_vector_cmp entry_srch,
+    const char *path, size_t path_len, int stage);
 
 
 typedef struct {
 	git_index *index;
 	git_filebuf file;
-	unsigned int should_write:1;
+	unsigned int should_write: 1;
 } git_indexwriter;
 
 #define GIT_INDEXWRITER_INIT { NULL, GIT_FILEBUF_INIT }
@@ -111,9 +111,9 @@ extern int git_indexwriter_init(git_indexwriter *writer, git_index *index);
  * the index.
  */
 extern int git_indexwriter_init_for_operation(
-	git_indexwriter *writer,
-	git_repository *repo,
-	unsigned int *checkout_strategy);
+    git_indexwriter *writer,
+    git_repository *repo,
+    unsigned int *checkout_strategy);
 
 /* Write the index and unlock it. */
 extern int git_indexwriter_commit(git_indexwriter *writer);

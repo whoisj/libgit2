@@ -142,26 +142,26 @@ extern bool git_submodule__is_submodule(git_repository *repo, const char *name);
 
 /* Internal lookup does not attempt to refresh cached data */
 extern int git_submodule__lookup(
-	git_submodule **out, git_repository *repo, const char *path);
+    git_submodule **out, git_repository *repo, const char *path);
 
 /* Internal status fn returns status and optionally the various OIDs */
 extern int git_submodule__status(
-	unsigned int *out_status,
-	git_oid *out_head_id,
-	git_oid *out_index_id,
-	git_oid *out_wd_id,
-	git_submodule *sm,
-	git_submodule_ignore_t ign);
+    unsigned int *out_status,
+    git_oid *out_head_id,
+    git_oid *out_index_id,
+    git_oid *out_wd_id,
+    git_submodule *sm,
+    git_submodule_ignore_t ign);
 
 /* Open submodule repository as bare repo for quick HEAD check, etc. */
 extern int git_submodule_open_bare(
-	git_repository **repo,
-	git_submodule *submodule);
+    git_repository **repo,
+    git_submodule *submodule);
 
 extern int git_submodule_parse_ignore(
-	git_submodule_ignore_t *out, const char *value);
+    git_submodule_ignore_t *out, const char *value);
 extern int git_submodule_parse_update(
-	git_submodule_update_t *out, const char *value);
+    git_submodule_update_t *out, const char *value);
 
 extern const char *git_submodule_ignore_to_str(git_submodule_ignore_t);
 extern const char *git_submodule_update_to_str(git_submodule_update_t);

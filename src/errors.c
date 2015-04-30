@@ -27,7 +27,6 @@ static void set_error(int error_class, char *string)
 
 	error->message = string;
 	error->klass = error_class;
-
 	GIT_GLOBAL->last_error = error;
 }
 
@@ -56,17 +55,16 @@ void giterr_set(int error_class, const char *string, ...)
 
 	if (error_class == GITERR_OS) {
 #ifdef GIT_WIN32
-		char * win32_error = git_win32_get_error_message(win32_error_code);
+		char *win32_error = git_win32_get_error_message(win32_error_code);
+
 		if (win32_error) {
 			git_buf_puts(&buf, win32_error);
 			git__free(win32_error);
-
 			SetLastError(0);
-		}
-		else
+		} else
 #endif
-		if (error_code)
-			git_buf_puts(&buf, strerror(error_code));
+			if (error_code)
+				git_buf_puts(&buf, strerror(error_code));
 
 		if (error_code)
 			errno = 0;
@@ -79,9 +77,7 @@ void giterr_set(int error_class, const char *string, ...)
 void giterr_set_str(int error_class, const char *string)
 {
 	char *message;
-
 	assert(string);
-
 	message = git__strdup(string);
 
 	if (message)
@@ -91,9 +87,7 @@ void giterr_set_str(int error_class, const char *string)
 int giterr_set_regex(const regex_t *regex, int error_code)
 {
 	char error_buf[1024];
-
 	assert(error_code);
-
 	regerror(error_code, regex, error_buf, sizeof(error_buf));
 	giterr_set_str(GITERR_REGEX, error_buf);
 
@@ -119,7 +113,6 @@ void giterr_clear(void)
 int giterr_detach(git_error *cpy)
 {
 	git_error *error = GIT_GLOBAL->last_error;
-
 	assert(cpy);
 
 	if (!error)
@@ -127,10 +120,8 @@ int giterr_detach(git_error *cpy)
 
 	cpy->message = error->message;
 	cpy->klass = error->klass;
-
 	error->message = NULL;
 	giterr_clear();
-
 	return 0;
 }
 
@@ -142,8 +133,10 @@ const git_error *giterr_last(void)
 int giterr_capture(git_error_state *state, int error_code)
 {
 	state->error_code = error_code;
+
 	if (error_code)
 		giterr_detach(&state->error_msg);
+
 	return error_code;
 }
 

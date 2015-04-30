@@ -17,18 +17,15 @@
 int git_refspec__parse(git_refspec *refspec, const char *input, bool is_fetch)
 {
 	// Ported from https://github.com/git/git/blob/f06d47e7e0d9db709ee204ed13a8a7486149f494/remote.c#L518-636
-
 	size_t llen;
 	int is_glob = 0;
 	const char *lhs, *rhs;
 	int flags;
-
 	assert(refspec && input);
-
 	memset(refspec, 0x0, sizeof(git_refspec));
 	refspec->push = !is_fetch;
-
 	lhs = input;
+
 	if (*lhs == '+') {
 		refspec->force = 1;
 		lhs++;
@@ -52,9 +49,11 @@ int git_refspec__parse(git_refspec *refspec, const char *input, bool is_fetch)
 	}
 
 	llen = (rhs ? (size_t)(rhs - lhs - 1) : strlen(lhs));
+
 	if (1 <= llen && memchr(lhs, '*', llen)) {
 		if ((rhs && !is_glob) || (!rhs && is_fetch))
 			goto invalid;
+
 		is_glob = 1;
 	} else if (rhs && is_glob)
 		goto invalid;
@@ -62,7 +61,7 @@ int git_refspec__parse(git_refspec *refspec, const char *input, bool is_fetch)
 	refspec->pattern = is_glob;
 	refspec->src = git__strndup(lhs, llen);
 	flags = GIT_REF_FORMAT_ALLOW_ONELEVEL | GIT_REF_FORMAT_REFSPEC_SHORTHAND
-		| (is_glob ? GIT_REF_FORMAT_REFSPEC_PATTERN : 0);
+	        | (is_glob ? GIT_REF_FORMAT_REFSPEC_PATTERN : 0);
 
 	if (is_fetch) {
 		/*
@@ -74,6 +73,7 @@ int git_refspec__parse(git_refspec *refspec, const char *input, bool is_fetch)
 			; /* empty is ok */
 		else if (!git_reference__is_valid_name(refspec->src, flags))
 			goto invalid;
+
 		/*
 			* RHS
 			* - missing is ok, and is same as empty.
@@ -99,10 +99,10 @@ int git_refspec__parse(git_refspec *refspec, const char *input, bool is_fetch)
 		else if (is_glob) {
 			if (!git_reference__is_valid_name(refspec->src, flags))
 				goto invalid;
-		}
-		else {
+		} else {
 			; /* anything goes, for now */
 		}
+
 		/*
 			* RHS
 			* - missing is allowed, but LHS then must be a
@@ -113,9 +113,9 @@ int git_refspec__parse(git_refspec *refspec, const char *input, bool is_fetch)
 		if (!refspec->dst) {
 			if (!git_reference__is_valid_name(refspec->src, flags))
 				goto invalid;
-		} else if (!*refspec->dst) {
+		} else if (!*refspec->dst)
 			goto invalid;
-		} else {
+		else {
 			if (!git_reference__is_valid_name(refspec->dst, flags))
 				goto invalid;
 		}
@@ -129,13 +129,11 @@ int git_refspec__parse(git_refspec *refspec, const char *input, bool is_fetch)
 
 	refspec->string = git__strdup(input);
 	GITERR_CHECK_ALLOC(refspec->string);
-
 	return 0;
-
- invalid:
-        giterr_set(
-                GITERR_INVALID,
-                "'%s' is not a valid refspec.", input);
+invalid:
+	giterr_set(
+	    GITERR_INVALID,
+	    "'%s' is not a valid refspec.", input);
 	return -1;
 }
 
@@ -167,7 +165,6 @@ const char *git_refspec_string(const git_refspec *refspec)
 int git_refspec_force(const git_refspec *refspec)
 {
 	assert(refspec);
-
 	return refspec->force;
 }
 
@@ -188,15 +185,13 @@ int git_refspec_dst_matches(const git_refspec *refspec, const char *refname)
 }
 
 static int refspec_transform(
-	git_buf *out, const char *from, const char *to, const char *name)
+    git_buf *out, const char *from, const char *to, const char *name)
 {
 	const char *from_star, *to_star;
 	const char *name_slash, *from_slash;
 	size_t replacement_len, star_offset;
-
 	git_buf_sanitize(out);
 	git_buf_clear(out);
-
 	/*
 	 * There are two parts to each side of a refspec, the bit
 	 * before the star and the bit after it. The star can be in
@@ -205,28 +200,25 @@ static int refspec_transform(
 	 */
 	from_star = strchr(from, '*');
 	to_star = strchr(to, '*');
-
 	assert(from_star && to_star);
-
 	/* star offset, both in 'from' and in 'name' */
 	star_offset = from_star - from;
-
 	/* the first half is copied over */
 	git_buf_put(out, to, to_star - to);
-
 	/* then we copy over the replacement, from the star's offset to the next slash in 'name' */
 	name_slash = strchr(name + star_offset, '/');
+
 	if (!name_slash)
 		name_slash = strrchr(name, '\0');
 
 	/* if there is no slash after the star in 'from', we want to copy everything over */
 	from_slash = strchr(from + star_offset, '/');
+
 	if (!from_slash)
 		name_slash = strrchr(name, '\0');
 
 	replacement_len = (name_slash - name) - star_offset;
 	git_buf_put(out, name + star_offset, replacement_len);
-
 	return git_buf_puts(out, to_star + 1);
 }
 
@@ -268,23 +260,20 @@ int git_refspec__serialize(git_buf *out, const git_refspec *refspec)
 		git_buf_putc(out, '+');
 
 	git_buf_printf(out, "%s:%s",
-		refspec->src != NULL ? refspec->src : "",
-		refspec->dst != NULL ? refspec->dst : "");
-
+	               refspec->src != NULL ? refspec->src : "",
+	               refspec->dst != NULL ? refspec->dst : "");
 	return git_buf_oom(out) == false;
 }
 
 int git_refspec_is_wildcard(const git_refspec *spec)
 {
 	assert(spec && spec->src);
-
 	return (spec->src[strlen(spec->src) - 1] == '*');
 }
 
 git_direction git_refspec_direction(const git_refspec *spec)
 {
 	assert(spec);
-
 	return spec->push;
 }
 
@@ -293,17 +282,14 @@ int git_refspec__dwim_one(git_vector *out, git_refspec *spec, git_vector *refs)
 	git_buf buf = GIT_BUF_INIT;
 	size_t j, pos;
 	git_remote_head key;
-
-	const char* formatters[] = {
+	const char *formatters[] = {
 		GIT_REFS_DIR "%s",
 		GIT_REFS_TAGS_DIR "%s",
 		GIT_REFS_HEADS_DIR "%s",
 		NULL
 	};
-
 	git_refspec *cur = git__calloc(1, sizeof(git_refspec));
 	GITERR_CHECK_ALLOC(cur);
-
 	cur->force = spec->force;
 	cur->push = spec->push;
 	cur->pattern = spec->pattern;
@@ -314,10 +300,12 @@ int git_refspec__dwim_one(git_vector *out, git_refspec *spec, git_vector *refs)
 	if (git__prefixcmp(spec->src, GIT_REFS_DIR)) {
 		for (j = 0; formatters[j]; j++) {
 			git_buf_clear(&buf);
+
 			if (git_buf_printf(&buf, formatters[j], spec->src) < 0)
 				return -1;
 
 			key.name = (char *) git_buf_cstr(&buf);
+
 			if (!git_vector_search(&pos, refs, &key)) {
 				/* we found something to match the shorthand, set src to that */
 				cur->src = git_buf_detach(&buf);
@@ -333,11 +321,10 @@ int git_refspec__dwim_one(git_vector *out, git_refspec *spec, git_vector *refs)
 
 	if (spec->dst && git__prefixcmp(spec->dst, GIT_REFS_DIR)) {
 		/* if it starts with "remotes" then we just prepend "refs/" */
-		if (!git__prefixcmp(spec->dst, "remotes/")) {
+		if (!git__prefixcmp(spec->dst, "remotes/"))
 			git_buf_puts(&buf, GIT_REFS_DIR);
-		} else {
+		else
 			git_buf_puts(&buf, GIT_REFS_HEADS_DIR);
-		}
 
 		if (git_buf_puts(&buf, spec->dst) < 0)
 			return -1;

@@ -25,8 +25,8 @@ GIT__USE_OIDMAP;
 
 struct commit_name {
 	git_tag *tag;
-	unsigned prio:2; /* annotated tag = 2, tag = 1, head = 0 */
-	unsigned name_checked:1;
+	unsigned prio: 2; /* annotated tag = 2, tag = 1, head = 0 */
+	unsigned name_checked: 1;
 	git_oid sha1;
 	char *path;
 
@@ -45,18 +45,18 @@ static void *oidmap_value_bykey(git_oidmap *map, const git_oid *key)
 }
 
 static struct commit_name *find_commit_name(
-	git_oidmap *names,
-	const git_oid *peeled)
+    git_oidmap *names,
+    const git_oid *peeled)
 {
 	return (struct commit_name *)(oidmap_value_bykey(names, peeled));
 }
 
 static int replace_name(
-	git_tag **tag,
-	git_repository *repo,
-	struct commit_name *e,
-	unsigned int prio,
-	const git_oid *sha1)
+    git_tag **tag,
+    git_repository *repo,
+    struct commit_name *e,
+    unsigned int prio,
+    const git_oid *sha1)
 {
 	git_time_t e_time = 0, t_time = 0;
 
@@ -72,6 +72,7 @@ static int replace_name(
 		if (!e->tag) {
 			if (git_tag_lookup(&t, repo, &e->sha1) < 0)
 				return 1;
+
 			e->tag = t;
 		}
 
@@ -94,28 +95,28 @@ static int replace_name(
 }
 
 static int add_to_known_names(
-	git_repository *repo,
-	git_oidmap *names,
-	const char *path,
-	const git_oid *peeled,
-	unsigned int prio,
-	const git_oid *sha1)
+    git_repository *repo,
+    git_oidmap *names,
+    const char *path,
+    const git_oid *peeled,
+    unsigned int prio,
+    const git_oid *sha1)
 {
 	struct commit_name *e = find_commit_name(names, peeled);
 	bool found = (e != NULL);
-
 	git_tag *tag = NULL;
+
 	if (replace_name(&tag, repo, e, prio, sha1)) {
 		if (!found) {
 			e = git__malloc(sizeof(struct commit_name));
 			GITERR_CHECK_ALLOC(e);
-
 			e->path = NULL;
 			e->tag = NULL;
 		}
 
 		if (e->tag)
 			git_tag_free(e->tag);
+
 		e->tag = tag;
 		e->prio = prio;
 		e->name_checked = 0;
@@ -126,23 +127,22 @@ static int add_to_known_names(
 
 		if (!found) {
 			int ret;
-
 			git_oidmap_insert(names, &e->peeled, e, ret);
+
 			if (ret < 0)
 				return -1;
 		}
-	}
-	else
+	} else
 		git_tag_free(tag);
 
 	return 0;
 }
 
 static int retrieve_peeled_tag_or_object_oid(
-	git_oid *peeled_out,
-	git_oid *ref_target_out,
-	git_repository *repo,
-	const char *refname)
+    git_oid *peeled_out,
+    git_oid *ref_target_out,
+    git_repository *repo,
+    const char *refname)
 {
 	git_reference *ref;
 	git_object *peeled = NULL;
@@ -178,8 +178,7 @@ struct git_describe_result {
 	struct possible_tag *tag;
 };
 
-struct get_name_data
-{
+struct get_name_data {
 	git_describe_options *opts;
 	git_repository *repo;
 	git_oidmap *names;
@@ -189,10 +188,8 @@ struct get_name_data
 static int commit_name_dup(struct commit_name **out, struct commit_name *in)
 {
 	struct commit_name *name;
-
 	name = git__malloc(sizeof(struct commit_name));
 	GITERR_CHECK_ALLOC(name);
-
 	memcpy(name, in,  sizeof(struct commit_name));
 	name->tag = NULL;
 	name->path = NULL;
@@ -202,7 +199,6 @@ static int commit_name_dup(struct commit_name **out, struct commit_name *in)
 
 	name->path = git__strdup(in->path);
 	GITERR_CHECK_ALLOC(name->path);
-
 	*out = name;
 	return 0;
 }
@@ -214,7 +210,6 @@ static int get_name(const char *refname, void *payload)
 	git_oid peeled, sha1;
 	unsigned int prio;
 	int error = 0;
-
 	data = (struct get_name_data *)payload;
 	is_tag = !git__prefixcmp(refname, GIT_REFS_TAGS_DIR);
 	all = data->opts->describe_strategy == GIT_DESCRIBE_ALL;
@@ -225,12 +220,12 @@ static int get_name(const char *refname, void *payload)
 
 	/* Accept only tags that match the pattern, if given */
 	if (data->opts->pattern && (!is_tag || p_fnmatch(data->opts->pattern,
-		refname + strlen(GIT_REFS_TAGS_DIR), 0)))
-				return 0;
+	                            refname + strlen(GIT_REFS_TAGS_DIR), 0)))
+		return 0;
 
 	/* Is it annotated? */
 	if ((error = retrieve_peeled_tag_or_object_oid(
-		&peeled, &sha1, data->repo, refname)) < 0)
+	                 &peeled, &sha1, data->repo, refname)) < 0)
 		return error;
 
 	is_annotated = error;
@@ -249,8 +244,8 @@ static int get_name(const char *refname, void *payload)
 		prio = 0;
 
 	add_to_known_names(data->repo, data->names,
-		all ? refname + strlen(GIT_REFS_DIR) : refname + strlen(GIT_REFS_TAGS_DIR),
-		&peeled, prio, &sha1);
+	                   all ? refname + strlen(GIT_REFS_DIR) : refname + strlen(GIT_REFS_TAGS_DIR),
+	                   &peeled, prio, &sha1);
 	return 0;
 }
 
@@ -265,10 +260,8 @@ static int possible_tag_dup(struct possible_tag **out, struct possible_tag *in)
 {
 	struct possible_tag *tag;
 	int error;
-
 	tag = git__malloc(sizeof(struct possible_tag));
 	GITERR_CHECK_ALLOC(tag);
-
 	memcpy(tag, in, sizeof(struct possible_tag));
 	tag->name = NULL;
 
@@ -286,19 +279,22 @@ static int compare_pt(const void *a_, const void *b_)
 {
 	struct possible_tag *a = (struct possible_tag *)a_;
 	struct possible_tag *b = (struct possible_tag *)b_;
+
 	if (a->depth != b->depth)
 		return a->depth - b->depth;
+
 	if (a->found_order != b->found_order)
 		return a->found_order - b->found_order;
+
 	return 0;
 }
 
 #define SEEN (1u << 0)
 
 static unsigned long finish_depth_computation(
-	git_pqueue *list,
-	git_revwalk *walk,
-	struct possible_tag *best)
+    git_pqueue *list,
+    git_revwalk *walk,
+    struct possible_tag *best)
 {
 	unsigned long seen_commits = 0;
 	int error, i;
@@ -306,28 +302,38 @@ static unsigned long finish_depth_computation(
 	while (git_pqueue_size(list) > 0) {
 		git_commit_list_node *c = git_pqueue_pop(list);
 		seen_commits++;
+
 		if (c->flags & best->flag_within) {
 			size_t index = 0;
+
 			while (git_pqueue_size(list) > index) {
 				git_commit_list_node *i = git_pqueue_get(list, index);
+
 				if (!(i->flags & best->flag_within))
 					break;
+
 				index++;
 			}
+
 			if (index > git_pqueue_size(list))
 				break;
 		} else
 			best->depth++;
+
 		for (i = 0; i < c->out_degree; i++) {
 			git_commit_list_node *p = c->parents[i];
+
 			if ((error = git_commit_list_parse(walk, p)) < 0)
 				return error;
+
 			if (!(p->flags & SEEN))
 				if ((error = git_pqueue_insert(list, p)) < 0)
 					return error;
+
 			p->flags |= c->flags;
 		}
 	}
+
 	return seen_commits;
 }
 
@@ -350,7 +356,6 @@ static int display_name(git_buf *buf, git_repository *repo, struct commit_name *
 		if (strcmp(n->tag->tag, all ? n->path + 5 : n->path))
 			warning(_("tag '%s' is really '%s' here"), n->tag->tag, n->path);
 		*/
-
 		n->name_checked = 1;
 	}
 
@@ -363,10 +368,10 @@ static int display_name(git_buf *buf, git_repository *repo, struct commit_name *
 }
 
 static int find_unique_abbrev_size(
-	int *out,
-	git_repository *repo,
-	const git_oid *oid_in,
-	int abbreviated_size)
+    int *out,
+    git_repository *repo,
+    const git_oid *oid_in,
+    int abbreviated_size)
 {
 	size_t size = abbreviated_size;
 	git_odb *odb;
@@ -392,46 +397,41 @@ static int find_unique_abbrev_size(
 
 	/* If we didn't find any shorter prefix, we have to do the whole thing */
 	*out = GIT_OID_HEXSZ;
-	
 	return 0;
 }
 
 static int show_suffix(
-	git_buf *buf,
-	int depth,
-	git_repository *repo,
-	const git_oid* id,
-	size_t abbrev_size)
+    git_buf *buf,
+    int depth,
+    git_repository *repo,
+    const git_oid *id,
+    size_t abbrev_size)
 {
 	int error, size = 0;
-
 	char hex_oid[GIT_OID_HEXSZ];
 
 	if ((error = find_unique_abbrev_size(&size, repo, id, abbrev_size)) < 0)
 		return error;
 
 	git_oid_fmt(hex_oid, id);
-
 	git_buf_printf(buf, "-%d-g", depth);
-
 	git_buf_put(buf, hex_oid, size);
-
 	return git_buf_oom(buf) ? -1 : 0;
 }
 
 #define MAX_CANDIDATES_TAGS FLAG_BITS - 1
 
-static int describe_not_found(const git_oid *oid, const char *message_format) {
+static int describe_not_found(const git_oid *oid, const char *message_format)
+{
 	char oid_str[GIT_OID_HEXSZ + 1];
 	git_oid_tostr(oid_str, sizeof(oid_str), oid);
-
 	giterr_set(GITERR_DESCRIBE, message_format, oid_str);
 	return GIT_ENOTFOUND;
 }
 
 static int describe(
-	struct get_name_data *data,
-	git_commit *commit)
+    struct get_name_data *data,
+    git_commit *commit)
 {
 	struct commit_name *n;
 	struct possible_tag *best;
@@ -453,15 +453,15 @@ static int describe(
 
 	all = data->opts->describe_strategy == GIT_DESCRIBE_ALL;
 	tags = data->opts->describe_strategy == GIT_DESCRIBE_TAGS;
-
 	git_oid_cpy(&data->result->commit_id, git_commit_id(commit));
-
 	n = find_commit_name(data->names, git_commit_id(commit));
+
 	if (n && (tags || all || n->prio == 2)) {
 		/*
 		 * Exact match to an existing ref.
 		 */
 		data->result->exact_match = 1;
+
 		if ((error = commit_name_dup(&data->result->name, n)) < 0)
 			goto cleanup;
 
@@ -470,9 +470,8 @@ static int describe(
 
 	if (!data->opts->max_candidates_tags) {
 		error = describe_not_found(
-			git_commit_id(commit),
-			"Cannot describe - no tag exactly matches '%s'");
-
+		            git_commit_id(commit),
+		            "Cannot describe - no tag exactly matches '%s'");
 		goto cleanup;
 	}
 
@@ -490,35 +489,32 @@ static int describe(
 	if ((error = git_pqueue_insert(&list, cmit)) < 0)
 		goto cleanup;
 
-	while (git_pqueue_size(&list) > 0)
-	{
+	while (git_pqueue_size(&list) > 0) {
 		int i;
-
 		git_commit_list_node *c = (git_commit_list_node *)git_pqueue_pop(&list);
 		seen_commits++;
-
 		n = find_commit_name(data->names, &c->oid);
 
 		if (n) {
-			if (!tags && !all && n->prio < 2) {
+			if (!tags && !all && n->prio < 2)
 				unannotated_cnt++;
-			} else if (match_cnt < data->opts->max_candidates_tags) {
+			else if (match_cnt < data->opts->max_candidates_tags) {
 				struct possible_tag *t = git__malloc(sizeof(struct commit_name));
 				GITERR_CHECK_ALLOC(t);
+
 				if ((error = git_vector_insert(&all_matches, t)) < 0)
 					goto cleanup;
 
 				match_cnt++;
-
 				t->name = n;
 				t->depth = seen_commits - 1;
 				t->flag_within = 1u << match_cnt;
 				t->found_order = match_cnt;
 				c->flags |= t->flag_within;
+
 				if (n->prio == 2)
 					annotated_cnt++;
-			}
-			else {
+			} else {
 				gave_up_on = c;
 				break;
 			}
@@ -526,6 +522,7 @@ static int describe(
 
 		for (cur_match = 0; cur_match < match_cnt; cur_match++) {
 			struct possible_tag *t = git_vector_get(&all_matches, cur_match);
+
 			if (!(c->flags & t->flag_within))
 				t->depth++;
 		}
@@ -541,13 +538,17 @@ static int describe(
 			*/
 			break;
 		}
+
 		for (i = 0; i < c->out_degree; i++) {
 			git_commit_list_node *p = c->parents[i];
+
 			if ((error = git_commit_list_parse(walk, p)) < 0)
 				goto cleanup;
+
 			if (!(p->flags & SEEN))
 				if ((error = git_pqueue_insert(&list, p)) < 0)
 					goto cleanup;
+
 			p->flags |= c->flags;
 
 			if (data->opts->only_follow_first_parent)
@@ -559,37 +560,37 @@ static int describe(
 		if (data->opts->show_commit_oid_as_fallback) {
 			data->result->fallback_to_id = 1;
 			git_oid_cpy(&data->result->commit_id, &cmit->oid);
+			goto cleanup;
+		}
 
-			goto cleanup;
-		}
 		if (unannotated_cnt) {
-			error = describe_not_found(git_commit_id(commit), 
-				"Cannot describe - "
-				"No annotated tags can describe '%s'."
-			    "However, there were unannotated tags.");
+			error = describe_not_found(git_commit_id(commit),
+			                           "Cannot describe - "
+			                           "No annotated tags can describe '%s'."
+			                           "However, there were unannotated tags.");
 			goto cleanup;
-		}
-		else {
-			error = describe_not_found(git_commit_id(commit), 
-				"Cannot describe - "
-				"No tags can describe '%s'.");
+		} else {
+			error = describe_not_found(git_commit_id(commit),
+			                           "Cannot describe - "
+			                           "No tags can describe '%s'.");
 			goto cleanup;
 		}
 	}
 
 	git_vector_sort(&all_matches);
-
 	best = (struct possible_tag *)git_vector_get(&all_matches, 0);
 
 	if (gave_up_on) {
 		git_pqueue_insert(&list, gave_up_on);
 		seen_commits--;
 	}
+
 	if ((error = finish_depth_computation(
-		&list, walk, best)) < 0)
+	                 &list, walk, best)) < 0)
 		goto cleanup;
 
 	seen_commits += error;
+
 	if ((error = possible_tag_dup(&data->result->tag, best)) < 0)
 		goto cleanup;
 
@@ -620,11 +621,8 @@ static int describe(
 		}
 	}
 	*/
-
 	git_oid_cpy(&data->result->commit_id, &cmit->oid);
-
-cleanup:
-	{
+cleanup: {
 		size_t i;
 		struct possible_tag *match;
 		git_vector_foreach(&all_matches, i, match) {
@@ -638,10 +636,11 @@ cleanup:
 }
 
 static int normalize_options(
-	git_describe_options *dst,
-	const git_describe_options *src)
+    git_describe_options *dst,
+    const git_describe_options *src)
 {
 	git_describe_options default_options = GIT_DESCRIBE_OPTIONS_INIT;
+
 	if (!src) src = &default_options;
 
 	*dst = *src;
@@ -653,33 +652,29 @@ static int normalize_options(
 }
 
 int git_describe_commit(
-	git_describe_result **result,
-	git_object *committish,
-	git_describe_options *opts)
+    git_describe_result **result,
+    git_object *committish,
+    git_describe_options *opts)
 {
 	struct get_name_data data;
 	struct commit_name *name;
 	git_commit *commit;
 	int error = -1;
 	git_describe_options normalized;
-
 	assert(committish);
-
 	data.result = git__calloc(1, sizeof(git_describe_result));
 	GITERR_CHECK_ALLOC(data.result);
 	data.result->repo = git_object_owner(committish);
-
 	data.repo = git_object_owner(committish);
 
 	if ((error = normalize_options(&normalized, opts)) < 0)
 		return error;
 
 	GITERR_CHECK_VERSION(
-		&normalized,
-		GIT_DESCRIBE_OPTIONS_VERSION,
-		"git_describe_options");
+	    &normalized,
+	    GIT_DESCRIBE_OPTIONS_VERSION,
+	    "git_describe_options");
 	data.opts = &normalized;
-
 	data.names = git_oidmap_alloc();
 	GITERR_CHECK_ALLOC(data.names);
 
@@ -689,13 +684,13 @@ int git_describe_commit(
 		goto cleanup;
 
 	if ((error = git_reference_foreach_name(
-			git_object_owner(committish),
-			get_name, &data)) < 0)
-				goto cleanup;
+	                 git_object_owner(committish),
+	                 get_name, &data)) < 0)
+		goto cleanup;
 
 	if (git_oidmap_size(data.names) == 0 && !opts->show_commit_oid_as_fallback) {
 		giterr_set(GITERR_DESCRIBE, "Cannot describe - "
-			"No reference found, cannot describe anything.");
+		           "No reference found, cannot describe anything.");
 		error = -1;
 		goto cleanup;
 	}
@@ -705,13 +700,11 @@ int git_describe_commit(
 
 cleanup:
 	git_commit_free(commit);
-
 	git_oidmap_foreach_value(data.names, name, {
 		git_tag_free(name->tag);
 		git__free(name->path);
 		git__free(name);
 	});
-
 	git_oidmap_free(data.names);
 
 	if (error < 0)
@@ -723,9 +716,9 @@ cleanup:
 }
 
 int git_describe_workdir(
-	git_describe_result **out,
-	git_repository *repo,
-	git_describe_options *opts)
+    git_describe_result **out,
+    git_repository *repo,
+    git_describe_options *opts)
 {
 	int error;
 	git_oid current_id;
@@ -747,7 +740,6 @@ int git_describe_workdir(
 	if ((error = git_status_list_new(&status, repo, &status_opts)) < 0)
 		goto out;
 
-
 	if (git_status_list_entrycount(status) > 0)
 		result->dirty = 1;
 
@@ -764,8 +756,8 @@ out:
 }
 
 static int normalize_format_options(
-	git_describe_format_options *dst,
-	const git_describe_format_options *src)
+    git_describe_format_options *dst,
+    const git_describe_format_options *src)
 {
 	if (!src) {
 		git_describe_init_format_options(dst, GIT_DESCRIBE_FORMAT_OPTIONS_VERSION);
@@ -782,33 +774,30 @@ int git_describe_format(git_buf *out, const git_describe_result *result, const g
 	git_repository *repo;
 	struct commit_name *name;
 	git_describe_format_options opts;
-
 	assert(out && result);
-
 	GITERR_CHECK_VERSION(given, GIT_DESCRIBE_FORMAT_OPTIONS_VERSION, "git_describe_format_options");
 	normalize_format_options(&opts, given);
-
 	git_buf_sanitize(out);
-
 
 	if (opts.always_use_long_format && opts.abbreviated_size == 0) {
 		giterr_set(GITERR_DESCRIBE, "Cannot describe - "
-			"'always_use_long_format' is incompatible with a zero"
-			"'abbreviated_size'");
+		           "'always_use_long_format' is incompatible with a zero"
+		           "'abbreviated_size'");
 		return -1;
 	}
-
 
 	repo = result->repo;
 
 	/* If we did find an exact match, then it's the easier method */
 	if (result->exact_match) {
 		name = result->name;
+
 		if ((error = display_name(out, repo, name)) < 0)
 			return error;
 
 		if (opts.always_use_long_format) {
 			const git_oid *id = name->tag ? git_tag_target_id(name->tag) : &result->commit_id;
+
 			if ((error = show_suffix(out, 0, repo, id, opts.abbreviated_size)) < 0)
 				return error;
 		}
@@ -825,7 +814,7 @@ int git_describe_format(git_buf *out, const git_describe_result *result, const g
 		int size = 0;
 
 		if ((error = find_unique_abbrev_size(
-			     &size, repo, &result->commit_id, opts.abbreviated_size)) < 0)
+		                 &size, repo, &result->commit_id, opts.abbreviated_size)) < 0)
 			return -1;
 
 		git_oid_fmt(hex_oid, &result->commit_id);
@@ -845,13 +834,12 @@ int git_describe_format(git_buf *out, const git_describe_result *result, const g
 
 	if (opts.abbreviated_size) {
 		if ((error = show_suffix(out, result->tag->depth, repo,
-			&result->commit_id, opts.abbreviated_size)) < 0)
+		                         &result->commit_id, opts.abbreviated_size)) < 0)
 			return error;
 	}
 
-	if (result->dirty && opts.dirty_suffix) {
+	if (result->dirty && opts.dirty_suffix)
 		git_buf_puts(out, opts.dirty_suffix);
-	}
 
 	return git_buf_oom(out) ? -1 : 0;
 }
@@ -880,13 +868,13 @@ void git_describe_result_free(git_describe_result *result)
 int git_describe_init_options(git_describe_options *opts, unsigned int version)
 {
 	GIT_INIT_STRUCTURE_FROM_TEMPLATE(
-		opts, version, git_describe_options, GIT_DESCRIBE_OPTIONS_INIT);
+	    opts, version, git_describe_options, GIT_DESCRIBE_OPTIONS_INIT);
 	return 0;
 }
 
 int git_describe_init_format_options(git_describe_format_options *opts, unsigned int version)
 {
 	GIT_INIT_STRUCTURE_FROM_TEMPLATE(
-		opts, version, git_describe_format_options, GIT_DESCRIBE_FORMAT_OPTIONS_INIT);
+	    opts, version, git_describe_format_options, GIT_DESCRIBE_FORMAT_OPTIONS_INIT);
 	return 0;
 }

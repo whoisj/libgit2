@@ -18,8 +18,8 @@
  * or else will default to the HEAD commit.
  */
 extern int git_checkout_iterator(
-	git_iterator *target,
-	git_index *index,
-	const git_checkout_options *opts);
+    git_iterator *target,
+    git_index *index,
+    const git_checkout_options *opts);
 
 #endif

@@ -35,10 +35,10 @@ GIT_BEGIN_DECL
  * buffer (after any existing content).
  */
 GIT_EXTERN(int) git_diff_print_callback__to_buf(
-	const git_diff_delta *delta,
-	const git_diff_hunk *hunk,
-	const git_diff_line *line,
-	void *payload); /*< payload must be a `git_buf *` */
+    const git_diff_delta *delta,
+    const git_diff_hunk *hunk,
+    const git_diff_line *line,
+    void *payload); /*< payload must be a `git_buf *` */
 
 /**
  * Diff print callback that writes to stdio FILE handle.
@@ -55,10 +55,10 @@ GIT_EXTERN(int) git_diff_print_callback__to_buf(
  * data to `stdout`.
  */
 GIT_EXTERN(int) git_diff_print_callback__to_file_handle(
-	const git_diff_delta *delta,
-	const git_diff_hunk *hunk,
-	const git_diff_line *line,
-	void *payload); /*< payload must be a `FILE *` */
+    const git_diff_delta *delta,
+    const git_diff_hunk *hunk,
+    const git_diff_line *line,
+    void *payload); /*< payload must be a `FILE *` */
 
 
 /**
@@ -81,13 +81,13 @@ typedef struct {
  * @return 0 for success, <0 for error
  */
 GIT_EXTERN(int) git_diff_get_perfdata(
-	git_diff_perfdata *out, const git_diff *diff);
+    git_diff_perfdata *out, const git_diff *diff);
 
 /**
  * Get performance data for diffs from a git_status_list
  */
 GIT_EXTERN(int) git_status_list_get_perfdata(
-	git_diff_perfdata *out, const git_status_list *status);
+    git_diff_perfdata *out, const git_status_list *status);
 
 /** @} */
 GIT_END_DECL

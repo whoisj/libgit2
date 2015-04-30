@@ -39,9 +39,7 @@ int p_mmap(git_map *out, size_t len, int prot, int flags, int fd, git_off_t offs
 	DWORD off_hi = 0;
 	git_off_t page_start;
 	git_off_t page_offset;
-
 	GIT_MMAP_VALIDATE(out, len, prot, flags);
-
 	out->data = NULL;
 	out->len = 0;
 	out->fmh = NULL;
@@ -59,6 +57,7 @@ int p_mmap(git_map *out, size_t len, int prot, int flags, int fd, git_off_t offs
 
 	if (prot & GIT_PROT_WRITE)
 		view_prot |= FILE_MAP_WRITE;
+
 	if (prot & GIT_PROT_READ)
 		view_prot |= FILE_MAP_READ;
 
@@ -72,6 +71,7 @@ int p_mmap(git_map *out, size_t len, int prot, int flags, int fd, git_off_t offs
 	}
 
 	out->fmh = CreateFileMapping(fh, NULL, fmap_prot, 0, 0, NULL);
+
 	if (!out->fmh || out->fmh == INVALID_HANDLE_VALUE) {
 		giterr_set(GITERR_OS, "Failed to mmap. Invalid handle value");
 		out->fmh = NULL;
@@ -79,25 +79,24 @@ int p_mmap(git_map *out, size_t len, int prot, int flags, int fd, git_off_t offs
 	}
 
 	assert(sizeof(git_off_t) == 8);
-
 	off_low = (DWORD)(page_start);
 	off_hi = (DWORD)(page_start >> 32);
 	out->data = MapViewOfFile(out->fmh, view_prot, off_hi, off_low, len);
+
 	if (!out->data) {
 		giterr_set(GITERR_OS, "Failed to mmap. No data written");
 		CloseHandle(out->fmh);
 		out->fmh = NULL;
 		return -1;
 	}
-	out->len = len;
 
+	out->len = len;
 	return 0;
 }
 
 int p_munmap(git_map *map)
 {
 	int error = 0;
-
 	assert(map != NULL);
 
 	if (map->data) {
@@ -105,6 +104,7 @@ int p_munmap(git_map *map)
 			giterr_set(GITERR_OS, "Failed to munmap. Could not unmap view of file");
 			error = -1;
 		}
+
 		map->data = NULL;
 	}
 
@@ -113,6 +113,7 @@ int p_munmap(git_map *map)
 			giterr_set(GITERR_OS, "Failed to munmap. Could not close handle");
 			error = -1;
 		}
+
 		map->fmh = NULL;
 	}
 

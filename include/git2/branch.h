@@ -48,11 +48,11 @@ GIT_BEGIN_DECL
  * pointing to the provided target commit.
  */
 GIT_EXTERN(int) git_branch_create(
-	git_reference **out,
-	git_repository *repo,
-	const char *branch_name,
-	const git_commit *target,
-	int force);
+    git_reference **out,
+    git_repository *repo,
+    const char *branch_name,
+    const git_commit *target,
+    int force);
 
 /**
  * Create a new branch pointing at a target commit
@@ -66,11 +66,11 @@ GIT_EXTERN(int) git_branch_create(
  * @see git_branch_create
  */
 GIT_EXTERN(int) git_branch_create_from_annotated(
-	git_reference **ref_out,
-	git_repository *repository,
-	const char *branch_name,
-	const git_annotated_commit *commit,
-	int force);
+    git_reference **ref_out,
+    git_repository *repository,
+    const char *branch_name,
+    const git_annotated_commit *commit,
+    int force);
 
 /**
  * Delete an existing branch reference.
@@ -99,9 +99,9 @@ typedef struct git_branch_iterator git_branch_iterator;
  * @return 0 on success  or an error code
  */
 GIT_EXTERN(int) git_branch_iterator_new(
-	git_branch_iterator **out,
-	git_repository *repo,
-	git_branch_t list_flags);
+    git_branch_iterator **out,
+    git_repository *repo,
+    git_branch_t list_flags);
 
 /**
  * Retrieve the next branch from the iterator
@@ -136,10 +136,10 @@ GIT_EXTERN(void) git_branch_iterator_free(git_branch_iterator *iter);
  * @return 0 on success, GIT_EINVALIDSPEC or an error code.
  */
 GIT_EXTERN(int) git_branch_move(
-	git_reference **out,
-	git_reference *branch,
-	const char *new_branch_name,
-	int force);
+    git_reference **out,
+    git_reference *branch,
+    const char *new_branch_name,
+    int force);
 
 /**
  * Lookup a branch by its name in a repository.
@@ -163,10 +163,10 @@ GIT_EXTERN(int) git_branch_move(
  * exists, GIT_EINVALIDSPEC, otherwise an error code.
  */
 GIT_EXTERN(int) git_branch_lookup(
-	git_reference **out,
-	git_repository *repo,
-	const char *branch_name,
-	git_branch_t branch_type);
+    git_reference **out,
+    git_repository *repo,
+    const char *branch_name,
+    git_branch_t branch_type);
 
 /**
  * Return the name of the given local or remote branch.
@@ -184,8 +184,8 @@ GIT_EXTERN(int) git_branch_lookup(
  *  ref is no local or remote branch).
  */
 GIT_EXTERN(int) git_branch_name(
-		const char **out,
-		const git_reference *ref);
+    const char **out,
+    const git_reference *ref);
 
 /**
  * Return the reference supporting the remote tracking branch,
@@ -200,8 +200,8 @@ GIT_EXTERN(int) git_branch_name(
  * reference exists, otherwise an error code.
  */
 GIT_EXTERN(int) git_branch_upstream(
-	git_reference **out,
-	const git_reference *branch);
+    git_reference **out,
+    const git_reference *branch);
 
 /**
  * Set the upstream configuration for a given local branch
@@ -230,9 +230,9 @@ GIT_EXTERN(int) git_branch_set_upstream(git_reference *branch, const char *upstr
  *     otherwise an error code.
  */
 GIT_EXTERN(int) git_branch_upstream_name(
-	git_buf *out,
-	git_repository *repo,
-	const char *refname);
+    git_buf *out,
+    git_repository *repo,
+    const char *refname);
 
 /**
  * Determine if the current local branch is pointed at by HEAD.
@@ -243,7 +243,7 @@ GIT_EXTERN(int) git_branch_upstream_name(
  * error code otherwise.
  */
 GIT_EXTERN(int) git_branch_is_head(
-	const git_reference *branch);
+    const git_reference *branch);
 
 /**
  * Return the name of remote that the remote tracking branch belongs to.
@@ -260,9 +260,9 @@ GIT_EXTERN(int) git_branch_is_head(
  *     otherwise an error code.
  */
 GIT_EXTERN(int) git_branch_remote_name(
-	git_buf *out,
-	git_repository *repo,
-	const char *canonical_branch_name);
+    git_buf *out,
+    git_repository *repo,
+    const char *canonical_branch_name);
 
 
 /**
@@ -273,7 +273,7 @@ GIT_EXTERN(int) git_branch_remote_name(
  * @param refname the full name of the branch
  * @return 0 or an error code
  */
- GIT_EXTERN(int) git_branch_upstream_remote(git_buf *buf, git_repository *repo, const char *refname);
+GIT_EXTERN(int) git_branch_upstream_remote(git_buf *buf, git_repository *repo, const char *refname);
 
 /** @} */
 GIT_END_DECL

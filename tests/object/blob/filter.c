@@ -52,7 +52,6 @@ static git_buf_text_stats g_crlf_filtered_stats[CRLF_NUM_TEST_OBJECTS] = {
 void test_object_blob_filter__initialize(void)
 {
 	int i;
-
 	g_repo = cl_git_sandbox_init("empty_standard_repo");
 
 	for (i = 0; i < CRLF_NUM_TEST_OBJECTS; i++) {
@@ -60,7 +59,7 @@ void test_object_blob_filter__initialize(void)
 			g_crlf_raw_len[i] = strlen(g_crlf_raw[i]);
 
 		cl_git_pass(git_blob_create_frombuffer(
-			&g_crlf_oids[i], g_repo, g_crlf_raw[i], (size_t)g_crlf_raw_len[i]));
+		                &g_crlf_oids[i], g_repo, g_crlf_raw[i], (size_t)g_crlf_raw_len[i]));
 	}
 }
 
@@ -76,13 +75,10 @@ void test_object_blob_filter__unfiltered(void)
 
 	for (i = 0; i < CRLF_NUM_TEST_OBJECTS; i++) {
 		size_t raw_len = (size_t)g_crlf_raw_len[i];
-
 		cl_git_pass(git_blob_lookup(&blob, g_repo, &g_crlf_oids[i]));
-
 		cl_assert_equal_sz(raw_len, (size_t)git_blob_rawsize(blob));
 		cl_assert_equal_i(
-			0, memcmp(g_crlf_raw[i], git_blob_rawcontent(blob), raw_len));
-
+		    0, memcmp(g_crlf_raw[i], git_blob_rawcontent(blob), raw_len));
 		git_blob_free(blob);
 	}
 }
@@ -99,7 +95,7 @@ void test_object_blob_filter__stats(void)
 		cl_git_pass(git_blob__getbuf(&buf, blob));
 		git_buf_text_gather_stats(&stats, &buf, false);
 		cl_assert_equal_i(
-			0, memcmp(&g_crlf_filtered_stats[i], &stats, sizeof(stats)));
+		    0, memcmp(&g_crlf_filtered_stats[i], &stats, sizeof(stats)));
 		git_blob_free(blob);
 	}
 
@@ -113,34 +109,28 @@ void test_object_blob_filter__to_odb(void)
 	int i;
 	git_blob *blob;
 	git_buf out = GIT_BUF_INIT, zeroed;
-
 	cl_git_pass(git_repository_config(&cfg, g_repo));
 	cl_assert(cfg);
-
 	git_attr_cache_flush(g_repo);
 	cl_git_append2file("empty_standard_repo/.gitattributes", "*.txt text\n");
-
 	cl_git_pass(git_filter_list_load(
-		&fl, g_repo, NULL, "filename.txt", GIT_FILTER_TO_ODB, 0));
+	                &fl, g_repo, NULL, "filename.txt", GIT_FILTER_TO_ODB, 0));
 	cl_assert(fl != NULL);
 
 	for (i = 0; i < CRLF_NUM_TEST_OBJECTS; i++) {
 		cl_git_pass(git_blob_lookup(&blob, g_repo, &g_crlf_oids[i]));
-
 		/* try once with allocated blob */
 		cl_git_pass(git_filter_list_apply_to_blob(&out, fl, blob));
 		cl_assert_equal_sz(g_crlf_filtered[i].size, out.size);
 		cl_assert_equal_i(
-			0, memcmp(out.ptr, g_crlf_filtered[i].ptr, out.size));
-
+		    0, memcmp(out.ptr, g_crlf_filtered[i].ptr, out.size));
 		/* try again with zeroed blob */
 		memset(&zeroed, 0, sizeof(zeroed));
 		cl_git_pass(git_filter_list_apply_to_blob(&zeroed, fl, blob));
 		cl_assert_equal_sz(g_crlf_filtered[i].size, zeroed.size);
 		cl_assert_equal_i(
-			0, memcmp(zeroed.ptr, g_crlf_filtered[i].ptr, zeroed.size));
+		    0, memcmp(zeroed.ptr, g_crlf_filtered[i].ptr, zeroed.size));
 		git_buf_free(&zeroed);
-
 		git_blob_free(blob);
 	}
 

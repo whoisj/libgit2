@@ -4,4 +4,4 @@
 #define KNOWN_COMMIT_IN_ATTR_REPO "217878ab49e1314388ea2e32dc6fdb58a1b969e0"
 
 void reflog_check(git_repository *repo, const char *refname,
-		size_t exp_count, const char *exp_email, const char *exp_msg);
+                  size_t exp_count, const char *exp_email, const char *exp_msg);

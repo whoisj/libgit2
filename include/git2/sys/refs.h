@@ -29,9 +29,9 @@ GIT_BEGIN_DECL
  * @return the created git_reference or NULL on error
  */
 GIT_EXTERN(git_reference *) git_reference__alloc(
-	const char *name,
-	const git_oid *oid,
-	const git_oid *peel);
+    const char *name,
+    const git_oid *oid,
+    const git_oid *peel);
 
 /**
  * Create a new symbolic reference.
@@ -41,8 +41,8 @@ GIT_EXTERN(git_reference *) git_reference__alloc(
  * @return the created git_reference or NULL on error
  */
 GIT_EXTERN(git_reference *) git_reference__alloc_symbolic(
-	const char *name,
-	const char *target);
+    const char *name,
+    const char *target);
 
 /** @} */
 GIT_END_DECL

@@ -33,8 +33,8 @@ typedef struct {
 	const char *message;
 	git_signature *sig;
 
-	unsigned int committed :1,
-		remove :1;
+	unsigned int committed : 1,
+	         remove : 1;
 } transaction_node;
 
 struct git_transaction {
@@ -50,13 +50,13 @@ int git_transaction_new(git_transaction **out, git_repository *repo)
 	int error;
 	git_pool pool;
 	git_transaction *tx = NULL;
-
 	assert(out && repo);
 
 	if ((error = git_pool_init(&pool, 1, 0)) < 0)
 		return error;
 
 	tx = git_pool_mallocz(&pool, sizeof(git_transaction));
+
 	if (!tx) {
 		error = -1;
 		goto on_error;
@@ -74,7 +74,6 @@ int git_transaction_new(git_transaction **out, git_repository *repo)
 	tx->repo = repo;
 	*out = tx;
 	return 0;
-
 on_error:
 	git_pool_clear(&pool);
 	return error;
@@ -84,12 +83,9 @@ int git_transaction_lock_ref(git_transaction *tx, const char *refname)
 {
 	int error;
 	transaction_node *node;
-
 	assert(tx && refname);
-
 	node = git_pool_mallocz(&tx->pool, sizeof(transaction_node));
 	GITERR_CHECK_ALLOC(node);
-
 	node->name = git_pool_strdup(&tx->pool, refname);
 	GITERR_CHECK_ALLOC(node->name);
 
@@ -97,14 +93,13 @@ int git_transaction_lock_ref(git_transaction *tx, const char *refname)
 		return error;
 
 	git_strmap_insert(tx->locks, node->name, node, error);
-	if (error < 0) 
+
+	if (error < 0)
 		goto cleanup;
 
 	return 0;
-
 cleanup:
 	git_refdb_unlock(tx->db, node->payload, false, false, NULL, NULL, NULL);
-
 	return error;
 }
 
@@ -112,15 +107,14 @@ static int find_locked(transaction_node **out, git_transaction *tx, const char *
 {
 	git_strmap_iter pos;
 	transaction_node *node;
-
 	pos = git_strmap_lookup_index(tx->locks, refname);
+
 	if (!git_strmap_valid_index(tx->locks, pos)) {
 		giterr_set(GITERR_REFERENCE, "the specified reference is not locked");
 		return GIT_ENOTFOUND;
 	}
 
 	node = git_strmap_value_at(tx->locks, pos);
-
 	*out = node;
 	return 0;
 }
@@ -140,6 +134,7 @@ static int copy_common(transaction_node *node, git_transaction *tx, const git_si
 		/* make sure the sig we use is in our pool */
 		error = git_signature__pdup(&node->sig, tmp, &tx->pool);
 		git_signature_free(tmp);
+
 		if (error < 0)
 			return error;
 	}
@@ -156,7 +151,6 @@ int git_transaction_set_target(git_transaction *tx, const char *refname, const g
 {
 	int error;
 	transaction_node *node;
-
 	assert(tx && refname && target);
 
 	if ((error = find_locked(&node, tx, refname)) < 0)
@@ -167,7 +161,6 @@ int git_transaction_set_target(git_transaction *tx, const char *refname, const g
 
 	git_oid_cpy(&node->target.id, target);
 	node->ref_type = GIT_REF_OID;
-
 	return 0;
 }
 
@@ -175,7 +168,6 @@ int git_transaction_set_symbolic_target(git_transaction *tx, const char *refname
 {
 	int error;
 	transaction_node *node;
-
 	assert(tx && refname && target);
 
 	if ((error = find_locked(&node, tx, refname)) < 0)
@@ -187,7 +179,6 @@ int git_transaction_set_symbolic_target(git_transaction *tx, const char *refname
 	node->target.symbolic = git_pool_strdup(&tx->pool, target);
 	GITERR_CHECK_ALLOC(node->target.symbolic);
 	node->ref_type = GIT_REF_SYMBOLIC;
-
 	return 0;
 }
 
@@ -201,7 +192,6 @@ int git_transaction_remove(git_transaction *tx, const char *refname)
 
 	node->remove = true;
 	node->ref_type = GIT_REF_OID; /* the id will be ignored */
-
 	return 0;
 }
 
@@ -210,39 +200,31 @@ static int dup_reflog(git_reflog **out, const git_reflog *in, git_pool *pool)
 	git_reflog *reflog;
 	git_reflog_entry *entries;
 	size_t len, i;
-
 	reflog = git_pool_mallocz(pool, sizeof(git_reflog));
 	GITERR_CHECK_ALLOC(reflog);
-
 	reflog->ref_name = git_pool_strdup(pool, in->ref_name);
 	GITERR_CHECK_ALLOC(reflog->ref_name);
-
 	len = in->entries.length;
 	reflog->entries.length = len;
 	reflog->entries.contents = git_pool_mallocz(pool, len * sizeof(void *));
 	GITERR_CHECK_ALLOC(reflog->entries.contents);
-
 	entries = git_pool_mallocz(pool, len * sizeof(git_reflog_entry));
 	GITERR_CHECK_ALLOC(entries);
 
 	for (i = 0; i < len; i++) {
 		const git_reflog_entry *src;
 		git_reflog_entry *tgt;
-
 		tgt = &entries[i];
 		reflog->entries.contents[i] = tgt;
-
 		src = git_vector_get(&in->entries, i);
 		git_oid_cpy(&tgt->oid_old, &src->oid_old);
 		git_oid_cpy(&tgt->oid_cur, &src->oid_cur);
-
 		tgt->msg = git_pool_strdup(pool, src->msg);
 		GITERR_CHECK_ALLOC(tgt->msg);
 
 		if (git_signature__pdup(&tgt->committer, src->committer, pool) < 0)
 			return -1;
 	}
-
 
 	*out = reflog;
 	return 0;
@@ -252,7 +234,6 @@ int git_transaction_set_reflog(git_transaction *tx, const char *refname, const g
 {
 	int error;
 	transaction_node *node;
-
 	assert(tx && refname && reflog);
 
 	if ((error = find_locked(&node, tx, refname)) < 0)
@@ -269,30 +250,27 @@ static int update_target(git_refdb *db, transaction_node *node)
 	git_reference *ref;
 	int error, update_reflog;
 
-	if (node->ref_type == GIT_REF_OID) {
+	if (node->ref_type == GIT_REF_OID)
 		ref = git_reference__alloc(node->name, &node->target.id, NULL);
-	} else if (node->ref_type == GIT_REF_SYMBOLIC) {
+	else if (node->ref_type == GIT_REF_SYMBOLIC)
 		ref = git_reference__alloc_symbolic(node->name, node->target.symbolic);
-	} else {
+	else
 		abort();
-	}
 
 	GITERR_CHECK_ALLOC(ref);
 	update_reflog = node->reflog == NULL;
 
-	if (node->remove) {
+	if (node->remove)
 		error =  git_refdb_unlock(db, node->payload, 2, false, ref, NULL, NULL);
-	} else if (node->ref_type == GIT_REF_OID) {
+	else if (node->ref_type == GIT_REF_OID)
 		error = git_refdb_unlock(db, node->payload, true, update_reflog, ref, node->sig, node->message);
-	} else if (node->ref_type == GIT_REF_SYMBOLIC) {
+	else if (node->ref_type == GIT_REF_SYMBOLIC)
 		error = git_refdb_unlock(db, node->payload, true, update_reflog, ref, node->sig, node->message);
-	} else {
+	else
 		abort();
-	}
 
 	git_reference_free(ref);
 	node->committed = true;
-
 	return error;
 }
 
@@ -301,7 +279,6 @@ int git_transaction_commit(git_transaction *tx)
 	transaction_node *node;
 	git_strmap_iter pos;
 	int error = 0;
-
 	assert(tx);
 
 	for (pos = kh_begin(tx->locks); pos < kh_end(tx->locks); pos++) {
@@ -309,6 +286,7 @@ int git_transaction_commit(git_transaction *tx)
 			continue;
 
 		node = git_strmap_value_at(tx->locks, pos);
+
 		if (node->reflog) {
 			if ((error = tx->db->backend->reflog_write(tx->db->backend, node->reflog)) < 0)
 				return error;
@@ -328,7 +306,6 @@ void git_transaction_free(git_transaction *tx)
 	transaction_node *node;
 	git_pool pool;
 	git_strmap_iter pos;
-
 	assert(tx);
 
 	/* start by unlocking the ones we've left hanging, if any */
@@ -337,6 +314,7 @@ void git_transaction_free(git_transaction *tx)
 			continue;
 
 		node = git_strmap_value_at(tx->locks, pos);
+
 		if (node->committed)
 			continue;
 
@@ -345,7 +323,6 @@ void git_transaction_free(git_transaction *tx)
 
 	git_refdb_free(tx->db);
 	git_strmap_free(tx->locks);
-
 	/* tx is inside the pool, so we need to extract the data */
 	memcpy(&pool, &tx->pool, sizeof(git_pool));
 	git_pool_clear(&pool);

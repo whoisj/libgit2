@@ -64,11 +64,11 @@ typedef enum {
  * or error code.
  */
 GIT_EXTERN(int) git_stash_save(
-	git_oid *out,
-	git_repository *repo,
-	const git_signature *stasher,
-	const char *message,
-	unsigned int flags);
+    git_oid *out,
+    git_repository *repo,
+    const git_signature *stasher,
+    const char *message,
+    unsigned int flags);
 
 /**
  * This is a callback function you can provide to iterate over all the
@@ -82,10 +82,10 @@ GIT_EXTERN(int) git_stash_save(
  * @return 0 to continue iterating or non-zero to stop
  */
 typedef int (*git_stash_cb)(
-	size_t index,
-	const char* message,
-	const git_oid *stash_id,
-	void *payload);
+    size_t index,
+    const char *message,
+    const git_oid *stash_id,
+    void *payload);
 
 /**
  * Loop over all the stashed states and issue a callback for each one.
@@ -102,9 +102,9 @@ typedef int (*git_stash_cb)(
  * @return 0 on success, non-zero callback return value, or error code
  */
 GIT_EXTERN(int) git_stash_foreach(
-	git_repository *repo,
-	git_stash_cb callback,
-	void *payload);
+    git_repository *repo,
+    git_stash_cb callback,
+    void *payload);
 
 /**
  * Remove a single stashed state from the stash list.
@@ -118,8 +118,8 @@ GIT_EXTERN(int) git_stash_foreach(
  */
 
 GIT_EXTERN(int) git_stash_drop(
-	git_repository *repo,
-	size_t index);
+    git_repository *repo,
+    size_t index);
 
 /** @} */
 GIT_END_DECL

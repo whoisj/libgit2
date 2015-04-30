@@ -6,49 +6,43 @@ static git_repository *g_repo;
 
 #define MAX_USED_TAGS 6
 
-struct pattern_match_t
-{
-	const char* pattern;
+struct pattern_match_t {
+	const char *pattern;
 	const size_t expected_matches;
-	const char* expected_results[MAX_USED_TAGS];
+	const char *expected_results[MAX_USED_TAGS];
 };
 
 // Helpers
 static void ensure_tag_pattern_match(git_repository *repo,
-									 const struct pattern_match_t* data)
+                                     const struct pattern_match_t *data)
 {
 	int already_found[MAX_USED_TAGS] = { 0 };
 	git_strarray tag_list;
 	int error = 0;
 	size_t sucessfully_found = 0;
 	size_t i, j;
-
 	cl_assert(data->expected_matches <= MAX_USED_TAGS);
 
 	if ((error = git_tag_list_match(&tag_list, data->pattern, repo)) < 0)
 		goto exit;
 
-	if (tag_list.count != data->expected_matches)
-	{
+	if (tag_list.count != data->expected_matches) {
 		error = GIT_ERROR;
 		goto exit;
 	}
 
 	// we have to be prepared that tags come in any order.
-	for (i = 0; i < tag_list.count; i++)
-	{
-		for (j = 0; j < data->expected_matches; j++)
-		{
-			if (!already_found[j] && !strcmp(data->expected_results[j], tag_list.strings[i]))
-			{
+	for (i = 0; i < tag_list.count; i++) {
+		for (j = 0; j < data->expected_matches; j++) {
+			if (!already_found[j] && !strcmp(data->expected_results[j], tag_list.strings[i])) {
 				already_found[j] = 1;
 				sucessfully_found++;
 				break;
 			}
 		}
 	}
-	cl_assert_equal_i((int)sucessfully_found, (int)data->expected_matches);
 
+	cl_assert_equal_i((int)sucessfully_found, (int)data->expected_matches);
 exit:
 	git_strarray_free(&tag_list);
 	cl_git_pass(error);
@@ -69,11 +63,8 @@ void test_object_tag_list__list_all(void)
 {
 	// list all tag names from the repository
 	git_strarray tag_list;
-
 	cl_git_pass(git_tag_list(&tag_list, g_repo));
-
 	cl_assert_equal_i((int)tag_list.count, 6);
-
 	git_strarray_free(&tag_list);
 }
 
@@ -110,6 +101,7 @@ void test_object_tag_list__list_by_pattern(void)
 {
 	// list all tag names from the repository matching a specified pattern
 	size_t i = 0;
+
 	while (matches[i].pattern)
 		ensure_tag_pattern_match(g_repo, &matches[i++]);
 }

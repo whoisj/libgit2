@@ -6,9 +6,7 @@ static git_commit *commit;
 void test_commit_parent__initialize(void)
 {
 	git_oid oid;
-
 	cl_git_pass(git_repository_open(&_repo, cl_fixture("testrepo.git")));
-
 	git_oid_fromstr(&oid, "be3563ae3f795b2b4353bcce3a527ad0a4f7f644");
 	cl_git_pass(git_commit_lookup(&commit, _repo, &oid));
 }
@@ -17,7 +15,6 @@ void test_commit_parent__cleanup(void)
 {
 	git_commit_free(commit);
 	commit = NULL;
-
 	git_repository_free(_repo);
 	_repo = NULL;
 }
@@ -26,7 +23,6 @@ static void assert_nth_gen_parent(unsigned int gen, const char *expected_oid)
 {
 	git_commit *parent = NULL;
 	int error;
-	
 	error = git_commit_nth_gen_ancestor(&parent, commit, gen);
 
 	if (expected_oid != NULL) {

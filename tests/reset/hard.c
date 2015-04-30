@@ -28,13 +28,17 @@ static int strequal_ignore_eol(const char *exp, const char *str)
 	while (*exp && *str) {
 		if (*exp != *str) {
 			while (*exp == '\r' || *exp == '\n') ++exp;
+
 			while (*str == '\r' || *str == '\n') ++str;
+
 			if (*exp != *str)
 				return false;
 		} else {
-			exp++; str++;
+			exp++;
+			str++;
 		}
 	}
+
 	return (!*exp && !*str);
 }
 
@@ -46,7 +50,8 @@ void test_reset_hard__resetting_reverts_modified_files(void)
 		"current_file",
 		"modified_file",
 		"staged_new_file",
-		"staged_changes_modified_file" };
+		"staged_changes_modified_file"
+	};
 	static const char *before[4] = {
 		"current_file\n",
 		"modified_file\nmodified_file\n",
@@ -60,7 +65,6 @@ void test_reset_hard__resetting_reverts_modified_files(void)
 		"staged_changes_modified_file\n"
 	};
 	const char *wd = git_repository_workdir(repo);
-
 	cl_assert(wd);
 
 	for (i = 0; i < 4; ++i) {
@@ -70,17 +74,16 @@ void test_reset_hard__resetting_reverts_modified_files(void)
 	}
 
 	cl_git_pass(git_revparse_single(&target, repo, "26a125e"));
-
 	cl_git_pass(git_reset(repo, target, GIT_RESET_HARD, NULL));
 
 	for (i = 0; i < 4; ++i) {
 		cl_git_pass(git_buf_joinpath(&path, wd, files[i]));
+
 		if (after[i]) {
 			cl_git_pass(git_futils_readbuffer(&content, path.ptr));
 			cl_assert(strequal_ignore_eol(after[i], content.ptr));
-		} else {
+		} else
 			cl_assert(!git_path_exists(path.ptr));
-		}
 	}
 
 	git_buf_free(&content);
@@ -90,28 +93,21 @@ void test_reset_hard__resetting_reverts_modified_files(void)
 void test_reset_hard__cannot_reset_in_a_bare_repository(void)
 {
 	git_repository *bare;
-
 	cl_git_pass(git_repository_open(&bare, cl_fixture("testrepo.git")));
 	cl_assert(git_repository_is_bare(bare) == true);
-
 	cl_git_pass(git_revparse_single(&target, bare, KNOWN_COMMIT_IN_BARE_REPO));
-
 	cl_assert_equal_i(GIT_EBAREREPO, git_reset(bare, target, GIT_RESET_HARD, NULL));
-
 	git_repository_free(bare);
 }
 
 static void index_entry_init(git_index *index, int side, git_oid *oid)
 {
 	git_index_entry entry;
-
 	memset(&entry, 0x0, sizeof(git_index_entry));
-
 	entry.path = "conflicting_file";
 	entry.flags = (side << GIT_IDXENTRY_STAGESHIFT);
 	entry.mode = 0100644;
 	git_oid_cpy(&entry.id, oid);
-
 	cl_git_pass(git_index_add(index, &entry));
 }
 
@@ -121,11 +117,9 @@ static void unmerged_index_init(git_index *index, int entries)
 	int write_ours = 2;
 	int write_theirs = 4;
 	git_oid ancestor, ours, theirs;
-
 	git_oid_fromstr(&ancestor, "6bb0d9f700543ba3d318ba7075fc3bd696b4287b");
 	git_oid_fromstr(&ours, "b19a1e93bec1317dc6097229e12afaffbfa74dc2");
 	git_oid_fromstr(&theirs, "950b81b7eee953d050aa05a641f8e056c85dd1bd");
-
 	cl_git_rewritefile("status/conflicting_file", "conflicting file\n");
 
 	if (entries & write_ancestor)
@@ -147,18 +141,13 @@ void test_reset_hard__resetting_reverts_unmerged(void)
 	 * path being cleaned up. */
 	for (entries = 1; entries < 8; entries++) {
 		cl_git_pass(git_repository_index(&index, repo));
-
 		unmerged_index_init(index, entries);
 		cl_git_pass(git_index_write(index));
-
 		cl_git_pass(git_revparse_single(&target, repo, "26a125e"));
 		cl_git_pass(git_reset(repo, target, GIT_RESET_HARD, NULL));
-
 		cl_assert(git_path_exists("status/conflicting_file") == 0);
-
 		git_object_free(target);
 		target = NULL;
-
 		git_index_free(index);
 	}
 }
@@ -166,32 +155,24 @@ void test_reset_hard__resetting_reverts_unmerged(void)
 void test_reset_hard__cleans_up_merge(void)
 {
 	git_buf merge_head_path = GIT_BUF_INIT,
-		merge_msg_path = GIT_BUF_INIT,
-		merge_mode_path = GIT_BUF_INIT,
-		orig_head_path = GIT_BUF_INIT;
-
+	        merge_msg_path = GIT_BUF_INIT,
+	        merge_mode_path = GIT_BUF_INIT,
+	        orig_head_path = GIT_BUF_INIT;
 	cl_git_pass(git_buf_joinpath(&merge_head_path, git_repository_path(repo), "MERGE_HEAD"));
 	cl_git_mkfile(git_buf_cstr(&merge_head_path), "beefbeefbeefbeefbeefbeefbeefbeefbeefbeef\n");
-
 	cl_git_pass(git_buf_joinpath(&merge_msg_path, git_repository_path(repo), "MERGE_MSG"));
 	cl_git_mkfile(git_buf_cstr(&merge_msg_path), "Merge commit 0017bd4ab1ec30440b17bae1680cff124ab5f1f6\n");
-
 	cl_git_pass(git_buf_joinpath(&merge_mode_path, git_repository_path(repo), "MERGE_MODE"));
 	cl_git_mkfile(git_buf_cstr(&merge_mode_path), "");
-
 	cl_git_pass(git_buf_joinpath(&orig_head_path, git_repository_path(repo), "ORIG_HEAD"));
 	cl_git_mkfile(git_buf_cstr(&orig_head_path), "0017bd4ab1ec30440b17bae1680cff124ab5f1f6");
-
 	cl_git_pass(git_revparse_single(&target, repo, "0017bd4"));
 	cl_git_pass(git_reset(repo, target, GIT_RESET_HARD, NULL));
-
 	cl_assert(!git_path_exists(git_buf_cstr(&merge_head_path)));
 	cl_assert(!git_path_exists(git_buf_cstr(&merge_msg_path)));
 	cl_assert(!git_path_exists(git_buf_cstr(&merge_mode_path)));
-
 	cl_assert(git_path_exists(git_buf_cstr(&orig_head_path)));
 	cl_git_pass(p_unlink(git_buf_cstr(&orig_head_path)));
-
 	git_buf_free(&merge_head_path);
 	git_buf_free(&merge_msg_path);
 	git_buf_free(&merge_mode_path);
@@ -203,35 +184,27 @@ void test_reset_hard__reflog_is_correct(void)
 	git_buf buf = GIT_BUF_INIT;
 	git_annotated_commit *annotated;
 	const char *exp_msg = "commit: Add a file which name should appear before the "
-		"\"subdir/\" folder while being dealt with by the treewalker";
-
+	                      "\"subdir/\" folder while being dealt with by the treewalker";
 	reflog_check(repo, "HEAD", 3, "emeric.fermas@gmail.com", exp_msg);
 	reflog_check(repo, "refs/heads/master", 3, "emeric.fermas@gmail.com", exp_msg);
-
 	/* Branch not moving, no reflog entry */
 	cl_git_pass(git_revparse_single(&target, repo, "HEAD^{commit}"));
 	cl_git_pass(git_reset(repo, target, GIT_RESET_HARD, NULL));
 	reflog_check(repo, "HEAD", 3, "emeric.fermas@gmail.com", exp_msg);
 	reflog_check(repo, "refs/heads/master", 3, "emeric.fermas@gmail.com", exp_msg);
-
 	git_object_free(target);
-
 	/* Moved branch, expect id in message */
 	cl_git_pass(git_revparse_single(&target, repo, "HEAD~^{commit}"));
 	cl_git_pass(git_buf_printf(&buf, "reset: moving to %s", git_oid_tostr_s(git_object_id(target))));
 	cl_git_pass(git_reset(repo, target, GIT_RESET_HARD, NULL));
 	reflog_check(repo, "HEAD", 4, NULL, git_buf_cstr(&buf));
 	reflog_check(repo, "refs/heads/master", 4, NULL, git_buf_cstr(&buf));
-
 	git_buf_free(&buf);
-
 	/* Moved branch, expect revspec in message */
 	exp_msg = "reset: moving to HEAD~^{commit}";
 	cl_git_pass(git_annotated_commit_from_revspec(&annotated, repo, "HEAD~^{commit}"));
 	cl_git_pass(git_reset_from_annotated(repo, annotated, GIT_RESET_HARD, NULL));
 	reflog_check(repo, "HEAD", 5, NULL, exp_msg);
 	reflog_check(repo, "refs/heads/master", 5, NULL, exp_msg);
-
 	git_annotated_commit_free(annotated);
-
 }

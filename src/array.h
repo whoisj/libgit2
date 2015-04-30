@@ -48,20 +48,22 @@ GIT_INLINE(void *) git_array_grow(void *_a, size_t item_size)
 	size_t new_size;
 	char *new_array;
 
-	if (a->size < 8) {
+	if (a->size < 8)
 		new_size = 8;
-	} else {
+	else {
 		if (GIT_MULTIPLY_SIZET_OVERFLOW(&new_size, a->size, 3))
 			goto on_oom;
+
 		new_size /= 2;
 	}
 
 	if ((new_array = git__reallocarray(a->ptr, new_size, item_size)) == NULL)
 		goto on_oom;
 
-	a->ptr = new_array; a->asize = new_size; a->size++;
+	a->ptr = new_array;
+	a->asize = new_size;
+	a->size++;
 	return a->ptr + (a->size - 1) * item_size;
-
 on_oom:
 	git_array_clear(*a);
 	return NULL;

@@ -7,9 +7,10 @@ void test_core_vector__0(void)
 	git_vector x;
 	int i;
 	git_vector_init(&x, 1, NULL);
-	for (i = 0; i < 10; ++i) {
-		git_vector_insert(&x, (void*) 0xabc);
-	}
+
+	for (i = 0; i < 10; ++i)
+		git_vector_insert(&x, (void *) 0xabc);
+
 	git_vector_free(&x);
 }
 
@@ -20,10 +21,9 @@ void test_core_vector__1(void)
 	git_vector x;
 	// make initial capacity exact for our insertions.
 	git_vector_init(&x, 3, NULL);
-	git_vector_insert(&x, (void*) 0xabc);
-	git_vector_insert(&x, (void*) 0xdef);
-	git_vector_insert(&x, (void*) 0x123);
-
+	git_vector_insert(&x, (void *) 0xabc);
+	git_vector_insert(&x, (void *) 0xdef);
+	git_vector_insert(&x, (void *) 0x123);
 	git_vector_remove(&x, 0); // used to read past array bounds.
 	git_vector_free(&x);
 }
@@ -39,13 +39,10 @@ void test_core_vector__2(void)
 {
 	git_vector x;
 	int *ptrs[2];
-
 	ptrs[0] = git__malloc(sizeof(int));
 	ptrs[1] = git__malloc(sizeof(int));
-
 	*ptrs[0] = 2;
 	*ptrs[1] = 1;
-
 	cl_git_pass(git_vector_init(&x, 5, test_cmp));
 	cl_git_pass(git_vector_insert(&x, ptrs[0]));
 	cl_git_pass(git_vector_insert(&x, ptrs[1]));
@@ -53,12 +50,9 @@ void test_core_vector__2(void)
 	cl_git_pass(git_vector_insert(&x, ptrs[0]));
 	cl_git_pass(git_vector_insert(&x, ptrs[1]));
 	cl_assert(x.length == 5);
-
 	git_vector_uniq(&x, NULL);
 	cl_assert(x.length == 2);
-
 	git_vector_free(&x);
-
 	git__free(ptrs[0]);
 	git__free(ptrs[1]);
 }
@@ -76,18 +70,16 @@ void test_core_vector__3(void)
 	long i;
 	git_vector_init(&x, 1, &compare_them);
 
-	for (i = 0; i < 10; i += 2) {
-		git_vector_insert_sorted(&x, (void*)(i + 1), NULL);
-	}
+	for (i = 0; i < 10; i += 2)
+		git_vector_insert_sorted(&x, (void *)(i + 1), NULL);
 
-	for (i = 9; i > 0; i -= 2) {
-		git_vector_insert_sorted(&x, (void*)(i + 1), NULL);
-	}
+	for (i = 9; i > 0; i -= 2)
+		git_vector_insert_sorted(&x, (void *)(i + 1), NULL);
 
 	cl_assert(x.length == 10);
-	for (i = 0; i < 10; ++i) {
-		cl_assert(git_vector_get(&x, i) == (void*)(i + 1));
-	}
+
+	for (i = 0; i < 10; ++i)
+		cl_assert(git_vector_get(&x, i) == (void *)(i + 1));
 
 	git_vector_free(&x);
 }
@@ -99,26 +91,22 @@ void test_core_vector__4(void)
 	long i;
 	git_vector_init(&x, 1, &compare_them);
 
-	for (i = 0; i < 10; i += 2) {
-		git_vector_insert_sorted(&x, (void*)(i + 1), NULL);
-	}
+	for (i = 0; i < 10; i += 2)
+		git_vector_insert_sorted(&x, (void *)(i + 1), NULL);
 
-	for (i = 9; i > 0; i -= 2) {
-		git_vector_insert_sorted(&x, (void*)(i + 1), NULL);
-	}
+	for (i = 9; i > 0; i -= 2)
+		git_vector_insert_sorted(&x, (void *)(i + 1), NULL);
 
-	for (i = 0; i < 10; i += 2) {
-		git_vector_insert_sorted(&x, (void*)(i + 1), NULL);
-	}
+	for (i = 0; i < 10; i += 2)
+		git_vector_insert_sorted(&x, (void *)(i + 1), NULL);
 
-	for (i = 9; i > 0; i -= 2) {
-		git_vector_insert_sorted(&x, (void*)(i + 1), NULL);
-	}
+	for (i = 9; i > 0; i -= 2)
+		git_vector_insert_sorted(&x, (void *)(i + 1), NULL);
 
 	cl_assert(x.length == 20);
-	for (i = 0; i < 20; ++i) {
-		cl_assert(git_vector_get(&x, i) == (void*)(i / 2 + 1));
-	}
+
+	for (i = 0; i < 20; ++i)
+		cl_assert(git_vector_get(&x, i) == (void *)(i / 2 + 1));
 
 	git_vector_free(&x);
 }
@@ -133,7 +121,7 @@ static int _struct_count = 0;
 static int compare_structs(const void *a, const void *b)
 {
 	return ((const my_struct *)a)->content -
-		((const my_struct *)b)->content;
+	       ((const my_struct *)b)->content;
 }
 
 static int merge_structs(void **old_raw, void *new)
@@ -160,7 +148,6 @@ void test_core_vector__5(void)
 {
 	git_vector x;
 	int i;
-
 	git_vector_init(&x, 1, &compare_structs);
 
 	for (i = 0; i < 10; i += 2)
@@ -202,75 +189,56 @@ void test_core_vector__remove_matching(void)
 	git_vector x;
 	size_t i;
 	void *compare;
-
 	git_vector_init(&x, 1, NULL);
-	git_vector_insert(&x, (void*) 0x001);
-
+	git_vector_insert(&x, (void *) 0x001);
 	cl_assert(x.length == 1);
 	git_vector_remove_matching(&x, remove_ones, NULL);
 	cl_assert(x.length == 0);
-
-	git_vector_insert(&x, (void*) 0x001);
-	git_vector_insert(&x, (void*) 0x001);
-	git_vector_insert(&x, (void*) 0x001);
-
+	git_vector_insert(&x, (void *) 0x001);
+	git_vector_insert(&x, (void *) 0x001);
+	git_vector_insert(&x, (void *) 0x001);
 	cl_assert(x.length == 3);
 	git_vector_remove_matching(&x, remove_ones, NULL);
 	cl_assert(x.length == 0);
-
-	git_vector_insert(&x, (void*) 0x002);
-	git_vector_insert(&x, (void*) 0x001);
-	git_vector_insert(&x, (void*) 0x002);
-	git_vector_insert(&x, (void*) 0x001);
-
+	git_vector_insert(&x, (void *) 0x002);
+	git_vector_insert(&x, (void *) 0x001);
+	git_vector_insert(&x, (void *) 0x002);
+	git_vector_insert(&x, (void *) 0x001);
 	cl_assert(x.length == 4);
 	git_vector_remove_matching(&x, remove_ones, NULL);
 	cl_assert(x.length == 2);
-
 	git_vector_foreach(&x, i, compare) {
 		cl_assert(compare != (void *)0x001);
 	}
-
 	git_vector_clear(&x);
-
-	git_vector_insert(&x, (void*) 0x001);
-	git_vector_insert(&x, (void*) 0x002);
-	git_vector_insert(&x, (void*) 0x002);
-	git_vector_insert(&x, (void*) 0x001);
-
+	git_vector_insert(&x, (void *) 0x001);
+	git_vector_insert(&x, (void *) 0x002);
+	git_vector_insert(&x, (void *) 0x002);
+	git_vector_insert(&x, (void *) 0x001);
 	cl_assert(x.length == 4);
 	git_vector_remove_matching(&x, remove_ones, NULL);
 	cl_assert(x.length == 2);
-
 	git_vector_foreach(&x, i, compare) {
 		cl_assert(compare != (void *)0x001);
 	}
-
 	git_vector_clear(&x);
-
-	git_vector_insert(&x, (void*) 0x002);
-	git_vector_insert(&x, (void*) 0x001);
-	git_vector_insert(&x, (void*) 0x002);
-	git_vector_insert(&x, (void*) 0x001);
-
+	git_vector_insert(&x, (void *) 0x002);
+	git_vector_insert(&x, (void *) 0x001);
+	git_vector_insert(&x, (void *) 0x002);
+	git_vector_insert(&x, (void *) 0x001);
 	cl_assert(x.length == 4);
 	git_vector_remove_matching(&x, remove_ones, NULL);
 	cl_assert(x.length == 2);
-
 	git_vector_foreach(&x, i, compare) {
 		cl_assert(compare != (void *)0x001);
 	}
-
 	git_vector_clear(&x);
-
-	git_vector_insert(&x, (void*) 0x002);
-	git_vector_insert(&x, (void*) 0x003);
-	git_vector_insert(&x, (void*) 0x002);
-	git_vector_insert(&x, (void*) 0x003);
-
+	git_vector_insert(&x, (void *) 0x002);
+	git_vector_insert(&x, (void *) 0x003);
+	git_vector_insert(&x, (void *) 0x002);
+	git_vector_insert(&x, (void *) 0x003);
 	cl_assert(x.length == 4);
 	git_vector_remove_matching(&x, remove_ones, NULL);
 	cl_assert(x.length == 4);
-
 	git_vector_free(&x);
 }

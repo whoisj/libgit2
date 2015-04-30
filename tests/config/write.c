@@ -21,34 +21,27 @@ void test_config_write__replace_value(void)
 	git_config *cfg;
 	int i;
 	int64_t l, expected = +9223372036854775803;
-
 	/* By freeing the config, we make sure we flush the values  */
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_set_int32(cfg, "core.dummy", 5));
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_get_int32(&i, cfg, "core.dummy"));
 	cl_assert(i == 5);
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_set_int32(cfg, "core.dummy", 1));
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_set_int64(cfg, "core.verylong", expected));
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_get_int64(&l, cfg, "core.verylong"));
 	cl_assert(l == expected);
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_must_fail(git_config_get_int32(&i, cfg, "core.verylong"));
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_set_int64(cfg, "core.verylong", 1));
 	git_config_free(cfg);
@@ -58,15 +51,12 @@ void test_config_write__delete_value(void)
 {
 	git_config *cfg;
 	int32_t i;
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_set_int32(cfg, "core.dummy", 5));
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_delete_entry(cfg, "core.dummy"));
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_assert(git_config_get_int32(&i, cfg, "core.dummy") == GIT_ENOTFOUND);
 	cl_git_pass(git_config_set_int32(cfg, "core.dummy", 1));
@@ -82,27 +72,21 @@ void test_config_write__delete_value_at_specific_level(void)
 {
 	git_config *cfg, *cfg_specific;
 	int32_t i;
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config15"));
 	cl_git_pass(git_config_get_int32(&i, cfg, "core.dummy2"));
 	cl_assert(i == 7);
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_new(&cfg));
 	cl_git_pass(git_config_add_file_ondisk(cfg, "config9",
-		GIT_CONFIG_LEVEL_LOCAL, 0));
+	                                       GIT_CONFIG_LEVEL_LOCAL, 0));
 	cl_git_pass(git_config_add_file_ondisk(cfg, "config15",
-		GIT_CONFIG_LEVEL_GLOBAL, 0));
-
+	                                       GIT_CONFIG_LEVEL_GLOBAL, 0));
 	cl_git_pass(git_config_open_level(&cfg_specific, cfg, GIT_CONFIG_LEVEL_GLOBAL));
-
 	cl_git_pass(git_config_delete_entry(cfg_specific, "core.dummy2"));
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config15"));
 	cl_assert(git_config_get_int32(&i, cfg, "core.dummy2") == GIT_ENOTFOUND);
 	cl_git_pass(git_config_set_int32(cfg, "core.dummy2", 7));
-
 	git_config_free(cfg_specific);
 	git_config_free(cfg);
 }
@@ -117,29 +101,24 @@ void test_config_write__delete_value_with_duplicate_header(void)
 	const char *entry_name = "remote.origin.url";
 	git_config *cfg;
 	git_config_entry *entry;
-
 	/* This config can occur after removing and re-adding the origin remote */
 	const char *file_content =
-		"[remote \"origin\"]\n"		\
-		"[branch \"master\"]\n"		\
-		"	remote = \"origin\"\n"	\
-		"[remote \"origin\"]\n"		\
-		"	url = \"foo\"\n";
-
+	    "[remote \"origin\"]\n"		\
+	    "[branch \"master\"]\n"		\
+	    "	remote = \"origin\"\n"	\
+	    "[remote \"origin\"]\n"		\
+	    "	url = \"foo\"\n";
 	/* Write the test config and make sure the expected entry exists */
 	cl_git_mkfile(file_name, file_content);
 	cl_git_pass(git_config_open_ondisk(&cfg, file_name));
 	cl_git_pass(git_config_get_entry(&entry, cfg, entry_name));
-
 	/* Delete that entry */
 	cl_git_pass(git_config_delete_entry(cfg, entry_name));
-
 	/* Reopen the file and make sure the entry no longer exists */
 	git_config_entry_free(entry);
 	git_config_free(cfg);
 	cl_git_pass(git_config_open_ondisk(&cfg, file_name));
 	cl_git_fail(git_config_get_entry(&entry, cfg, entry_name));
-
 	/* Cleanup */
 	git_config_entry_free(entry);
 	git_config_free(cfg);
@@ -149,15 +128,12 @@ void test_config_write__write_subsection(void)
 {
 	git_config *cfg;
 	git_buf buf = GIT_BUF_INIT;
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_set_string(cfg, "my.own.var", "works"));
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_get_string_buf(&buf, cfg, "my.own.var"));
 	cl_assert_equal_s("works", git_buf_cstr(&buf));
-
 	git_buf_free(&buf);
 	git_config_free(cfg);
 }
@@ -165,7 +141,6 @@ void test_config_write__write_subsection(void)
 void test_config_write__delete_inexistent(void)
 {
 	git_config *cfg;
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_assert(git_config_delete_entry(cfg, "core.imaginary") == GIT_ENOTFOUND);
 	git_config_free(cfg);
@@ -175,20 +150,17 @@ void test_config_write__value_containing_quotes(void)
 {
 	git_config *cfg;
 	git_buf buf = GIT_BUF_INIT;
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_set_string(cfg, "core.somevar", "this \"has\" quotes"));
 	cl_git_pass(git_config_get_string_buf(&buf, cfg, "core.somevar"));
 	cl_assert_equal_s("this \"has\" quotes", git_buf_cstr(&buf));
 	git_buf_clear(&buf);
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_get_string_buf(&buf, cfg, "core.somevar"));
 	cl_assert_equal_s("this \"has\" quotes", git_buf_cstr(&buf));
 	git_buf_clear(&buf);
 	git_config_free(cfg);
-
 	/* The code path for values that already exist is different, check that one as well */
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_set_string(cfg, "core.somevar", "this also \"has\" quotes"));
@@ -196,7 +168,6 @@ void test_config_write__value_containing_quotes(void)
 	cl_assert_equal_s("this also \"has\" quotes", git_buf_cstr(&buf));
 	git_buf_clear(&buf);
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_get_string_buf(&buf, cfg, "core.somevar"));
 	cl_assert_equal_s("this also \"has\" quotes", git_buf_cstr(&buf));
@@ -208,14 +179,12 @@ void test_config_write__escape_value(void)
 {
 	git_config *cfg;
 	git_buf buf = GIT_BUF_INIT;
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_set_string(cfg, "core.somevar", "this \"has\" quotes and \t"));
 	cl_git_pass(git_config_get_string_buf(&buf, cfg, "core.somevar"));
 	cl_assert_equal_s("this \"has\" quotes and \t", git_buf_cstr(&buf));
 	git_buf_clear(&buf);
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
 	cl_git_pass(git_config_get_string_buf(&buf, cfg, "core.somevar"));
 	cl_assert_equal_s("this \"has\" quotes and \t", git_buf_cstr(&buf));
@@ -229,26 +198,21 @@ void test_config_write__add_value_at_specific_level(void)
 	int i;
 	int64_t l, expected = +9223372036854775803;
 	git_buf buf = GIT_BUF_INIT;
-
 	// open config15 as global level config file
 	cl_git_pass(git_config_new(&cfg));
 	cl_git_pass(git_config_add_file_ondisk(cfg, "config9",
-		GIT_CONFIG_LEVEL_LOCAL, 0));
+	                                       GIT_CONFIG_LEVEL_LOCAL, 0));
 	cl_git_pass(git_config_add_file_ondisk(cfg, "config15",
-		GIT_CONFIG_LEVEL_GLOBAL, 0));
-
+	                                       GIT_CONFIG_LEVEL_GLOBAL, 0));
 	cl_git_pass(git_config_open_level(&cfg_specific, cfg, GIT_CONFIG_LEVEL_GLOBAL));
-
 	cl_git_pass(git_config_set_int32(cfg_specific, "core.int32global", 28));
 	cl_git_pass(git_config_set_int64(cfg_specific, "core.int64global", expected));
 	cl_git_pass(git_config_set_bool(cfg_specific, "core.boolglobal", true));
 	cl_git_pass(git_config_set_string(cfg_specific, "core.stringglobal", "I'm a global config value!"));
 	git_config_free(cfg_specific);
 	git_config_free(cfg);
-
 	// open config15 as local level config file
 	cl_git_pass(git_config_open_ondisk(&cfg, "config15"));
-
 	cl_git_pass(git_config_get_int32(&i, cfg, "core.int32global"));
 	cl_assert_equal_i(28, i);
 	cl_git_pass(git_config_get_int64(&l, cfg, "core.int64global"));
@@ -257,7 +221,6 @@ void test_config_write__add_value_at_specific_level(void)
 	cl_assert_equal_b(true, i);
 	cl_git_pass(git_config_get_string_buf(&buf, cfg, "core.stringglobal"));
 	cl_assert_equal_s("I'm a global config value!", git_buf_cstr(&buf));
-
 	git_buf_free(&buf);
 	git_config_free(cfg);
 }
@@ -266,15 +229,12 @@ void test_config_write__add_value_at_file_with_no_clrf_at_the_end(void)
 {
 	git_config *cfg;
 	int i;
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config17"));
 	cl_git_pass(git_config_set_int32(cfg, "core.newline", 7));
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config17"));
 	cl_git_pass(git_config_get_int32(&i, cfg, "core.newline"));
 	cl_assert_equal_i(7, i);
-
 	git_config_free(cfg);
 }
 
@@ -282,27 +242,23 @@ void test_config_write__add_section_at_file_with_no_clrf_at_the_end(void)
 {
 	git_config *cfg;
 	int i;
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config17"));
 	cl_git_pass(git_config_set_int32(cfg, "diff.context", 10));
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config17"));
 	cl_git_pass(git_config_get_int32(&i, cfg, "diff.context"));
 	cl_assert_equal_i(10, i);
-
 	git_config_free(cfg);
 }
 
 void test_config_write__add_value_which_needs_quotes(void)
 {
 	git_config *cfg, *base;
-	const char* str1;
-	const char* str2;
-	const char* str3;
-	const char* str4;
-	const char* str5;
-
+	const char *str1;
+	const char *str2;
+	const char *str3;
+	const char *str4;
+	const char *str5;
 	cl_git_pass(git_config_open_ondisk(&cfg, "config17"));
 	cl_git_pass(git_config_set_string(cfg, "core.startwithspace", " Something"));
 	cl_git_pass(git_config_set_string(cfg, "core.endwithspace", "Something "));
@@ -310,7 +266,6 @@ void test_config_write__add_value_which_needs_quotes(void)
 	cl_git_pass(git_config_set_string(cfg, "core.containscommentchar2", "some;thing"));
 	cl_git_pass(git_config_set_string(cfg, "core.startwhithsapceandcontainsdoublequote", " some\"thing"));
 	git_config_free(cfg);
-
 	cl_git_pass(git_config_open_ondisk(&base, "config17"));
 	cl_git_pass(git_config_snapshot(&cfg, base));
 	cl_git_pass(git_config_get_string(&str1, cfg, "core.startwithspace"));
@@ -329,16 +284,13 @@ void test_config_write__add_value_which_needs_quotes(void)
 
 void test_config_write__can_set_a_value_to_NULL(void)
 {
-    git_repository *repository;
-    git_config *config;
-
-    repository = cl_git_sandbox_init("testrepo.git");
-
-    cl_git_pass(git_repository_config(&config, repository));
-    cl_git_fail(git_config_set_string(config, "a.b.c", NULL));
-    git_config_free(config);
-
-    cl_git_sandbox_cleanup();
+	git_repository *repository;
+	git_config *config;
+	repository = cl_git_sandbox_init("testrepo.git");
+	cl_git_pass(git_repository_config(&config, repository));
+	cl_git_fail(git_config_set_string(config, "a.b.c", NULL));
+	git_config_free(config);
+	cl_git_sandbox_cleanup();
 }
 
 void test_config_write__can_set_an_empty_value(void)
@@ -346,14 +298,11 @@ void test_config_write__can_set_an_empty_value(void)
 	git_repository *repository;
 	git_config *config;
 	git_buf buf = {0};
-
 	repository = cl_git_sandbox_init("testrepo.git");
 	cl_git_pass(git_repository_config(&config, repository));
-
 	cl_git_pass(git_config_set_string(config, "core.somevar", ""));
 	cl_git_pass(git_config_get_string_buf(&buf, config, "core.somevar"));
 	cl_assert_equal_s("", buf.ptr);
-
 	git_buf_free(&buf);
 	git_config_free(config);
 	cl_git_sandbox_cleanup();
@@ -362,13 +311,9 @@ void test_config_write__can_set_an_empty_value(void)
 void test_config_write__updating_a_locked_config_file_returns_ELOCKED(void)
 {
 	git_config *cfg;
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config9"));
-
 	cl_git_mkfile("config9.lock", "[core]\n");
-
 	cl_git_fail_with(git_config_set_string(cfg, "core.dump", "boom"), GIT_ELOCKED);
-
 	git_config_free(cfg);
 }
 
@@ -377,21 +322,14 @@ void test_config_write__outside_change(void)
 	int32_t tmp;
 	git_config *cfg;
 	const char *filename = "config-ext-change";
-
 	cl_git_mkfile(filename, "[old]\nvalue = 5\n");
-
 	cl_git_pass(git_config_open_ondisk(&cfg, filename));
-
 	cl_git_pass(git_config_get_int32(&tmp, cfg, "old.value"));
-
 	/* Change the value on the file itself (simulate external process) */
 	cl_git_mkfile(filename, "[old]\nvalue = 6\n");
-
 	cl_git_pass(git_config_set_int32(cfg, "new.value", 7));
-
 	cl_git_pass(git_config_get_int32(&tmp, cfg, "old.value"));
 	cl_assert_equal_i(6, tmp);
-
 	git_config_free(cfg);
 }
 
@@ -400,15 +338,12 @@ void test_config_write__to_empty_file(void)
 	git_config *cfg;
 	const char *filename = "config-file";
 	git_buf result = GIT_BUF_INIT;
-
 	cl_git_mkfile(filename, "");
 	cl_git_pass(git_config_open_ondisk(&cfg, filename));
 	cl_git_pass(git_config_set_string(cfg, "section.name", "value"));
 	git_config_free(cfg);
-
 	cl_git_pass(git_futils_readbuffer(&result, "config-file"));
 	cl_assert_equal_s("[section]\n\tname = value\n", result.ptr);
-
 	git_buf_free(&result);
 }
 
@@ -417,14 +352,11 @@ void test_config_write__to_file_with_only_comment(void)
 	git_config *cfg;
 	const char *filename = "config-file";
 	git_buf result = GIT_BUF_INIT;
-
 	cl_git_mkfile(filename, "\n\n");
 	cl_git_pass(git_config_open_ondisk(&cfg, filename));
 	cl_git_pass(git_config_set_string(cfg, "section.name", "value"));
 	git_config_free(cfg);
-
 	cl_git_pass(git_futils_readbuffer(&result, "config-file"));
 	cl_assert_equal_s("\n\n[section]\n\tname = value\n", result.ptr);
-
 	git_buf_free(&result);
 }

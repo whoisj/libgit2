@@ -17,10 +17,10 @@ struct git_object {
 void git_object__free(void *object);
 
 int git_object__from_odb_object(
-	git_object **object_out,
-	git_repository *repo,
-	git_odb_object *odb_obj,
-	git_otype type);
+    git_object **object_out,
+    git_repository *repo,
+    git_odb_object *odb_obj,
+    git_otype type);
 
 int git_object__resolve_to_type(git_object **obj, git_otype type);
 

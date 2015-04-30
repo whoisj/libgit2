@@ -57,12 +57,12 @@ typedef struct {
  *        if it has been modified since the last load and/or write.
  */
 int git_sortedcache_new(
-	git_sortedcache **out,
-	size_t item_path_offset, /* use offsetof(struct, path-field) macro */
-	git_sortedcache_free_item_fn free_item,
-	void *free_item_payload,
-	git_vector_cmp item_cmp,
-	const char *path);
+    git_sortedcache **out,
+    size_t item_path_offset, /* use offsetof(struct, path-field) macro */
+    git_sortedcache_free_item_fn free_item,
+    void *free_item_payload,
+    git_vector_cmp item_cmp,
+    const char *path);
 
 /* Copy a sorted cache
  *
@@ -70,11 +70,11 @@ int git_sortedcache_new(
  * - if `lock`, grabs read lock on `src` during copy and releases after
  */
 int git_sortedcache_copy(
-	git_sortedcache **out,
-	git_sortedcache *src,
-	bool lock,
-	int (*copy_item)(void *payload, void *tgt_item, void *src_item),
-	void *payload);
+    git_sortedcache **out,
+    git_sortedcache *src,
+    bool lock,
+    int (*copy_item)(void *payload, void *tgt_item, void *src_item),
+    void *payload);
 
 /* Free sorted cache (first calling `free_item` callbacks)
  *
@@ -136,7 +136,7 @@ int git_sortedcache_clear(git_sortedcache *sc, bool wlock);
  * You should already be holding the write lock when you call this.
  */
 int git_sortedcache_upsert(
-	void **out, git_sortedcache *sc, const char *key);
+    void **out, git_sortedcache *sc, const char *key);
 
 /* Removes entry at pos from cache
  * You should already be holding the write lock when you call this.
@@ -173,6 +173,6 @@ void *git_sortedcache_entry(git_sortedcache *sc, size_t pos);
 
 /* Lookup index of item by key - returns GIT_ENOTFOUND if not found */
 int git_sortedcache_lookup_index(
-	size_t *out, git_sortedcache *sc, const char *key);
+    size_t *out, git_sortedcache *sc, const char *key);
 
 #endif

@@ -42,7 +42,6 @@ static void *download(void *ptr)
 	}
 
 	data->ret = 0;
-
 exit:
 	data->finished = 1;
 	return &data->ret;
@@ -55,15 +54,14 @@ exit:
  */
 static int update_cb(const char *refname, const git_oid *a, const git_oid *b, void *data)
 {
-	char a_str[GIT_OID_HEXSZ+1], b_str[GIT_OID_HEXSZ+1];
+	char a_str[GIT_OID_HEXSZ + 1], b_str[GIT_OID_HEXSZ + 1];
 	(void)data;
-
 	git_oid_fmt(b_str, b);
 	b_str[GIT_OID_HEXSZ] = '\0';
 
-	if (git_oid_iszero(a)) {
+	if (git_oid_iszero(a))
 		printf("[new]     %.20s %s\n", b_str, refname);
-	} else {
+	else {
 		git_oid_fmt(a_str, a);
 		a_str[GIT_OID_HEXSZ] = '\0';
 		printf("[updated] %.10s..%.10s %s\n", a_str, b_str, refname);
@@ -90,6 +88,7 @@ int fetch(git_repository *repo, int argc, char **argv)
 
 	// Figure out whether it's a named remote or a URL
 	printf("Fetching %s for repo %p\n", argv[1], repo);
+
 	if (git_remote_lookup(&remote, repo, argv[1]) < 0) {
 		if (git_remote_create_anonymous(&remote, repo, argv[1], NULL) < 0)
 			return -1;
@@ -100,14 +99,11 @@ int fetch(git_repository *repo, int argc, char **argv)
 	callbacks.sideband_progress = &progress_cb;
 	callbacks.credentials = cred_acquire_cb;
 	git_remote_set_callbacks(remote, &callbacks);
-
 	// Set up the information for the background worker thread
 	data.remote = remote;
 	data.ret = 0;
 	data.finished = 0;
-
 	stats = git_remote_stats(remote);
-
 #ifdef _WIN32
 	download(&data);
 #else
@@ -126,7 +122,7 @@ int fetch(git_repository *repo, int argc, char **argv)
 		} else if (stats->total_objects > 0) {
 			printf("Received %d/%d objects (%d) in %" PRIuZ " bytes\r",
 			       stats->received_objects, stats->total_objects,
-				   stats->indexed_objects, stats->received_bytes);
+			       stats->indexed_objects, stats->received_bytes);
 		}
 	} while (!data.finished);
 
@@ -144,9 +140,9 @@ int fetch(git_repository *repo, int argc, char **argv)
 	if (stats->local_objects > 0) {
 		printf("\rReceived %d/%d objects in %zu bytes (used %d local objects)\n",
 		       stats->indexed_objects, stats->total_objects, stats->received_bytes, stats->local_objects);
-	} else{
+	} else {
 		printf("\rReceived %d/%d objects in %zu bytes\n",
-			stats->indexed_objects, stats->total_objects, stats->received_bytes);
+		       stats->indexed_objects, stats->total_objects, stats->received_bytes);
 	}
 
 	// Disconnect the underlying connection to prevent from idling.
@@ -160,10 +156,8 @@ int fetch(git_repository *repo, int argc, char **argv)
 		return -1;
 
 	git_remote_free(remote);
-
 	return 0;
-
- on_error:
+on_error:
 	git_remote_free(remote);
 	return -1;
 }

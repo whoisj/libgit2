@@ -2,7 +2,7 @@
 #include "status_helpers.h"
 
 int cb_status__normal(
-	const char *path, unsigned int status_flags, void *payload)
+    const char *path, unsigned int status_flags, void *payload)
 {
 	status_entry_counts *counts = payload;
 
@@ -23,12 +23,9 @@ int cb_status__normal(
 int cb_status__count(const char *p, unsigned int s, void *payload)
 {
 	volatile int *count = (int *)payload;
-
 	GIT_UNUSED(p);
 	GIT_UNUSED(s);
-
 	(*count)++;
-
 	return 0;
 }
 
@@ -41,54 +38,73 @@ int cb_status__single(const char *p, unsigned int s, void *payload)
 
 	data->count++;
 	data->status = s;
-
 	return 0;
 }
 
 int cb_status__print(
-	const char *path, unsigned int status_flags, void *payload)
+    const char *path, unsigned int status_flags, void *payload)
 {
 	char istatus = ' ', wstatus = ' ';
 	int icount = 0, wcount = 0;
 
 	if (status_flags & GIT_STATUS_INDEX_NEW) {
-		istatus = 'A'; icount++;
+		istatus = 'A';
+		icount++;
 	}
+
 	if (status_flags & GIT_STATUS_INDEX_MODIFIED) {
-		istatus = 'M'; icount++;
+		istatus = 'M';
+		icount++;
 	}
+
 	if (status_flags & GIT_STATUS_INDEX_DELETED) {
-		istatus = 'D'; icount++;
+		istatus = 'D';
+		icount++;
 	}
+
 	if (status_flags & GIT_STATUS_INDEX_RENAMED) {
-		istatus = 'R'; icount++;
+		istatus = 'R';
+		icount++;
 	}
+
 	if (status_flags & GIT_STATUS_INDEX_TYPECHANGE) {
-		istatus = 'T'; icount++;
+		istatus = 'T';
+		icount++;
 	}
 
 	if (status_flags & GIT_STATUS_WT_NEW) {
-		wstatus = 'A'; wcount++;
+		wstatus = 'A';
+		wcount++;
 	}
+
 	if (status_flags & GIT_STATUS_WT_MODIFIED) {
-		wstatus = 'M'; wcount++;
+		wstatus = 'M';
+		wcount++;
 	}
+
 	if (status_flags & GIT_STATUS_WT_DELETED) {
-		wstatus = 'D'; wcount++;
+		wstatus = 'D';
+		wcount++;
 	}
+
 	if (status_flags & GIT_STATUS_WT_TYPECHANGE) {
-		wstatus = 'T'; wcount++;
+		wstatus = 'T';
+		wcount++;
 	}
+
 	if (status_flags & GIT_STATUS_IGNORED) {
-		wstatus = 'I'; wcount++;
+		wstatus = 'I';
+		wcount++;
 	}
+
 	if (status_flags & GIT_STATUS_WT_UNREADABLE) {
-		wstatus = 'X'; wcount++;
+		wstatus = 'X';
+		wcount++;
 	}
 
 	fprintf(stderr, "%c%c %s (%d/%d%s)\n",
-			istatus, wstatus, path, icount, wcount,
-			(icount > 1 || wcount > 1) ? " INVALID COMBO" : "");
+	        istatus, wstatus, path, icount, wcount,
+	        (icount > 1 || wcount > 1) ? " INVALID COMBO" : "");
 
 	if (payload)
 		*((int *)payload) += 1;

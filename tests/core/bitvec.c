@@ -13,6 +13,7 @@ static void print_bitvec(git_bitvec *bv)
 		for (b = bv->length * 8; b >= 0; --b)
 			fprintf(stderr, "%d", (bv->u.ptr[b >> 3] & (b & 0x0ff)) ? 1 : 0);
 	}
+
 	fprintf(stderr, "\n");
 }
 #endif
@@ -38,7 +39,6 @@ static void check_some_bits(git_bitvec *bv, size_t length)
 void test_core_bitvec__0(void)
 {
 	git_bitvec bv;
-
 	cl_git_pass(git_bitvec_init(&bv, 32));
 	set_some_bits(&bv, 16);
 	check_some_bits(&bv, 16);
@@ -49,14 +49,12 @@ void test_core_bitvec__0(void)
 	set_some_bits(&bv, 64);
 	check_some_bits(&bv, 64);
 	git_bitvec_free(&bv);
-
 	cl_git_pass(git_bitvec_init(&bv, 128));
 	set_some_bits(&bv, 32);
 	check_some_bits(&bv, 32);
 	set_some_bits(&bv, 128);
 	check_some_bits(&bv, 128);
 	git_bitvec_free(&bv);
-
 	cl_git_pass(git_bitvec_init(&bv, 4000));
 	set_some_bits(&bv, 4000);
 	check_some_bits(&bv, 4000);

@@ -48,45 +48,45 @@ struct hash_cryptoapi_prov {
 
 /* Function declarations for CNG */
 typedef NTSTATUS (WINAPI *hash_win32_cng_open_algorithm_provider_fn)(
-	HANDLE /* BCRYPT_ALG_HANDLE */ *phAlgorithm,
-	LPCWSTR pszAlgId,
-	LPCWSTR pszImplementation,
-	DWORD dwFlags);
+    HANDLE /* BCRYPT_ALG_HANDLE */ *phAlgorithm,
+    LPCWSTR pszAlgId,
+    LPCWSTR pszImplementation,
+    DWORD dwFlags);
 
 typedef NTSTATUS (WINAPI *hash_win32_cng_get_property_fn)(
-	HANDLE /* BCRYPT_HANDLE */ hObject,
-	LPCWSTR pszProperty,
-	PUCHAR pbOutput,
-	ULONG cbOutput,
-	ULONG *pcbResult,
-	ULONG dwFlags);
+    HANDLE /* BCRYPT_HANDLE */ hObject,
+    LPCWSTR pszProperty,
+    PUCHAR pbOutput,
+    ULONG cbOutput,
+    ULONG *pcbResult,
+    ULONG dwFlags);
 
 typedef NTSTATUS (WINAPI *hash_win32_cng_create_hash_fn)(
-	HANDLE /* BCRYPT_ALG_HANDLE */ hAlgorithm,
-	HANDLE /* BCRYPT_HASH_HANDLE */ *phHash,
-	PUCHAR pbHashObject, ULONG cbHashObject,
-	PUCHAR pbSecret,
-	ULONG cbSecret,
-	ULONG dwFlags);
+    HANDLE /* BCRYPT_ALG_HANDLE */ hAlgorithm,
+    HANDLE /* BCRYPT_HASH_HANDLE */ *phHash,
+    PUCHAR pbHashObject, ULONG cbHashObject,
+    PUCHAR pbSecret,
+    ULONG cbSecret,
+    ULONG dwFlags);
 
 typedef NTSTATUS (WINAPI *hash_win32_cng_finish_hash_fn)(
-	HANDLE /* BCRYPT_HASH_HANDLE */ hHash,
-	PUCHAR pbOutput,
-	ULONG cbOutput,
-	ULONG dwFlags);
+    HANDLE /* BCRYPT_HASH_HANDLE */ hHash,
+    PUCHAR pbOutput,
+    ULONG cbOutput,
+    ULONG dwFlags);
 
 typedef NTSTATUS (WINAPI *hash_win32_cng_hash_data_fn)(
-	HANDLE /* BCRYPT_HASH_HANDLE */ hHash,
-	PUCHAR pbInput,
-	ULONG cbInput,
-	ULONG dwFlags);
+    HANDLE /* BCRYPT_HASH_HANDLE */ hHash,
+    PUCHAR pbInput,
+    ULONG cbInput,
+    ULONG dwFlags);
 
 typedef NTSTATUS (WINAPI *hash_win32_cng_destroy_hash_fn)(
-	HANDLE /* BCRYPT_HASH_HANDLE */ hHash);
+    HANDLE /* BCRYPT_HASH_HANDLE */ hHash);
 
 typedef NTSTATUS (WINAPI *hash_win32_cng_close_algorithm_provider_fn)(
-	HANDLE /* BCRYPT_ALG_HANDLE */ hAlgorithm,
-	ULONG dwFlags);
+    HANDLE /* BCRYPT_ALG_HANDLE */ hAlgorithm,
+    ULONG dwFlags);
 
 struct hash_cng_prov {
 	/* DLL for CNG */

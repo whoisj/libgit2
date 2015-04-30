@@ -389,8 +389,10 @@ static const double __ac_HASH_UPPER = 0.77;
  */
 static kh_inline khint_t __ac_X31_hash_string(const char *s)
 {
-	khint_t h = (khint_t)*s;
-	if (h) for (++s ; *s; ++s) h = (h << 5) - h + (khint_t)*s;
+	khint_t h = (khint_t) * s;
+
+	if (h) for (++s ; *s; ++s) h = (h << 5) - h + (khint_t) * s;
+
 	return h;
 }
 /*! @function
@@ -406,13 +408,13 @@ static kh_inline khint_t __ac_X31_hash_string(const char *s)
 
 static kh_inline khint_t __ac_Wang_hash(khint_t key)
 {
-    key += ~(key << 15);
-    key ^=  (key >> 10);
-    key +=  (key << 3);
-    key ^=  (key >> 6);
-    key += ~(key << 11);
-    key ^=  (key >> 16);
-    return key;
+	key += ~(key << 15);
+	key ^=  (key >> 10);
+	key +=  (key << 3);
+	key ^=  (key >> 6);
+	key += ~(key << 11);
+	key ^=  (key >> 16);
+	return key;
 }
 #define kh_int_hash_func2(k) __ac_Wang_hash((khint_t)key)
 

@@ -11,8 +11,10 @@ static size_t line_length_without_trailing_spaces(const char *line, size_t len)
 {
 	while (len) {
 		unsigned char c = line[len - 1];
+
 		if (!git__isspace(c))
 			break;
+
 		len--;
 	}
 
@@ -24,21 +26,18 @@ static size_t line_length_without_trailing_spaces(const char *line, size_t len)
 int git_message_prettify(git_buf *message_out, const char *message, int strip_comments, char comment_char)
 {
 	const size_t message_len = strlen(message);
-
 	int consecutive_empty_lines = 0;
 	size_t i, line_length, rtrimmed_line_length;
 	char *next_newline;
-
 	git_buf_sanitize(message_out);
 
 	for (i = 0; i < strlen(message); i += line_length) {
 		next_newline = memchr(message + i, '\n', message_len - i);
 
-		if (next_newline != NULL) {
+		if (next_newline != NULL)
 			line_length = next_newline - (message + i) + 1;
-		} else {
+		else
 			line_length = message_len - i;
-		}
 
 		if (strip_comments && line_length && message[i] == comment_char)
 			continue;

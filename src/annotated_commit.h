@@ -16,7 +16,7 @@ struct git_annotated_commit {
 	char *ref_name;
 	char *remote_url;
 
-	char id_str[GIT_OID_HEXSZ+1];
+	char id_str[GIT_OID_HEXSZ + 1];
 };
 
 #endif

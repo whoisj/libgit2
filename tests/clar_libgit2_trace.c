@@ -16,7 +16,6 @@ static void _git_trace_cb__printf(git_trace_level_t level, const char *msg)
 {
 	/* TODO Use level to print a per-message prefix. */
 	GIT_UNUSED(level);
-
 	printf("%s\n", msg);
 }
 
@@ -25,10 +24,8 @@ static void _git_trace_cb__debug(git_trace_level_t level, const char *msg)
 {
 	/* TODO Use level to print a per-message prefix. */
 	GIT_UNUSED(level);
-
 	OutputDebugString(msg);
 	OutputDebugString("\n");
-
 	printf("%s\n", msg);
 }
 #else
@@ -64,12 +61,13 @@ static int set_method(const char *name)
 	if (!name || !*name)
 		name = "printf";
 
-	for (k=0; (s_methods[k].name); k++) {
+	for (k = 0; (s_methods[k].name); k++) {
 		if (strcmp(name, s_methods[k].name) == 0) {
 			s_trace_method = &s_methods[k];
 			return 0;
 		}
 	}
+
 	fprintf(stderr, "Unknown CLAR_TRACE_METHOD: '%s'\n", name);
 	return -1;
 }
@@ -101,10 +99,9 @@ static void _load_trace_params(void)
 {
 	char *sz_level;
 	char *sz_method;
-
 	s_trace_loaded = 1;
-
 	sz_level = cl_getenv("CLAR_TRACE_LEVEL");
+
 	if (!sz_level || !*sz_level) {
 		s_trace_level = GIT_TRACE_NONE;
 		s_trace_method = NULL;
@@ -113,8 +110,8 @@ static void _load_trace_params(void)
 
 	/* TODO Parse sz_level and set s_trace_level. */
 	s_trace_level = GIT_TRACE_TRACE;
-
 	sz_method = cl_getenv("CLAR_TRACE_METHOD");
+
 	if (set_method(sz_method) < 0)
 		set_method(NULL);
 }
@@ -132,10 +129,10 @@ static cl_perf_timer s_timer_run = CL_PERF_TIMER_INIT;
 static cl_perf_timer s_timer_test = CL_PERF_TIMER_INIT;
 
 void _cl_trace_cb__event_handler(
-	cl_trace_event ev,
-	const char *suite_name,
-	const char *test_name,
-	void *payload)
+    cl_trace_event ev,
+    const char *suite_name,
+    const char *test_name,
+    void *payload)
 {
 	GIT_UNUSED(payload);
 
@@ -157,8 +154,8 @@ void _cl_trace_cb__event_handler(
 	case CL_TRACE__TEST__END:
 		cl_perf_timer__stop(&s_timer_test);
 		git_trace(GIT_TRACE_TRACE, "%s::%s: End Test (%.3f %.3f)", suite_name, test_name,
-				  cl_perf_timer__last(&s_timer_run),
-				  cl_perf_timer__last(&s_timer_test));
+		          cl_perf_timer__last(&s_timer_run),
+		          cl_perf_timer__last(&s_timer_test));
 		break;
 
 	case CL_TRACE__TEST__RUN_BEGIN:
@@ -191,13 +188,16 @@ void _cl_trace_cb__event_handler(
 void cl_global_trace_register(void)
 {
 #if defined(GIT_TRACE)
+
 	if (!s_trace_loaded)
 		_load_trace_params();
 
 	if (s_trace_level == GIT_TRACE_NONE)
 		return;
+
 	if (s_trace_method == NULL)
 		return;
+
 	if (s_trace_method->git_trace_cb == NULL)
 		return;
 
@@ -218,6 +218,7 @@ void cl_global_trace_disable(void)
 #if defined(GIT_TRACE)
 	cl_trace_register(NULL, NULL);
 	git_trace_set(GIT_TRACE_NONE, NULL);
+
 	if (s_trace_method && s_trace_method->close)
 		s_trace_method->close();
 

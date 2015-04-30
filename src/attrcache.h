@@ -29,29 +29,29 @@ extern int git_attr_cache__do_init(git_repository *repo);
 
 /* get file - loading and reload as needed */
 extern int git_attr_cache__get(
-	git_attr_file **file,
-	git_repository *repo,
-	git_attr_session *attr_session,
-	git_attr_file_source source,
-	const char *base,
-	const char *filename,
-	git_attr_file_parser parser);
+    git_attr_file **file,
+    git_repository *repo,
+    git_attr_session *attr_session,
+    git_attr_file_source source,
+    const char *base,
+    const char *filename,
+    git_attr_file_parser parser);
 
 extern bool git_attr_cache__is_cached(
-	git_repository *repo,
-	git_attr_file_source source,
-	const char *path);
+    git_repository *repo,
+    git_attr_file_source source,
+    const char *path);
 
 extern int git_attr_cache__alloc_file_entry(
-	git_attr_file_entry **out,
-	const char *base,
-	const char *path,
-	git_pool *pool);
+    git_attr_file_entry **out,
+    const char *base,
+    const char *path,
+    git_pool *pool);
 
 extern int git_attr_cache__insert_macro(
-	git_repository *repo, git_attr_rule *macro);
+    git_repository *repo, git_attr_rule *macro);
 
 extern git_attr_rule *git_attr_cache__lookup_macro(
-	git_repository *repo, const char *name);
+    git_repository *repo, const char *name);
 
 #endif

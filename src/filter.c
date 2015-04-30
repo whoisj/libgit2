@@ -80,7 +80,6 @@ static void filter_registry_shutdown(void)
 		git__free(fdef->attrdata);
 		git__free(fdef);
 	}
-
 	git_vector_free(&reg->filters);
 	git__free(reg);
 }
@@ -97,33 +96,32 @@ static int filter_registry_initialize(void)
 	GITERR_CHECK_ALLOC(reg);
 
 	if ((error = git_vector_init(
-			&reg->filters, 2, filter_def_priority_cmp)) < 0)
+	                 &reg->filters, 2, filter_def_priority_cmp)) < 0)
 		goto cleanup;
 
 	reg = git__compare_and_swap(&git__filter_registry, NULL, reg);
+
 	if (reg != NULL)
 		goto cleanup;
 
 	git__on_shutdown(filter_registry_shutdown);
-
 	/* try to register both default filters */
 	{
 		git_filter *crlf = git_crlf_filter_new();
 		git_filter *ident = git_ident_filter_new();
 
 		if (crlf && git_filter_register(
-				GIT_FILTER_CRLF, crlf, GIT_FILTER_CRLF_PRIORITY) < 0)
+		        GIT_FILTER_CRLF, crlf, GIT_FILTER_CRLF_PRIORITY) < 0)
 			crlf = NULL;
+
 		if (ident && git_filter_register(
-				GIT_FILTER_IDENT, ident, GIT_FILTER_IDENT_PRIORITY) < 0)
+		        GIT_FILTER_IDENT, ident, GIT_FILTER_IDENT_PRIORITY) < 0)
 			ident = NULL;
 
 		if (!crlf || !ident)
 			return -1;
 	}
-
 	return 0;
-
 cleanup:
 	git_vector_free(&reg->filters);
 	git__free(reg);
@@ -131,11 +129,10 @@ cleanup:
 }
 
 static int filter_def_scan_attrs(
-	git_buf *attrs, size_t *nattr, size_t *nmatch, const char *attr_str)
+    git_buf *attrs, size_t *nattr, size_t *nmatch, const char *attr_str)
 {
 	const char *start, *scan = attr_str;
 	int has_eq;
-
 	*nattr = *nmatch = 0;
 
 	if (!scan)
@@ -151,11 +148,13 @@ static int filter_def_scan_attrs(
 
 		if (scan > start) {
 			(*nattr)++;
+
 			if (has_eq || *start == '-' || *start == '+' || *start == '!')
 				(*nmatch)++;
 
 			if (has_eq)
 				git_buf_putc(attrs, '=');
+
 			git_buf_put(attrs, start, scan - start);
 			git_buf_putc(attrs, '\0');
 		}
@@ -175,23 +174,36 @@ static void filter_def_set_attrs(git_filter_def *fdef)
 		switch (*scan) {
 		case '=':
 			name = scan + 1;
+
 			for (scan++; *scan != '='; scan++) /* find '=' */;
+
 			*scan++ = '\0';
 			value = scan;
 			break;
+
 		case '-':
-			name = scan + 1; value = git_attr__false; break;
+			name = scan + 1;
+			value = git_attr__false;
+			break;
+
 		case '+':
-			name = scan + 1; value = git_attr__true;  break;
+			name = scan + 1;
+			value = git_attr__true;
+			break;
+
 		case '!':
-			name = scan + 1; value = git_attr__unset; break;
+			name = scan + 1;
+			value = git_attr__unset;
+			break;
+
 		default:
-			name = scan;     value = NULL; break;
+			name = scan;
+			value = NULL;
+			break;
 		}
 
 		fdef->attrs[i] = name;
 		fdef->attrs[i + fdef->nattrs] = value;
-
 		scan += strlen(scan) + 1;
 	}
 }
@@ -199,7 +211,7 @@ static void filter_def_set_attrs(git_filter_def *fdef)
 static int filter_def_name_key_check(const void *key, const void *fdef)
 {
 	const char *name =
-		fdef ? ((const git_filter_def *)fdef)->filter_name : NULL;
+	    fdef ? ((const git_filter_def *)fdef)->filter_name : NULL;
 	return name ? git__strcmp(key, name) : -1;
 }
 
@@ -212,7 +224,7 @@ static int filter_def_filter_key_check(const void *key, const void *fdef)
 static int filter_registry_find(size_t *pos, const char *name)
 {
 	return git_vector_search2(
-		pos, &git__filter_registry->filters, filter_def_name_key_check, name);
+	           pos, &git__filter_registry->filters, filter_def_name_key_check, name);
 }
 
 static git_filter_def *filter_registry_lookup(size_t *pos, const char *name)
@@ -226,12 +238,11 @@ static git_filter_def *filter_registry_lookup(size_t *pos, const char *name)
 }
 
 int git_filter_register(
-	const char *name, git_filter *filter, int priority)
+    const char *name, git_filter *filter, int priority)
 {
 	git_filter_def *fdef;
 	size_t nattr = 0, nmatch = 0, alloc_len;
 	git_buf attrs = GIT_BUF_INIT;
-
 	assert(name && filter);
 
 	if (filter_registry_initialize() < 0)
@@ -239,7 +250,7 @@ int git_filter_register(
 
 	if (!filter_registry_find(NULL, name)) {
 		giterr_set(
-			GITERR_FILTER, "Attempt to reregister existing filter '%s'", name);
+		    GITERR_FILTER, "Attempt to reregister existing filter '%s'", name);
 		return GIT_EEXISTS;
 	}
 
@@ -249,19 +260,15 @@ int git_filter_register(
 	GITERR_CHECK_ALLOC_MULTIPLY(&alloc_len, nattr, 2);
 	GITERR_CHECK_ALLOC_MULTIPLY(&alloc_len, alloc_len, sizeof(char *));
 	GITERR_CHECK_ALLOC_ADD(&alloc_len, alloc_len, sizeof(git_filter_def));
-
 	fdef = git__calloc(1, alloc_len);
 	GITERR_CHECK_ALLOC(fdef);
-
 	fdef->filter_name = git__strdup(name);
 	GITERR_CHECK_ALLOC(fdef->filter_name);
-
 	fdef->filter      = filter;
 	fdef->priority    = priority;
 	fdef->nattrs      = nattr;
 	fdef->nmatches    = nmatch;
 	fdef->attrdata    = git_buf_detach(&attrs);
-
 	filter_def_set_attrs(fdef);
 
 	if (git_vector_insert(&git__filter_registry->filters, fdef) < 0) {
@@ -279,7 +286,6 @@ int git_filter_unregister(const char *name)
 {
 	size_t pos;
 	git_filter_def *fdef;
-
 	assert(name);
 
 	/* cannot unregister default filters */
@@ -303,7 +309,6 @@ int git_filter_unregister(const char *name)
 	git__free(fdef->filter_name);
 	git__free(fdef->attrdata);
 	git__free(fdef);
-
 	return 0;
 }
 
@@ -312,10 +317,9 @@ static int filter_initialize(git_filter_def *fdef)
 	int error = 0;
 
 	if (!fdef->initialized &&
-		fdef->filter &&
-		fdef->filter->initialize &&
-		(error = fdef->filter->initialize(fdef->filter)) < 0)
-	{
+	    fdef->filter &&
+	    fdef->filter->initialize &&
+	    (error = fdef->filter->initialize(fdef->filter)) < 0) {
 		/* auto-unregister if initialize fails */
 		git_filter_unregister(fdef->filter_name);
 		return error;
@@ -378,42 +382,39 @@ uint32_t git_filter_source_flags(const git_filter_source *src)
 }
 
 static int filter_list_new(
-	git_filter_list **out, const git_filter_source *src)
+    git_filter_list **out, const git_filter_source *src)
 {
 	git_filter_list *fl = NULL;
 	size_t pathlen = src->path ? strlen(src->path) : 0, alloclen;
-
 	GITERR_CHECK_ALLOC_ADD(&alloclen, sizeof(git_filter_list), pathlen);
 	GITERR_CHECK_ALLOC_ADD(&alloclen, alloclen, 1);
-
 	fl = git__calloc(1, alloclen);
 	GITERR_CHECK_ALLOC(fl);
 
 	if (src->path)
 		memcpy(fl->path, src->path, pathlen);
+
 	fl->source.repo = src->repo;
 	fl->source.path = fl->path;
 	fl->source.mode = src->mode;
 	fl->source.flags = src->flags;
-
 	*out = fl;
 	return 0;
 }
 
 static int filter_list_check_attributes(
-	const char ***out,
-	git_repository *repo,
-	git_attr_session *attr_session,
-	git_filter_def *fdef,
-	const git_filter_source *src)
+    const char ***out,
+    git_repository *repo,
+    git_attr_session *attr_session,
+    git_filter_def *fdef,
+    const git_filter_source *src)
 {
 	int error;
 	size_t i;
 	const char **strs = git__calloc(fdef->nattrs, sizeof(const char *));
 	GITERR_CHECK_ALLOC(strs);
-
 	error = git_attr_get_many_with_session(
-		strs, repo, attr_session, 0, src->path, fdef->nattrs, fdef->attrs);
+	            strs, repo, attr_session, 0, src->path, fdef->nattrs, fdef->attrs);
 
 	/* if no values were found but no matches are needed, it's okay! */
 	if (error == GIT_ENOTFOUND && !fdef->nmatches) {
@@ -433,7 +434,7 @@ static int filter_list_check_attributes(
 		found_type = git_attr_value(strs[i]);
 
 		if (want_type != found_type ||
-			(want_type == GIT_ATTR_VALUE_T && strcmp(want, strs[i])))
+		    (want_type == GIT_ATTR_VALUE_T && strcmp(want, strs[i])))
 			error = GIT_ENOTFOUND;
 	}
 
@@ -446,10 +447,10 @@ static int filter_list_check_attributes(
 }
 
 int git_filter_list_new(
-	git_filter_list **out,
-	git_repository *repo,
-	git_filter_mode_t mode,
-	uint32_t flags)
+    git_filter_list **out,
+    git_repository *repo,
+    git_filter_mode_t mode,
+    uint32_t flags)
 {
 	git_filter_source src = { 0 };
 	src.repo = repo;
@@ -460,12 +461,12 @@ int git_filter_list_new(
 }
 
 int git_filter_list__load_ext(
-	git_filter_list **filters,
-	git_repository *repo,
-	git_blob *blob, /* can be NULL */
-	const char *path,
-	git_filter_mode_t mode,
-	git_filter_options *filter_opts)
+    git_filter_list **filters,
+    git_repository *repo,
+    git_blob *blob, /* can be NULL */
+    const char *path,
+    git_filter_mode_t mode,
+    git_filter_options *filter_opts)
 {
 	int error = 0;
 	git_filter_list *fl = NULL;
@@ -494,7 +495,7 @@ int git_filter_list__load_ext(
 
 		if (fdef->nattrs > 0) {
 			error = filter_list_check_attributes(
-				&values, repo, filter_opts->attr_session, fdef, &src);
+			            &values, repo, filter_opts->attr_session, fdef, &src);
 
 			if (error == GIT_ENOTFOUND) {
 				error = 0;
@@ -508,7 +509,7 @@ int git_filter_list__load_ext(
 
 		if (fdef->filter->check)
 			error = fdef->filter->check(
-				fdef->filter, &payload, &src, values);
+			            fdef->filter, &payload, &src, values);
 
 		git__free((void *)values);
 
@@ -542,19 +543,17 @@ int git_filter_list__load_ext(
 }
 
 int git_filter_list_load(
-	git_filter_list **filters,
-	git_repository *repo,
-	git_blob *blob, /* can be NULL */
-	const char *path,
-	git_filter_mode_t mode,
-	uint32_t flags)
+    git_filter_list **filters,
+    git_repository *repo,
+    git_blob *blob, /* can be NULL */
+    const char *path,
+    git_filter_mode_t mode,
+    uint32_t flags)
 {
 	git_filter_options filter_opts = GIT_FILTER_OPTIONS_INIT;
-
 	filter_opts.flags = flags;
-
 	return git_filter_list__load_ext(
-		filters, repo, blob, path, mode, &filter_opts);
+	           filters, repo, blob, path, mode, &filter_opts);
 }
 
 void git_filter_list_free(git_filter_list *fl)
@@ -566,6 +565,7 @@ void git_filter_list_free(git_filter_list *fl)
 
 	for (i = 0; i < git_array_size(fl->filters); ++i) {
 		git_filter_entry *fe = git_array_get(fl->filters, i);
+
 		if (fe->filter->cleanup)
 			fe->filter->cleanup(fe->filter, fe->payload);
 	}
@@ -575,18 +575,17 @@ void git_filter_list_free(git_filter_list *fl)
 }
 
 int git_filter_list_push(
-	git_filter_list *fl, git_filter *filter, void *payload)
+    git_filter_list *fl, git_filter *filter, void *payload)
 {
 	int error = 0;
 	size_t pos;
 	git_filter_def *fdef;
 	git_filter_entry *fe;
-
 	assert(fl && filter);
 
 	if (git_vector_search2(
-			&pos, &git__filter_registry->filters,
-			filter_def_filter_key_check, filter) < 0) {
+	        &pos, &git__filter_registry->filters,
+	        filter_def_filter_key_check, filter) < 0) {
 		giterr_set(GITERR_FILTER, "Cannot use an unregistered filter");
 		return -1;
 	}
@@ -600,7 +599,6 @@ int git_filter_list_push(
 	GITERR_CHECK_ALLOC(fe);
 	fe->filter  = filter;
 	fe->payload = payload;
-
 	return 0;
 }
 
@@ -616,13 +614,11 @@ struct buf_stream {
 };
 
 static int buf_stream_write(
-	git_writestream *s, const char *buffer, size_t len)
+    git_writestream *s, const char *buffer, size_t len)
 {
 	struct buf_stream *buf_stream = (struct buf_stream *)s;
 	assert(buf_stream);
-
 	assert(buf_stream->complete == 0);
-
 	return git_buf_put(buf_stream->target, buffer, len);
 }
 
@@ -630,10 +626,8 @@ static int buf_stream_close(git_writestream *s)
 {
 	struct buf_stream *buf_stream = (struct buf_stream *)s;
 	assert(buf_stream);
-
 	assert(buf_stream->complete == 0);
 	buf_stream->complete = 1;
-
 	return 0;
 }
 
@@ -645,21 +639,18 @@ static void buf_stream_free(git_writestream *s)
 static void buf_stream_init(struct buf_stream *writer, git_buf *target)
 {
 	memset(writer, 0, sizeof(struct buf_stream));
-
 	writer->parent.write = buf_stream_write;
 	writer->parent.close = buf_stream_close;
 	writer->parent.free = buf_stream_free;
 	writer->target = target;
-
 	git_buf_clear(target);
 }
 
 int git_filter_list_apply_to_data(
-	git_buf *tgt, git_filter_list *filters, git_buf *src)
+    git_buf *tgt, git_filter_list *filters, git_buf *src)
 {
 	struct buf_stream writer;
 	int error;
-
 	git_buf_sanitize(tgt);
 	git_buf_sanitize(src);
 
@@ -671,27 +662,26 @@ int git_filter_list_apply_to_data(
 	buf_stream_init(&writer, tgt);
 
 	if ((error = git_filter_list_stream_data(filters, src,
-		(git_writestream *)&writer)) < 0)
-			return error;
+	             (git_writestream *)&writer)) < 0)
+		return error;
 
 	assert(writer.complete);
 	return error;
 }
 
 int git_filter_list_apply_to_file(
-	git_buf *out,
-	git_filter_list *filters,
-	git_repository *repo,
-	const char *path)
+    git_buf *out,
+    git_filter_list *filters,
+    git_repository *repo,
+    const char *path)
 {
 	struct buf_stream writer;
 	int error;
-
 	buf_stream_init(&writer, out);
 
 	if ((error = git_filter_list_stream_file(
-		filters, repo, path, (git_writestream *)&writer)) < 0)
-			return error;
+	                 filters, repo, path, (git_writestream *)&writer)) < 0)
+		return error;
 
 	assert(writer.complete);
 	return error;
@@ -711,18 +701,17 @@ static int buf_from_blob(git_buf *out, git_blob *blob)
 }
 
 int git_filter_list_apply_to_blob(
-	git_buf *out,
-	git_filter_list *filters,
-	git_blob *blob)
+    git_buf *out,
+    git_filter_list *filters,
+    git_blob *blob)
 {
 	struct buf_stream writer;
 	int error;
-
 	buf_stream_init(&writer, out);
 
 	if ((error = git_filter_list_stream_blob(
-		filters, blob, (git_writestream *)&writer)) < 0)
-			return error;
+	                 filters, blob, (git_writestream *)&writer)) < 0)
+		return error;
 
 	assert(writer.complete);
 	return error;
@@ -740,11 +729,10 @@ struct proxy_stream {
 };
 
 static int proxy_stream_write(
-	git_writestream *s, const char *buffer, size_t len)
+    git_writestream *s, const char *buffer, size_t len)
 {
 	struct proxy_stream *proxy_stream = (struct proxy_stream *)s;
 	assert(proxy_stream);
-
 	return git_buf_put(&proxy_stream->input, buffer, len);
 }
 
@@ -753,27 +741,24 @@ static int proxy_stream_close(git_writestream *s)
 	struct proxy_stream *proxy_stream = (struct proxy_stream *)s;
 	git_buf *writebuf;
 	int error;
-
 	assert(proxy_stream);
-
 	error = proxy_stream->filter->apply(
-		proxy_stream->filter,
-		proxy_stream->payload,
-		proxy_stream->output,
-		&proxy_stream->input,
-		proxy_stream->source);
+	            proxy_stream->filter,
+	            proxy_stream->payload,
+	            proxy_stream->output,
+	            &proxy_stream->input,
+	            proxy_stream->source);
 
-	if (error == GIT_PASSTHROUGH) {
+	if (error == GIT_PASSTHROUGH)
 		writebuf = &proxy_stream->input;
-	} else if (error == 0) {
+	else if (error == 0) {
 		git_buf_sanitize(proxy_stream->output);
 		writebuf = proxy_stream->output;
-	} else {
+	} else
 		return error;
-	}
 
 	if ((error = proxy_stream->target->write(
-			proxy_stream->target, writebuf->ptr, writebuf->size)) == 0)
+	                 proxy_stream->target, writebuf->ptr, writebuf->size)) == 0)
 		error = proxy_stream->target->close(proxy_stream->target);
 
 	return error;
@@ -783,23 +768,21 @@ static void proxy_stream_free(git_writestream *s)
 {
 	struct proxy_stream *proxy_stream = (struct proxy_stream *)s;
 	assert(proxy_stream);
-
 	git_buf_free(&proxy_stream->input);
 	git_buf_free(&proxy_stream->temp_buf);
 	git__free(proxy_stream);
 }
 
 static int proxy_stream_init(
-	git_writestream **out,
-	git_filter *filter,
-	git_buf *temp_buf,
-	void **payload,
-	const git_filter_source *source,
-	git_writestream *target)
+    git_writestream **out,
+    git_filter *filter,
+    git_buf *temp_buf,
+    void **payload,
+    const git_filter_source *source,
+    git_writestream *target)
 {
 	struct proxy_stream *proxy_stream = git__calloc(1, sizeof(struct proxy_stream));
 	GITERR_CHECK_ALLOC(proxy_stream);
-
 	proxy_stream->parent.write = proxy_stream_write;
 	proxy_stream->parent.close = proxy_stream_close;
 	proxy_stream->parent.free = proxy_stream_free;
@@ -817,15 +800,14 @@ static int proxy_stream_init(
 }
 
 static int stream_list_init(
-	git_writestream **out,
-	git_vector *streams,
-	git_filter_list *filters,
-	git_writestream *target)
+    git_writestream **out,
+    git_vector *streams,
+    git_filter_list *filters,
+    git_writestream *target)
 {
 	git_writestream *last_stream = target;
 	size_t i;
 	int error = 0;
-
 	*out = NULL;
 
 	if (!filters) {
@@ -836,10 +818,9 @@ static int stream_list_init(
 	/* Create filters last to first to get the chaining direction */
 	for (i = 0; i < git_array_size(filters->filters); ++i) {
 		size_t filter_idx = (filters->source.mode == GIT_FILTER_TO_WORKTREE) ?
-			git_array_size(filters->filters) - 1 - i : i;
+		                    git_array_size(filters->filters) - 1 - i : i;
 		git_filter_entry *fe = git_array_get(filters->filters, filter_idx);
 		git_writestream *filter_stream;
-		
 		assert(fe->filter->stream || fe->filter->apply);
 
 		/* If necessary, create a stream that proxies the traditional
@@ -847,12 +828,12 @@ static int stream_list_init(
 		 */
 		if (fe->filter->stream)
 			error = fe->filter->stream(&filter_stream, fe->filter,
-				&fe->payload, &filters->source, last_stream);
+			                           &fe->payload, &filters->source, last_stream);
 		else
 			/* Create a stream that proxies the one-shot apply */
 			error = proxy_stream_init(&filter_stream, fe->filter,
-				filters->temp_buf, &fe->payload, &filters->source,
-				last_stream);
+			                          filters->temp_buf, &fe->payload, &filters->source,
+			                          last_stream);
 
 		if (error < 0)
 			return error;
@@ -869,19 +850,18 @@ void stream_list_free(git_vector *streams)
 {
 	git_writestream *stream;
 	size_t i;
-
 	git_vector_foreach(streams, i, stream)
-		stream->free(stream);
+	stream->free(stream);
 	git_vector_free(streams);
 }
 
 #define STREAM_BUFSIZE 10240
 
 int git_filter_list_stream_file(
-	git_filter_list *filters,
-	git_repository *repo,
-	const char *path,
-	git_writestream *target)
+    git_filter_list *filters,
+    git_repository *repo,
+    const char *path,
+    git_writestream *target)
 {
 	char buf[STREAM_BUFSIZE];
 	git_buf abspath = GIT_BUF_INIT;
@@ -892,8 +872,8 @@ int git_filter_list_stream_file(
 	int fd, error;
 
 	if ((error = stream_list_init(
-			&stream_start, &filter_streams, filters, target)) < 0 ||
-		(error = git_path_join_unrooted(&abspath, path, base, NULL)) < 0)
+	                 &stream_start, &filter_streams, filters, target)) < 0 ||
+	    (error = git_path_join_unrooted(&abspath, path, base, NULL)) < 0)
 		goto done;
 
 	if ((fd = git_futils_open_ro(abspath.ptr)) < 0) {
@@ -912,7 +892,6 @@ int git_filter_list_stream_file(
 		error = readlen;
 
 	p_close(fd);
-
 done:
 	stream_list_free(&filter_streams);
 	git_buf_free(&abspath);
@@ -920,20 +899,19 @@ done:
 }
 
 int git_filter_list_stream_data(
-	git_filter_list *filters,
-	git_buf *data,
-	git_writestream *target)
+    git_filter_list *filters,
+    git_buf *data,
+    git_writestream *target)
 {
 	git_vector filter_streams = GIT_VECTOR_INIT;
 	git_writestream *stream_start;
 	int error = 0;
-
 	git_buf_sanitize(data);
 
 	if ((error = stream_list_init(
-			&stream_start, &filter_streams, filters, target)) == 0 &&
-		(error =
-			stream_start->write(stream_start, data->ptr, data->size)) == 0)
+	                 &stream_start, &filter_streams, filters, target)) == 0 &&
+	    (error =
+	         stream_start->write(stream_start, data->ptr, data->size)) == 0)
 		error = stream_start->close(stream_start);
 
 	stream_list_free(&filter_streams);
@@ -941,9 +919,9 @@ int git_filter_list_stream_data(
 }
 
 int git_filter_list_stream_blob(
-	git_filter_list *filters,
-	git_blob *blob,
-	git_writestream *target)
+    git_filter_list *filters,
+    git_blob *blob,
+    git_writestream *target)
 {
 	git_buf in = GIT_BUF_INIT;
 

@@ -7,7 +7,6 @@ static git_reference *branch;
 void test_refs_branches_lookup__initialize(void)
 {
 	cl_git_pass(git_repository_open(&repo, cl_fixture("testrepo.git")));
-
 	branch = NULL;
 }
 
@@ -15,7 +14,6 @@ void test_refs_branches_lookup__cleanup(void)
 {
 	git_reference_free(branch);
 	branch = NULL;
-
 	git_repository_free(repo);
 	repo = NULL;
 }
@@ -39,7 +37,7 @@ void test_refs_branches_lookup__trying_to_retrieve_an_unknown_branch_returns_ENO
 void test_refs_branches_lookup__trying_to_retrieve_a_branch_with_an_invalid_name_returns_EINVALIDSPEC(void)
 {
 	cl_assert_equal_i(GIT_EINVALIDSPEC,
-		git_branch_lookup(&branch, repo, "are/you/inv@{id", GIT_BRANCH_LOCAL));
+	                  git_branch_lookup(&branch, repo, "are/you/inv@{id", GIT_BRANCH_LOCAL));
 	cl_assert_equal_i(GIT_EINVALIDSPEC,
-		git_branch_lookup(&branch, repo, "yes/i am", GIT_BRANCH_REMOTE));
+	                  git_branch_lookup(&branch, repo, "yes/i am", GIT_BRANCH_REMOTE));
 }

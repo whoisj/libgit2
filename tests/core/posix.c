@@ -18,8 +18,7 @@ void test_core_posix__initialize(void)
 	/* on win32, the WSA context needs to be initialized
 	 * before any socket calls can be performed */
 	WSADATA wsd;
-
-	cl_git_pass(WSAStartup(MAKEWORD(2,2), &wsd));
+	cl_git_pass(WSAStartup(MAKEWORD(2, 2), &wsd));
 	cl_assert(LOBYTE(wsd.wVersion) == 2 && HIBYTE(wsd.wVersion) == 2);
 #endif
 }
@@ -39,17 +38,14 @@ void test_core_posix__inet_pton(void)
 	struct in_addr addr;
 	struct in6_addr addr6;
 	size_t i;
-	
 	struct in_addr_data {
 		const char *p;
 		const uint8_t n[4];
 	};
-
 	struct in6_addr_data {
 		const char *p;
 		const uint8_t n[16];
 	};
-
 	static struct in_addr_data in_addr_data[] = {
 		{ "0.0.0.0", { 0, 0, 0, 0 } },
 		{ "10.42.101.8", { 10, 42, 101, 8 } },
@@ -58,7 +54,6 @@ void test_core_posix__inet_pton(void)
 		{ "204.232.175.90", { 204, 232, 175, 90 } },
 		{ "255.255.255.255", { 255, 255, 255, 255 } },
 	};
-
 	static struct in6_addr_data in6_addr_data[] = {
 		{ "::", { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } },
 		{ "::1", { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 } },
@@ -75,8 +70,7 @@ void test_core_posix__inet_pton(void)
 	}
 
 	/* Test some ipv6 addresses */
-	if (supports_ipv6())
-	{
+	if (supports_ipv6()) {
 		for (i = 0; i < 6; i++) {
 			cl_assert(p_inet_pton(AF_INET6, in6_addr_data[i].p, &addr6) == 1);
 			cl_assert(memcmp(&addr6, in6_addr_data[i].n, sizeof(struct in6_addr)) == 0);
@@ -89,11 +83,9 @@ void test_core_posix__inet_pton(void)
 	cl_assert(p_inet_pton(AF_INET, " 127.0.0.1", &addr) == 0);
 	cl_assert(p_inet_pton(AF_INET, "bar", &addr) == 0);
 	cl_assert(p_inet_pton(AF_INET, "10.foo.bar.1", &addr) == 0);
-
 	/* Test unsupported address families */
 	cl_git_fail(p_inet_pton(12, "52.472", NULL)); /* AF_DECnet */
 	cl_assert_equal_i(EAFNOSUPPORT, errno);
-
 	cl_git_fail(p_inet_pton(5, "315.124", NULL)); /* AF_CHAOS */
 	cl_assert_equal_i(EAFNOSUPPORT, errno);
 }

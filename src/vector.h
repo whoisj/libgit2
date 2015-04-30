@@ -48,7 +48,7 @@ int git_vector_search2(size_t *at_pos, const git_vector *v, git_vector_cmp cmp, 
  * returns position where item would go if not found.
  */
 int git_vector_bsearch2(
-	size_t *at_pos, git_vector *v, git_vector_cmp cmp, const void *key);
+    size_t *at_pos, git_vector *v, git_vector_cmp cmp, const void *key);
 
 /** Binary search for matching entry using internal comparison function */
 GIT_INLINE(int) git_vector_bsearch(size_t *at_pos, git_vector *v, const void *key)
@@ -81,15 +81,15 @@ GIT_INLINE(void *) git_vector_last(const git_vector *v)
 
 int git_vector_insert(git_vector *v, void *element);
 int git_vector_insert_sorted(git_vector *v, void *element,
-	int (*on_dup)(void **old, void *new));
+                             int (*on_dup)(void **old, void *new));
 int git_vector_remove(git_vector *v, size_t idx);
 void git_vector_pop(git_vector *v);
 void git_vector_uniq(git_vector *v, void  (*git_free_cb)(void *));
 
 void git_vector_remove_matching(
-	git_vector *v,
-	int (*match)(const git_vector *v, size_t idx, void *payload),
-	void *payload);
+    git_vector *v,
+    int (*match)(const git_vector *v, size_t idx, void *payload),
+    void *payload);
 
 int git_vector_resize_to(git_vector *v, size_t new_length);
 int git_vector_set(void **old, git_vector *v, size_t position, void *value);

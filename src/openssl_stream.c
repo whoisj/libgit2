@@ -30,9 +30,7 @@ static int ssl_set_error(SSL *ssl, int error)
 {
 	int err;
 	unsigned long e;
-
 	err = SSL_get_error(ssl, error);
-
 	assert(err != SSL_ERROR_WANT_READ);
 	assert(err != SSL_ERROR_WANT_WRITE);
 
@@ -41,40 +39,47 @@ static int ssl_set_error(SSL *ssl, int error)
 	case SSL_ERROR_WANT_ACCEPT:
 		giterr_set(GITERR_NET, "SSL error: connection failure\n");
 		break;
+
 	case SSL_ERROR_WANT_X509_LOOKUP:
 		giterr_set(GITERR_NET, "SSL error: x509 error\n");
 		break;
+
 	case SSL_ERROR_SYSCALL:
 		e = ERR_get_error();
+
 		if (e > 0) {
 			giterr_set(GITERR_NET, "SSL error: %s",
-					ERR_error_string(e, NULL));
+			           ERR_error_string(e, NULL));
 			break;
 		} else if (error < 0) {
 			giterr_set(GITERR_OS, "SSL error: syscall failure");
 			break;
 		}
+
 		giterr_set(GITERR_NET, "SSL error: received early EOF");
 		break;
+
 	case SSL_ERROR_SSL:
 		e = ERR_get_error();
 		giterr_set(GITERR_NET, "SSL error: %s",
-				ERR_error_string(e, NULL));
+		           ERR_error_string(e, NULL));
 		break;
+
 	case SSL_ERROR_NONE:
 	case SSL_ERROR_ZERO_RETURN:
 	default:
 		giterr_set(GITERR_NET, "SSL error: unknown error");
 		break;
 	}
+
 	return -1;
 }
 
 static int ssl_teardown(SSL *ssl)
 {
 	int ret;
-
 	ret = SSL_shutdown(ssl);
+
 	if (ret < 0)
 		ret = ssl_set_error(ssl, ret);
 	else
@@ -106,7 +111,7 @@ static int verify_server_cert(SSL *ssl, const char *host)
 	struct in6_addr addr6;
 	struct in_addr addr4;
 	void *addr;
-	int i = -1,j;
+	int i = -1, j;
 
 	if (SSL_get_verify_result(ssl) != X509_V_OK) {
 		giterr_set(GITERR_SSL, "The SSL certificate is invalid");
@@ -118,14 +123,14 @@ static int verify_server_cert(SSL *ssl, const char *host)
 		type = GEN_IPADD;
 		addr = &addr4;
 	} else {
-		if(p_inet_pton(AF_INET6, host, &addr6)) {
+		if (p_inet_pton(AF_INET6, host, &addr6)) {
 			type = GEN_IPADD;
 			addr = &addr6;
 		}
 	}
 
-
 	cert = SSL_get_peer_certificate(ssl);
+
 	if (!cert) {
 		giterr_set(GITERR_SSL, "the server did not provide a certificate");
 		return -1;
@@ -133,10 +138,11 @@ static int verify_server_cert(SSL *ssl, const char *host)
 
 	/* Check the alternative names */
 	alts = X509_get_ext_d2i(cert, NID_subject_alt_name, NULL, NULL);
+
 	if (alts) {
 		int num;
-
 		num = sk_GENERAL_NAME_num(alts);
+
 		for (i = 0; i < num && matched != 1; i++) {
 			const GENERAL_NAME *gn = sk_GENERAL_NAME_value(alts, i);
 			const char *name = (char *) ASN1_STRING_data(gn->d.ia5);
@@ -161,6 +167,7 @@ static int verify_server_cert(SSL *ssl, const char *host)
 			}
 		}
 	}
+
 	GENERAL_NAMES_free(alts);
 
 	if (matched == 0)
@@ -171,6 +178,7 @@ static int verify_server_cert(SSL *ssl, const char *host)
 
 	/* If no alternative names are available, check the common name */
 	peer_name = X509_get_subject_name(cert);
+
 	if (peer_name == NULL)
 		goto on_error;
 
@@ -184,6 +192,7 @@ static int verify_server_cert(SSL *ssl, const char *host)
 		goto on_error;
 
 	str = X509_NAME_ENTRY_get_data(X509_NAME_get_entry(peer_name, i));
+
 	if (str == NULL)
 		goto on_error;
 
@@ -200,6 +209,7 @@ static int verify_server_cert(SSL *ssl, const char *host)
 	} else {
 		int size = ASN1_STRING_to_UTF8(&peer_cn, str);
 		GITERR_CHECK_ALLOC(peer_cn);
+
 		if (memchr(peer_cn, '\0', size))
 			goto cert_fail_name;
 	}
@@ -208,13 +218,10 @@ static int verify_server_cert(SSL *ssl, const char *host)
 		goto cert_fail_name;
 
 	OPENSSL_free(peer_cn);
-
 	return 0;
-
 on_error:
 	OPENSSL_free(peer_cn);
 	return ssl_set_error(ssl, 0);
-
 cert_fail_name:
 	OPENSSL_free(peer_cn);
 	giterr_set(GITERR_SSL, "hostname does not match certificate");
@@ -255,9 +262,9 @@ int openssl_certificate(git_cert **out, git_stream *stream)
 	int len;
 	X509 *cert = SSL_get_peer_certificate(st->ssl);
 	unsigned char *guard, *encoded_cert;
-
 	/* Retrieve the length of the certificate first */
 	len = i2d_X509(cert, NULL);
+
 	if (len < 0) {
 		giterr_set(GITERR_NET, "failed to retrieve certificate information");
 		return -1;
@@ -267,8 +274,8 @@ int openssl_certificate(git_cert **out, git_stream *stream)
 	GITERR_CHECK_ALLOC(encoded_cert);
 	/* i2d_X509 makes 'guard' point to just after the data */
 	guard = encoded_cert;
-
 	len = i2d_X509(cert, &guard);
+
 	if (len < 0) {
 		git__free(encoded_cert);
 		giterr_set(GITERR_NET, "failed to retrieve certificate information");
@@ -278,7 +285,6 @@ int openssl_certificate(git_cert **out, git_stream *stream)
 	st->cert_info.cert_type = GIT_CERT_X509;
 	st->cert_info.data = encoded_cert;
 	st->cert_info.len = len;
-
 	*out = (git_cert *)&st->cert_info;
 	return 0;
 }
@@ -288,16 +294,16 @@ ssize_t openssl_write(git_stream *stream, const char *data, size_t len, int flag
 	openssl_stream *st = (openssl_stream *) stream;
 	int ret;
 	size_t off = 0;
-
 	GIT_UNUSED(flags);
 
 	while (off < len) {
 		ret = SSL_write(st->ssl, data + off, len - off);
+
 		if (ret <= 0 && ret != SSL_ERROR_WANT_WRITE)
 			return ssl_set_error(st->ssl, ret);
 
 		off += ret;
-	}	
+	}
 
 	return off;
 }
@@ -333,7 +339,6 @@ int openssl_close(git_stream *stream)
 void openssl_free(git_stream *stream)
 {
 	openssl_stream *st = (openssl_stream *) stream;
-
 	git__free(st->cert_info.data);
 	git_stream_free((git_stream *) st->socket);
 	git__free(st);
@@ -342,7 +347,6 @@ void openssl_free(git_stream *stream)
 int git_openssl_stream_new(git_stream **out, const char *host, const char *port)
 {
 	openssl_stream *st;
-
 	st = git__calloc(1, sizeof(openssl_stream));
 	GITERR_CHECK_ALLOC(st);
 
@@ -350,6 +354,7 @@ int git_openssl_stream_new(git_stream **out, const char *host, const char *port)
 		return -1;
 
 	st->ssl = SSL_new(git__ssl_ctx);
+
 	if (st->ssl == NULL) {
 		giterr_set(GITERR_SSL, "failed to create ssl object");
 		return -1;
@@ -363,7 +368,6 @@ int git_openssl_stream_new(git_stream **out, const char *host, const char *port)
 	st->parent.write = openssl_write;
 	st->parent.close = openssl_close;
 	st->parent.free = openssl_free;
-
 	*out = (git_stream *) st;
 	return 0;
 }
@@ -377,7 +381,6 @@ int git_openssl_stream_new(git_stream **out, const char *host, const char *port)
 	GIT_UNUSED(out);
 	GIT_UNUSED(host);
 	GIT_UNUSED(port);
-
 	giterr_set(GITERR_SSL, "openssl is not supported in this version");
 	return -1;
 }

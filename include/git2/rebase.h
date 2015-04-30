@@ -139,8 +139,8 @@ typedef struct {
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_rebase_init_options(
-	git_rebase_options *opts,
-	unsigned int version);
+    git_rebase_options *opts,
+    unsigned int version);
 
 /**
  * Initializes a rebase operation to rebase the changes in `branch`
@@ -160,12 +160,12 @@ GIT_EXTERN(int) git_rebase_init_options(
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_rebase_init(
-	git_rebase **out,
-	git_repository *repo,
-	const git_annotated_commit *branch,
-	const git_annotated_commit *upstream,
-	const git_annotated_commit *onto,
-	const git_rebase_options *opts);
+    git_rebase **out,
+    git_repository *repo,
+    const git_annotated_commit *branch,
+    const git_annotated_commit *upstream,
+    const git_annotated_commit *onto,
+    const git_rebase_options *opts);
 
 /**
  * Opens an existing rebase that was previously started by either an
@@ -177,9 +177,9 @@ GIT_EXTERN(int) git_rebase_init(
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_rebase_open(
-	git_rebase **out,
-	git_repository *repo,
-	const git_rebase_options *opts);
+    git_rebase **out,
+    git_repository *repo,
+    const git_rebase_options *opts);
 
 /**
  * Gets the count of rebase operations that are to be applied.
@@ -208,8 +208,8 @@ GIT_EXTERN(size_t) git_rebase_operation_current(git_rebase *rebase);
  * @return The rebase operation or NULL if `idx` was out of bounds
  */
 GIT_EXTERN(git_rebase_operation *) git_rebase_operation_byindex(
-	git_rebase *rebase,
-	size_t idx);
+    git_rebase *rebase,
+    size_t idx);
 
 /**
  * Performs the next rebase operation and returns the information about it.
@@ -223,8 +223,8 @@ GIT_EXTERN(git_rebase_operation *) git_rebase_operation_byindex(
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_rebase_next(
-	git_rebase_operation **operation,
-	git_rebase *rebase);
+    git_rebase_operation **operation,
+    git_rebase *rebase);
 
 /**
  * Commits the current patch.  You must have resolved any conflicts that
@@ -249,12 +249,12 @@ GIT_EXTERN(int) git_rebase_next(
  *        -1 on failure.
  */
 GIT_EXTERN(int) git_rebase_commit(
-	git_oid *id,
-	git_rebase *rebase,
-	const git_signature *author,
-	const git_signature *committer,
-	const char *message_encoding,
-	const char *message);
+    git_oid *id,
+    git_rebase *rebase,
+    const git_signature *author,
+    const git_signature *committer,
+    const char *message_encoding,
+    const char *message);
 
 /**
  * Aborts a rebase that is currently in progress, resetting the repository
@@ -275,8 +275,8 @@ GIT_EXTERN(int) git_rebase_abort(git_rebase *rebase);
  * @return Zero on success; -1 on error
  */
 GIT_EXTERN(int) git_rebase_finish(
-	git_rebase *rebase,
-	const git_signature *signature);
+    git_rebase *rebase,
+    const git_signature *signature);
 
 /**
  * Frees the `git_rebase` object.

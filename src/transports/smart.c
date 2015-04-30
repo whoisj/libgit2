@@ -14,9 +14,7 @@ static int git_smart__recv_cb(gitno_buffer *buf)
 	transport_smart *t = (transport_smart *) buf->cb_data;
 	size_t old_len, bytes_read;
 	int error;
-
 	assert(t->current_stream);
-
 	old_len = buf->offset;
 
 	if ((error = t->current_stream->read(t->current_stream, buf->data + buf->offset, buf->len - buf->offset, &bytes_read)) < 0)
@@ -26,6 +24,7 @@ static int git_smart__recv_cb(gitno_buffer *buf)
 
 	if (t->packetsize_cb && !t->cancelled.val) {
 		error = t->packetsize_cb(bytes_read, t->packetsize_payload);
+
 		if (error) {
 			git_atomic_set(&t->cancelled, 1);
 			return GIT_EUSER;
@@ -43,26 +42,24 @@ GIT_INLINE(int) git_smart__reset_stream(transport_smart *t, bool close_subtransp
 	}
 
 	if (close_subtransport &&
-		t->wrapped->close(t->wrapped) < 0)
+	    t->wrapped->close(t->wrapped) < 0)
 		return -1;
 
 	return 0;
 }
 
 static int git_smart__set_callbacks(
-	git_transport *transport,
-	git_transport_message_cb progress_cb,
-	git_transport_message_cb error_cb,
-	git_transport_certificate_check_cb certificate_check_cb,
-	void *message_cb_payload)
+    git_transport *transport,
+    git_transport_message_cb progress_cb,
+    git_transport_message_cb error_cb,
+    git_transport_certificate_check_cb certificate_check_cb,
+    void *message_cb_payload)
 {
 	transport_smart *t = (transport_smart *)transport;
-
 	t->progress_cb = progress_cb;
 	t->error_cb = error_cb;
 	t->certificate_check_cb = certificate_check_cb;
 	t->message_cb_payload = message_cb_payload;
-
 	return 0;
 }
 
@@ -70,10 +67,10 @@ int git_smart__update_heads(transport_smart *t, git_vector *symrefs)
 {
 	size_t i;
 	git_pkt *pkt;
-
 	git_vector_clear(&t->heads);
 	git_vector_foreach(&t->refs, i, pkt) {
 		git_pkt_ref *ref = (git_pkt_ref *) pkt;
+
 		if (pkt->type != GIT_PKT_REF)
 			continue;
 
@@ -82,14 +79,13 @@ int git_smart__update_heads(transport_smart *t, git_vector *symrefs)
 			git_buf buf = GIT_BUF_INIT;
 			size_t j;
 			int error = 0;
-
 			git_vector_foreach(symrefs, j, spec) {
 				git_buf_clear(&buf);
+
 				if (git_refspec_src_matches(spec, ref->head.name) &&
 				    !(error = git_refspec_transform(&buf, spec, ref->head.name)))
 					ref->head.symref_target = git_buf_detach(&buf);
 			}
-
 			git_buf_free(&buf);
 
 			if (error < 0)
@@ -99,7 +95,6 @@ int git_smart__update_heads(transport_smart *t, git_vector *symrefs)
 		if (git_vector_insert(&t->heads, &ref->head) < 0)
 			return -1;
 	}
-
 	return 0;
 }
 
@@ -107,22 +102,20 @@ static void free_symrefs(git_vector *symrefs)
 {
 	git_refspec *spec;
 	size_t i;
-
 	git_vector_foreach(symrefs, i, spec) {
 		git_refspec__free(spec);
 		git__free(spec);
 	}
-
 	git_vector_free(symrefs);
 }
 
 static int git_smart__connect(
-	git_transport *transport,
-	const char *url,
-	git_cred_acquire_cb cred_acquire_cb,
-	void *cred_acquire_payload,
-	int direction,
-	int flags)
+    git_transport *transport,
+    const char *url,
+    git_cred_acquire_cb cred_acquire_cb,
+    void *cred_acquire_payload,
+    int direction,
+    int flags)
 {
 	transport_smart *t = (transport_smart *)transport;
 	git_smart_subtransport_stream *stream;
@@ -137,7 +130,6 @@ static int git_smart__connect(
 
 	t->url = git__strdup(url);
 	GITERR_CHECK_ALLOC(t->url);
-
 	t->direction = direction;
 	t->flags = flags;
 	t->cred_acquire_cb = cred_acquire_cb;
@@ -157,7 +149,6 @@ static int git_smart__connect(
 
 	/* Save off the current stream (i.e. socket) that we are working with */
 	t->current_stream = stream;
-
 	gitno_buffer_setup_callback(&t->buffer, t->buffer_data, sizeof(t->buffer_data), git_smart__recv_cb, t);
 
 	/* 2 flushes for RPC; 1 for stateful */
@@ -180,7 +171,6 @@ static int git_smart__connect(
 
 	/* We now have loaded the refs. */
 	t->have_refs = 1;
-
 	first = (git_pkt_ref *)git_vector_get(&t->refs, 0);
 
 	if ((error = git_vector_init(&symrefs, 1, NULL)) < 0)
@@ -192,14 +182,13 @@ static int git_smart__connect(
 
 	/* If the only ref in the list is capabilities^{} with OID_ZERO, remove it */
 	if (1 == t->refs.length && !strcmp(first->head.name, "capabilities^{}") &&
-		git_oid_iszero(&first->head.oid)) {
+	    git_oid_iszero(&first->head.oid)) {
 		git_vector_clear(&t->refs);
 		git_pkt_free((git_pkt *)first);
 	}
 
 	/* Keep a list of heads for _ls */
 	git_smart__update_heads(t, &symrefs);
-
 	free_symrefs(&symrefs);
 
 	if (t->rpc && git_smart__reset_stream(t, false) < 0)
@@ -207,7 +196,6 @@ static int git_smart__connect(
 
 	/* We're now logically connected. */
 	t->connected = 1;
-
 	return 0;
 }
 
@@ -222,7 +210,6 @@ static int git_smart__ls(const git_remote_head ***out, size_t *size, git_transpo
 
 	*out = (const git_remote_head **) t->heads.contents;
 	*size = t->heads.length;
-
 	return 0;
 }
 
@@ -245,7 +232,6 @@ int git_smart__negotiation_step(git_transport *transport, void *data, size_t len
 
 	/* If this is a stateful implementation, the stream we get back should be the same */
 	assert(t->rpc || t->current_stream == stream);
-
 	/* Save off the current stream (i.e. socket) that we are working with */
 	t->current_stream = stream;
 
@@ -253,7 +239,6 @@ int git_smart__negotiation_step(git_transport *transport, void *data, size_t len
 		return error;
 
 	gitno_buffer_setup_callback(&t->buffer, t->buffer_data, sizeof(t->buffer_data), git_smart__recv_cb, t);
-
 	return 0;
 }
 
@@ -274,35 +259,28 @@ int git_smart__get_push_stream(transport_smart *t, git_smart_subtransport_stream
 
 	/* If this is a stateful implementation, the stream we get back should be the same */
 	assert(t->rpc || t->current_stream == *stream);
-
 	/* Save off the current stream (i.e. socket) that we are working with */
 	t->current_stream = *stream;
-
 	gitno_buffer_setup_callback(&t->buffer, t->buffer_data, sizeof(t->buffer_data), git_smart__recv_cb, t);
-
 	return 0;
 }
 
 static void git_smart__cancel(git_transport *transport)
 {
 	transport_smart *t = (transport_smart *)transport;
-
 	git_atomic_set(&t->cancelled, 1);
 }
 
 static int git_smart__is_connected(git_transport *transport)
 {
 	transport_smart *t = (transport_smart *)transport;
-
 	return t->connected;
 }
 
 static int git_smart__read_flags(git_transport *transport, int *flags)
 {
 	transport_smart *t = (transport_smart *)transport;
-
 	*flags = t->flags;
-
 	return 0;
 }
 
@@ -322,15 +300,12 @@ static int git_smart__close(git_transport *transport)
 	 * will complain that we disconnected unexpectedly.
 	 */
 	if (t->connected && !t->rpc &&
-	    !t->wrapped->action(&stream, t->wrapped, t->url, GIT_SERVICE_UPLOADPACK)) {
+	    !t->wrapped->action(&stream, t->wrapped, t->url, GIT_SERVICE_UPLOADPACK))
 		t->current_stream->write(t->current_stream, flush, 4);
-	}
 
 	ret = git_smart__reset_stream(t, true);
-
 	git_vector_foreach(common, i, p)
-		git_pkt_free(p);
-
+	git_pkt_free(p);
 	git_vector_free(common);
 
 	if (t->url) {
@@ -339,7 +314,6 @@ static int git_smart__close(git_transport *transport)
 	}
 
 	t->connected = 0;
-
 	return ret;
 }
 
@@ -349,26 +323,20 @@ static void git_smart__free(git_transport *transport)
 	git_vector *refs = &t->refs;
 	unsigned int i;
 	git_pkt *p;
-
 	/* Make sure that the current stream is closed, if we have one. */
 	git_smart__close(transport);
-
 	/* Free the subtransport */
 	t->wrapped->free(t->wrapped);
-
 	git_vector_free(&t->heads);
 	git_vector_foreach(refs, i, p)
-		git_pkt_free(p);
-
+	git_pkt_free(p);
 	git_vector_free(refs);
-
 	git__free(t);
 }
 
 static int ref_name_cmp(const void *a, const void *b)
 {
 	const git_pkt_ref *ref_a = a, *ref_b = b;
-
 	return strcmp(ref_a->head.name, ref_b->head.name);
 }
 
@@ -382,7 +350,6 @@ int git_transport_smart(git_transport **out, git_remote *owner, void *param)
 
 	t = git__calloc(1, sizeof(transport_smart));
 	GITERR_CHECK_ALLOC(t);
-
 	t->parent.version = GIT_TRANSPORT_VERSION;
 	t->parent.set_callbacks = git_smart__set_callbacks;
 	t->parent.connect = git_smart__connect;
@@ -395,7 +362,6 @@ int git_transport_smart(git_transport **out, git_remote *owner, void *param)
 	t->parent.is_connected = git_smart__is_connected;
 	t->parent.read_flags = git_smart__read_flags;
 	t->parent.cancel = git_smart__cancel;
-
 	t->owner = owner;
 	t->rpc = definition->rpc;
 

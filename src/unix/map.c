@@ -16,10 +16,12 @@
 int git__page_size(size_t *page_size)
 {
 	long sc_page_size = sysconf(_SC_PAGE_SIZE);
+
 	if (sc_page_size < 0) {
 		giterr_set_str(GITERR_OS, "Can't determine system page size");
 		return -1;
 	}
+
 	*page_size = (size_t) sc_page_size;
 	return 0;
 }
@@ -28,9 +30,7 @@ int p_mmap(git_map *out, size_t len, int prot, int flags, int fd, git_off_t offs
 {
 	int mprot = PROT_READ;
 	int mflag = 0;
-
 	GIT_MMAP_VALIDATE(out, len, prot, flags);
-
 	out->data = NULL;
 	out->len = 0;
 
@@ -52,7 +52,6 @@ int p_mmap(git_map *out, size_t len, int prot, int flags, int fd, git_off_t offs
 	}
 
 	out->len = len;
-
 	return 0;
 }
 
@@ -60,7 +59,6 @@ int p_munmap(git_map *map)
 {
 	assert(map != NULL);
 	munmap(map->data, map->len);
-
 	return 0;
 }
 

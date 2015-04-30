@@ -39,21 +39,21 @@ struct git_reference_iterator {
 	 * Return the current reference and advance the iterator.
 	 */
 	int (*next)(
-		git_reference **ref,
-		git_reference_iterator *iter);
+	    git_reference **ref,
+	    git_reference_iterator *iter);
 
 	/**
 	 * Return the name of the current reference and advance the iterator
 	 */
 	int (*next_name)(
-		const char **ref_name,
-		git_reference_iterator *iter);
+	    const char **ref_name,
+	    git_reference_iterator *iter);
 
 	/**
 	 * Free the iterator
 	 */
 	void (*free)(
-		git_reference_iterator *iter);
+	    git_reference_iterator *iter);
 };
 
 /** An instance for a custom backend */
@@ -65,18 +65,18 @@ struct git_refdb_backend {
 	 * exists.  A refdb implementation must provide this function.
 	 */
 	int (*exists)(
-		int *exists,
-		git_refdb_backend *backend,
-		const char *ref_name);
+	    int *exists,
+	    git_refdb_backend *backend,
+	    const char *ref_name);
 
 	/**
 	 * Queries the refdb backend for a given reference.  A refdb
 	 * implementation must provide this function.
 	 */
 	int (*lookup)(
-		git_reference **out,
-		git_refdb_backend *backend,
-		const char *ref_name);
+	    git_reference **out,
+	    git_refdb_backend *backend,
+	    const char *ref_name);
 
 	/**
 	 * Allocate an iterator object for the backend.
@@ -84,23 +84,23 @@ struct git_refdb_backend {
 	 * A refdb implementation must provide this function.
 	 */
 	int (*iterator)(
-		git_reference_iterator **iter,
-		struct git_refdb_backend *backend,
-		const char *glob);
+	    git_reference_iterator **iter,
+	    struct git_refdb_backend *backend,
+	    const char *glob);
 
 	/*
 	 * Writes the given reference to the refdb.  A refdb implementation
 	 * must provide this function.
 	 */
 	int (*write)(git_refdb_backend *backend,
-		     const git_reference *ref, int force,
-		     const git_signature *who, const char *message,
-		     const git_oid *old, const char *old_target);
+	             const git_reference *ref, int force,
+	             const git_signature *who, const char *message,
+	             const git_oid *old, const char *old_target);
 
 	int (*rename)(
-		git_reference **out, git_refdb_backend *backend,
-		const char *old_name, const char *new_name, int force,
-		const git_signature *who, const char *message);
+	    git_reference **out, git_refdb_backend *backend,
+	    const char *old_name, const char *new_name, int force,
+	    const git_signature *who, const char *message);
 
 	/**
 	 * Deletes the given reference from the refdb.  A refdb implementation
@@ -165,7 +165,7 @@ struct git_refdb_backend {
 	 * reference or discard the lock (if it's false)
 	 */
 	int (*unlock)(git_refdb_backend *backend, void *payload, int success, int update_reflog,
-		      const git_reference *ref, const git_signature *sig, const char *message);
+	              const git_reference *ref, const git_signature *sig, const char *message);
 };
 
 #define GIT_REFDB_BACKEND_VERSION 1
@@ -180,8 +180,8 @@ struct git_refdb_backend {
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_refdb_init_backend(
-	git_refdb_backend *backend,
-	unsigned int version);
+    git_refdb_backend *backend,
+    unsigned int version);
 
 /**
  * Constructors for default filesystem-based refdb backend
@@ -195,8 +195,8 @@ GIT_EXTERN(int) git_refdb_init_backend(
  * @return 0 on success, <0 error code on failure
  */
 GIT_EXTERN(int) git_refdb_backend_fs(
-	git_refdb_backend **backend_out,
-	git_repository *repo);
+    git_refdb_backend **backend_out,
+    git_repository *repo);
 
 /**
  * Sets the custom backend to an existing reference DB
@@ -209,8 +209,8 @@ GIT_EXTERN(int) git_refdb_backend_fs(
  * @return 0 on success; error code otherwise
  */
 GIT_EXTERN(int) git_refdb_set_backend(
-	git_refdb *refdb,
-	git_refdb_backend *backend);
+    git_refdb *refdb,
+    git_refdb_backend *backend);
 
 GIT_END_DECL
 

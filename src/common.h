@@ -99,14 +99,16 @@ int giterr_set_regex(const regex_t *regex, int error_code);
  * @return This always returns the `error_code` parameter.
  */
 GIT_INLINE(int) giterr_set_after_callback_function(
-	int error_code, const char *action)
+    int error_code, const char *action)
 {
 	if (error_code) {
 		const git_error *e = giterr_last();
+
 		if (!e || !e->message)
 			giterr_set(e ? e->klass : GITERR_CALLBACK,
-				"%s callback returned %d", action, error_code);
+			           "%s callback returned %d", action, error_code);
 	}
+
 	return error_code;
 }
 
@@ -157,7 +159,8 @@ GIT_INLINE(int) giterr__check_version(const void *structure, unsigned int expect
 	if (!structure)
 		return 0;
 
-	actual = *(const unsigned int*)structure;
+	actual = *(const unsigned int *)structure;
+
 	if (actual > 0 && actual <= expected_max)
 		return 0;
 
@@ -172,7 +175,7 @@ GIT_INLINE(int) giterr__check_version(const void *structure, unsigned int expect
 GIT_INLINE(void) git__init_structure(void *structure, size_t len, unsigned int version)
 {
 	memset(structure, 0, len);
-	*((int*)structure) = version;
+	*((int *)structure) = version;
 }
 #define GIT_INIT_STRUCTURE(S,V) git__init_structure(S, sizeof(*S), V)
 

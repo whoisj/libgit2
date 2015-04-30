@@ -27,11 +27,11 @@
 static int clone_local_into(git_repository *repo, git_remote *remote, const git_checkout_options *co_opts, const char *branch, int link);
 
 static int create_branch(
-	git_reference **branch,
-	git_repository *repo,
-	const git_oid *target,
-	const char *name,
-	const char *log_message)
+    git_reference **branch,
+    git_repository *repo,
+    const git_oid *target,
+    const char *name,
+    const char *log_message)
 {
 	git_commit *head_obj = NULL;
 	git_reference *branch_ref = NULL;
@@ -59,10 +59,10 @@ static int create_branch(
 }
 
 static int setup_tracking_config(
-	git_repository *repo,
-	const char *branch_name,
-	const char *remote_name,
-	const char *merge_target)
+    git_repository *repo,
+    const char *branch_name,
+    const char *remote_name,
+    const char *merge_target)
 {
 	git_config *cfg;
 	git_buf remote_key = GIT_BUF_INIT, merge_key = GIT_BUF_INIT;
@@ -84,7 +84,6 @@ static int setup_tracking_config(
 		goto cleanup;
 
 	error = 0;
-
 cleanup:
 	git_buf_free(&remote_key);
 	git_buf_free(&merge_key);
@@ -92,11 +91,11 @@ cleanup:
 }
 
 static int create_tracking_branch(
-	git_reference **branch,
-	git_repository *repo,
-	const git_oid *target,
-	const char *branch_name,
-	const char *log_message)
+    git_reference **branch,
+    git_repository *repo,
+    const git_oid *target,
+    const char *branch_name,
+    const char *log_message)
 {
 	int error;
 
@@ -104,17 +103,17 @@ static int create_tracking_branch(
 		return error;
 
 	return setup_tracking_config(
-		repo,
-		branch_name,
-		GIT_REMOTE_ORIGIN,
-		git_reference_name(*branch));
+	           repo,
+	           branch_name,
+	           GIT_REMOTE_ORIGIN,
+	           git_reference_name(*branch));
 }
 
 static int update_head_to_new_branch(
-	git_repository *repo,
-	const git_oid *target,
-	const char *name,
-	const char *reflog_message)
+    git_repository *repo,
+    const git_oid *target,
+    const char *name,
+    const char *reflog_message)
 {
 	git_reference *tracking_branch = NULL;
 	int error;
@@ -123,11 +122,11 @@ static int update_head_to_new_branch(
 		name += strlen(GIT_REFS_HEADS_DIR);
 
 	error = create_tracking_branch(&tracking_branch, repo, target, name,
-			reflog_message);
+	                               reflog_message);
 
 	if (!error)
 		error = git_repository_set_head(
-			repo, git_reference_name(tracking_branch));
+		            repo, git_reference_name(tracking_branch));
 
 	git_reference_free(tracking_branch);
 
@@ -139,9 +138,9 @@ static int update_head_to_new_branch(
 }
 
 static int update_head_to_remote(
-		git_repository *repo,
-		git_remote *remote,
-		const char *reflog_message)
+    git_repository *repo,
+    git_remote *remote,
+    const char *reflog_message)
 {
 	int error = 0;
 	size_t refs_len;
@@ -157,18 +156,17 @@ static int update_head_to_remote(
 	/* We cloned an empty repository or one with an unborn HEAD */
 	if (refs_len == 0 || strcmp(refs[0]->name, GIT_HEAD_FILE))
 		return setup_tracking_config(
-			repo, "master", GIT_REMOTE_ORIGIN, GIT_REFS_HEADS_MASTER_FILE);
+		           repo, "master", GIT_REMOTE_ORIGIN, GIT_REFS_HEADS_MASTER_FILE);
 
 	/* We know we have HEAD, let's see where it points */
 	remote_head = refs[0];
 	assert(remote_head);
-
 	remote_head_id = &remote_head->oid;
-
 	error = git_remote_default_branch(&branch, remote);
+
 	if (error == GIT_ENOTFOUND) {
 		error = git_repository_set_head_detached(
-			repo, remote_head_id);
+		            repo, remote_head_id);
 		goto cleanup;
 	}
 
@@ -182,46 +180,42 @@ static int update_head_to_remote(
 
 	/* Determine the remote tracking reference name from the local master */
 	if ((error = git_refspec_transform(
-		&remote_master_name,
-		refspec,
-		git_buf_cstr(&branch))) < 0)
+	                 &remote_master_name,
+	                 refspec,
+	                 git_buf_cstr(&branch))) < 0)
 		goto cleanup;
 
 	error = update_head_to_new_branch(
-		repo,
-		remote_head_id,
-		git_buf_cstr(&branch),
-		reflog_message);
-
+	            repo,
+	            remote_head_id,
+	            git_buf_cstr(&branch),
+	            reflog_message);
 cleanup:
 	git_buf_free(&remote_master_name);
 	git_buf_free(&branch);
-
 	return error;
 }
 
 static int update_head_to_branch(
-		git_repository *repo,
-		const char *remote_name,
-		const char *branch,
-		const char *reflog_message)
+    git_repository *repo,
+    const char *remote_name,
+    const char *branch,
+    const char *reflog_message)
 {
 	int retcode;
 	git_buf remote_branch_name = GIT_BUF_INIT;
-	git_reference* remote_ref = NULL;
-
+	git_reference *remote_ref = NULL;
 	assert(remote_name && branch);
 
 	if ((retcode = git_buf_printf(&remote_branch_name, GIT_REFS_REMOTES_DIR "%s/%s",
-		remote_name, branch)) < 0 )
+	                              remote_name, branch)) < 0 )
 		goto cleanup;
 
 	if ((retcode = git_reference_lookup(&remote_ref, repo, git_buf_cstr(&remote_branch_name))) < 0)
 		goto cleanup;
 
 	retcode = update_head_to_new_branch(repo, git_reference_target(remote_ref), branch,
-			reflog_message);
-
+	                                    reflog_message);
 cleanup:
 	git_reference_free(remote_ref);
 	git_buf_free(&remote_branch_name);
@@ -231,16 +225,15 @@ cleanup:
 static int default_repository_create(git_repository **out, const char *path, int bare, void *payload)
 {
 	GIT_UNUSED(payload);
-
 	return git_repository_init(out, path, bare);
 }
 
 static int default_remote_create(
-		git_remote **out,
-		git_repository *repo,
-		const char *name,
-		const char *url,
-		void *payload)
+    git_remote **out,
+    git_repository *repo,
+    const char *name,
+    const char *url,
+    void *payload)
 {
 	int error;
 	git_remote_callbacks *callbacks = payload;
@@ -256,10 +249,10 @@ static int default_remote_create(
  */
 
 static int create_and_configure_origin(
-		git_remote **out,
-		git_repository *repo,
-		const char *url,
-		const git_clone_options *options)
+    git_remote **out,
+    git_repository *repo,
+    const char *url,
+    const git_clone_options *options)
 {
 	int error;
 	git_remote *origin = NULL;
@@ -288,16 +281,15 @@ static int create_and_configure_origin(
 
 	*out = origin;
 	return 0;
-
 on_error:
 	git_remote_free(origin);
 	return error;
 }
 
 static bool should_checkout(
-	git_repository *repo,
-	bool is_bare,
-	const git_checkout_options *opts)
+    git_repository *repo,
+    bool is_bare,
+    const git_checkout_options *opts)
 {
 	if (is_bare)
 		return false;
@@ -317,7 +309,7 @@ static int checkout_branch(git_repository *repo, git_remote *remote, const git_c
 
 	if (branch)
 		error = update_head_to_branch(repo, git_remote_name(remote), branch,
-				reflog_message);
+		                              reflog_message);
 	/* Point HEAD to the same ref as the remote's head */
 	else
 		error = update_head_to_remote(repo, remote, reflog_message);
@@ -334,7 +326,6 @@ static int clone_into(git_repository *repo, git_remote *_remote, const git_check
 	git_buf reflog_message = GIT_BUF_INIT;
 	git_remote *remote;
 	const git_remote_callbacks *callbacks;
-
 	assert(repo && _remote);
 
 	if (!git_repository_is_empty(repo)) {
@@ -346,6 +337,7 @@ static int clone_into(git_repository *repo, git_remote *_remote, const git_check
 		return error;
 
 	callbacks = git_remote_get_callbacks(_remote);
+
 	if (!giterr__check_version(callbacks, 1, "git_remote_callbacks") &&
 	    (error = git_remote_set_callbacks(remote, callbacks)) < 0)
 		goto cleanup;
@@ -360,11 +352,9 @@ static int clone_into(git_repository *repo, git_remote *_remote, const git_check
 		goto cleanup;
 
 	error = checkout_branch(repo, remote, co_opts, branch, git_buf_cstr(&reflog_message));
-
 cleanup:
 	git_remote_free(remote);
 	git_buf_free(&reflog_message);
-
 	return error;
 }
 
@@ -387,18 +377,17 @@ int git_clone__should_clone_local(const char *url_or_path, git_clone_local_t loc
 	}
 
 	is_local = (!is_url || local != GIT_CLONE_LOCAL_AUTO) &&
-		git_path_isdir(path);
-
+	           git_path_isdir(path);
 done:
 	git_buf_free(&fromurl);
 	return is_local;
 }
 
 int git_clone(
-	git_repository **out,
-	const char *url,
-	const char *local_path,
-	const git_clone_options *_options)
+    git_repository **out,
+    const char *url,
+    const char *local_path,
+    const git_clone_options *_options)
 {
 	int error = 0;
 	git_repository *repo = NULL;
@@ -406,7 +395,6 @@ int git_clone(
 	git_clone_options options = GIT_CLONE_OPTIONS_INIT;
 	uint32_t rmdir_flags = GIT_RMDIR_REMOVE_FILES;
 	git_repository_create_cb repository_cb;
-
 	assert(out && url && local_path);
 
 	if (_options)
@@ -417,7 +405,7 @@ int git_clone(
 	/* Only clone to a new directory or an empty directory */
 	if (git_path_exists(local_path) && !git_path_is_empty_dir(local_path)) {
 		giterr_set(GITERR_INVALID,
-			"'%s' exists and is not an empty directory", local_path);
+		           "'%s' exists and is not an empty directory", local_path);
 		return GIT_EEXISTS;
 	}
 
@@ -439,12 +427,12 @@ int git_clone(
 
 		if (clone_local == 1)
 			error = clone_local_into(
-				repo, origin, &options.checkout_opts,
-				options.checkout_branch, link);
+			            repo, origin, &options.checkout_opts,
+			            options.checkout_branch, link);
 		else if (clone_local == 0)
 			error = clone_into(
-				repo, origin, &options.checkout_opts,
-				options.checkout_branch);
+			            repo, origin, &options.checkout_opts,
+			            options.checkout_branch);
 		else
 			error = -1;
 
@@ -454,12 +442,9 @@ int git_clone(
 	if (error != 0) {
 		git_error_state last_error = {0};
 		giterr_capture(&last_error, error);
-
 		git_repository_free(repo);
 		repo = NULL;
-
 		(void)git_futils_rmdir_r(local_path, NULL, rmdir_flags);
-
 		giterr_restore(&last_error);
 	}
 
@@ -470,7 +455,7 @@ int git_clone(
 int git_clone_init_options(git_clone_options *opts, unsigned int version)
 {
 	GIT_INIT_STRUCTURE_FROM_TEMPLATE(
-		opts, version, git_clone_options, GIT_CLONE_OPTIONS_INIT);
+	    opts, version, git_clone_options, GIT_CLONE_OPTIONS_INIT);
 	return 0;
 }
 
@@ -490,7 +475,6 @@ static bool can_link(const char *src, const char *dst, int link)
 	GIT_UNUSED(link);
 	return false;
 #else
-
 	struct stat st_src, st_dst;
 
 	if (!link)
@@ -512,7 +496,6 @@ static int clone_local_into(git_repository *repo, git_remote *remote, const git_
 	git_repository *src;
 	git_buf src_odb = GIT_BUF_INIT, dst_odb = GIT_BUF_INIT, src_path = GIT_BUF_INIT;
 	git_buf reflog_message = GIT_BUF_INIT;
-
 	assert(repo && remote);
 
 	if (!git_repository_is_empty(repo)) {
@@ -536,17 +519,19 @@ static int clone_local_into(git_repository *repo, git_remote *remote, const git_
 
 	git_buf_joinpath(&src_odb, git_repository_path(src), GIT_OBJECTS_DIR);
 	git_buf_joinpath(&dst_odb, git_repository_path(repo), GIT_OBJECTS_DIR);
+
 	if (git_buf_oom(&src_odb) || git_buf_oom(&dst_odb)) {
 		error = -1;
 		goto cleanup;
 	}
 
 	flags = 0;
+
 	if (can_link(git_repository_path(src), git_repository_path(repo), link))
 		flags |= GIT_CPDIR_LINK_FILES;
 
 	if ((error = git_futils_cp_r(git_buf_cstr(&src_odb), git_buf_cstr(&dst_odb),
-				     flags, GIT_OBJECT_DIR_MODE)) < 0)
+	                             flags, GIT_OBJECT_DIR_MODE)) < 0)
 		goto cleanup;
 
 	git_buf_printf(&reflog_message, "clone: from %s", git_remote_url(remote));
@@ -555,7 +540,6 @@ static int clone_local_into(git_repository *repo, git_remote *remote, const git_
 		goto cleanup;
 
 	error = checkout_branch(repo, remote, co_opts, branch, git_buf_cstr(&reflog_message));
-
 cleanup:
 	git_buf_free(&reflog_message);
 	git_buf_free(&src_path);

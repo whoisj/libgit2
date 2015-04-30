@@ -169,7 +169,7 @@ GIT_EXTERN(int) git_odb_exists(git_odb *db, const git_oid *id);
  *         matches were found, other value < 0 if there was a read error.
  */
 GIT_EXTERN(int) git_odb_exists_prefix(
-	git_oid *out, git_odb *db, const git_oid *short_id, size_t len);
+    git_oid *out, git_odb *db, const git_oid *short_id, size_t len);
 
 /**
  * Refresh the object database to load newly added files.
@@ -336,10 +336,10 @@ GIT_EXTERN(int) git_odb_open_rstream(git_odb_stream **out, git_odb *db, const gi
  * @param progress_payload payload for the progress callback
  */
 GIT_EXTERN(int) git_odb_write_pack(
-	git_odb_writepack **out,
-	git_odb *db,
-	git_transfer_progress_cb progress_cb,
-	void *progress_payload);
+    git_odb_writepack **out,
+    git_odb *db,
+    git_transfer_progress_cb progress_cb,
+    void *progress_payload);
 
 /**
  * Determine the object-ID (sha1 hash) of a data buffer

@@ -25,16 +25,13 @@ void git_strarray_free(git_strarray *array)
 		git__free(array->strings[i]);
 
 	git__free(array->strings);
-
 	memset(array, 0, sizeof(*array));
 }
 
 int git_strarray_copy(git_strarray *tgt, const git_strarray *src)
 {
 	size_t i;
-
 	assert(tgt && src);
-
 	memset(tgt, 0, sizeof(*tgt));
 
 	if (!src->count)
@@ -48,6 +45,7 @@ int git_strarray_copy(git_strarray *tgt, const git_strarray *src)
 			continue;
 
 		tgt->strings[tgt->count] = git__strdup(src->strings[i]);
+
 		if (!tgt->strings[tgt->count]) {
 			git_strarray_free(tgt);
 			memset(tgt, 0, sizeof(*tgt));
@@ -65,7 +63,6 @@ int git__strtol64(int64_t *result, const char *nptr, const char **endptr, int ba
 	const char *p;
 	int64_t n, nn;
 	int c, ovfl, v, neg, ndig;
-
 	p = nptr;
 	neg = 0;
 	n = 0;
@@ -93,6 +90,7 @@ int git__strtol64(int64_t *result, const char *nptr, const char **endptr, int ba
 			base = 10;
 		else {
 			base = 8;
+
 			if (p[1] == 'x' || p[1] == 'X') {
 				p += 2;
 				base = 16;
@@ -107,24 +105,30 @@ int git__strtol64(int64_t *result, const char *nptr, const char **endptr, int ba
 	/*
 	 * Non-empty sequence of digits
 	 */
-	for (;; p++,ndig++) {
+	for (;; p++, ndig++) {
 		c = *p;
 		v = base;
-		if ('0'<=c && c<='9')
+
+		if ('0' <= c && c <= '9')
 			v = c - '0';
-		else if ('a'<=c && c<='z')
+		else if ('a' <= c && c <= 'z')
 			v = c - 'a' + 10;
-		else if ('A'<=c && c<='Z')
+		else if ('A' <= c && c <= 'Z')
 			v = c - 'A' + 10;
+
 		if (v >= base)
 			break;
-		nn = n*base + v;
+
+		nn = n * base + v;
+
 		if (nn < n)
 			ovfl = 1;
+
 		n = nn;
 	}
 
 Return:
+
 	if (ndig == 0) {
 		giterr_set(GITERR_INVALID, "Failed to convert string to long. Not a number");
 		return -1;
@@ -152,13 +156,13 @@ int git__strtol32(int32_t *result, const char *nptr, const char **endptr, int ba
 		return error;
 
 	tmp_int = tmp_long & 0xFFFFFFFF;
+
 	if (tmp_int != tmp_long) {
 		giterr_set(GITERR_INVALID, "Failed to convert. '%s' is too large", nptr);
 		return -1;
 	}
 
 	*result = tmp_int;
-
 	return error;
 }
 
@@ -166,6 +170,7 @@ int git__strcmp(const char *a, const char *b)
 {
 	while (*a && *b && *a == *b)
 		++a, ++b;
+
 	return (int)(*(const unsigned char *)a) - (int)(*(const unsigned char *)b);
 }
 
@@ -173,6 +178,7 @@ int git__strcasecmp(const char *a, const char *b)
 {
 	while (*a && *b && tolower(*a) == tolower(*b))
 		++a, ++b;
+
 	return (tolower(*a) - tolower(*b));
 }
 
@@ -184,6 +190,7 @@ int git__strcasesort_cmp(const char *a, const char *b)
 		if (*a != *b) {
 			if (tolower(*a) != tolower(*b))
 				break;
+
 			/* use case in sort order even if not in equivalence */
 			if (!cmp)
 				cmp = (int)(*(const uint8_t *)a) - (int)(*(const uint8_t *)b);
@@ -202,8 +209,10 @@ int git__strncmp(const char *a, const char *b, size_t sz)
 {
 	while (sz && *a && *b && *a == *b)
 		--sz, ++a, ++b;
+
 	if (!sz)
 		return 0;
+
 	return (int)(*(const unsigned char *)a) - (int)(*(const unsigned char *)b);
 }
 
@@ -224,9 +233,8 @@ void git__strntolower(char *str, size_t len)
 {
 	size_t i;
 
-	for (i = 0; i < len; ++i) {
+	for (i = 0; i < len; ++i)
 		str[i] = (char) tolower(str[i]);
-	}
 }
 
 void git__strtolower(char *str)
@@ -238,8 +246,10 @@ int git__prefixcmp(const char *str, const char *prefix)
 {
 	for (;;) {
 		unsigned char p = *(prefix++), s;
+
 		if (!p)
 			return 0;
+
 		if ((s = *(str++)) != p)
 			return s - p;
 	}
@@ -254,7 +264,7 @@ int git__prefixncmp_icase(const char *str, size_t str_n, const char *prefix)
 {
 	int s, p;
 
-	while(str_n--) {
+	while (str_n--) {
 		s = (unsigned char)tolower(*str++);
 		p = (unsigned char)tolower(*prefix++);
 
@@ -269,8 +279,10 @@ int git__suffixcmp(const char *str, const char *suffix)
 {
 	size_t a = strlen(str);
 	size_t b = strlen(suffix);
+
 	if (a < b)
 		return -1;
+
 	return strcmp(str + (a - b), suffix);
 }
 
@@ -310,7 +322,6 @@ char *git__strsep(char **end, const char *sep)
 	if (*ptr) {
 		*end = ptr + 1;
 		*ptr = '\0';
-
 		return start;
 	}
 
@@ -320,21 +331,20 @@ char *git__strsep(char **end, const char *sep)
 void git__hexdump(const char *buffer, size_t len)
 {
 	static const size_t LINE_WIDTH = 16;
-
 	size_t line_count, last_line, i, j;
 	const char *line;
-
 	line_count = (len / LINE_WIDTH);
 	last_line = (len % LINE_WIDTH);
 
 	for (i = 0; i < line_count; ++i) {
 		line = buffer + (i * LINE_WIDTH);
+
 		for (j = 0; j < LINE_WIDTH; ++j, ++line)
 			printf("%02X ", (unsigned char)*line & 0xFF);
 
 		printf("| ");
-
 		line = buffer + (i * LINE_WIDTH);
+
 		for (j = 0; j < LINE_WIDTH; ++j, ++line)
 			printf("%c", (*line >= 32 && *line <= 126) ? *line : '.');
 
@@ -342,8 +352,8 @@ void git__hexdump(const char *buffer, size_t len)
 	}
 
 	if (last_line > 0) {
-
 		line = buffer + (line_count * LINE_WIDTH);
+
 		for (j = 0; j < last_line; ++j, ++line)
 			printf("%02X ", (unsigned char)*line & 0xFF);
 
@@ -351,8 +361,8 @@ void git__hexdump(const char *buffer, size_t len)
 			printf("	");
 
 		printf("| ");
-
 		line = buffer + (line_count * LINE_WIDTH);
+
 		for (j = 0; j < last_line; ++j, ++line)
 			printf("%c", (*line >= 32 && *line <= 126) ? *line : '.');
 
@@ -368,32 +378,35 @@ uint32_t git__hash(const void *key, int len, unsigned int seed)
 	const uint32_t m = 0x5bd1e995;
 	const int r = 24;
 	uint32_t h = seed ^ len;
-
 	const unsigned char *data = (const unsigned char *)key;
 
-	while(len >= 4) {
+	while (len >= 4) {
 		uint32_t k = *(uint32_t *)data;
-
 		k *= m;
 		k ^= k >> r;
 		k *= m;
-
 		h *= m;
 		h ^= k;
-
 		data += 4;
 		len -= 4;
 	}
 
-	switch(len) {
-	case 3: h ^= data[2] << 16;
-	case 2: h ^= data[1] << 8;
-	case 1: h ^= data[0];
-			h *= m;
+	switch (len) {
+	case 3:
+		h ^= data[2] << 16;
+
+	case 2:
+		h ^= data[1] << 8;
+
+	case 1:
+		h ^= data[0];
+		h *= m;
 	};
 
 	h ^= h >> 13;
+
 	h *= m;
+
 	h ^= h >> 15;
 
 	return h;
@@ -408,7 +421,6 @@ uint32_t git__hash(const void *key, int len, unsigned int seed)
 */
 uint32_t git__hash(const void *key, int len, uint32_t seed)
 {
-
 #define MURMUR_BLOCK() {\
 	k1 *= c1; \
 	k1 = git__rotl(k1,11);\
@@ -418,19 +430,14 @@ uint32_t git__hash(const void *key, int len, uint32_t seed)
 	c1 = c1*5 + 0x7b7d159c;\
 	c2 = c2*5 + 0x6bce6396;\
 }
-
-	const uint8_t *data = (const uint8_t*)key;
+	const uint8_t *data = (const uint8_t *)key;
 	const int nblocks = len / 4;
-
 	const uint32_t *blocks = (const uint32_t *)(data + nblocks * 4);
 	const uint8_t *tail = (const uint8_t *)(data + nblocks * 4);
-
 	uint32_t h1 = 0x971e137b ^ seed;
 	uint32_t k1;
-
 	uint32_t c1 = 0x95543787;
 	uint32_t c2 = 0x2ad7eb25;
-
 	int i;
 
 	for (i = -nblocks; i; i++) {
@@ -440,11 +447,16 @@ uint32_t git__hash(const void *key, int len, uint32_t seed)
 
 	k1 = 0;
 
-	switch(len & 3) {
-	case 3: k1 ^= tail[2] << 16;
-	case 2: k1 ^= tail[1] << 8;
-	case 1: k1 ^= tail[0];
-			MURMUR_BLOCK();
+	switch (len & 3) {
+	case 3:
+		k1 ^= tail[2] << 16;
+
+	case 2:
+		k1 ^= tail[1] << 8;
+
+	case 1:
+		k1 ^= tail[0];
+		MURMUR_BLOCK();
 	}
 
 	h1 ^= len;
@@ -453,7 +465,6 @@ uint32_t git__hash(const void *key, int len, uint32_t seed)
 	h1 ^= h1 >> 13;
 	h1 *= 0xc2b2ae35;
 	h1 ^= h1 >> 16;
-
 	return h1;
 }
 #endif
@@ -489,11 +500,11 @@ uint32_t git__hash(const void *key, int len, uint32_t seed)
  * SUCH DAMAGE.
  */
 int git__bsearch(
-	void **array,
-	size_t array_len,
-	const void *key,
-	int (*compare)(const void *, const void *),
-	size_t *position)
+    void **array,
+    size_t array_len,
+    const void *key,
+    int (*compare)(const void *, const void *),
+    size_t *position)
 {
 	size_t lim;
 	int cmp = -1;
@@ -502,10 +513,12 @@ int git__bsearch(
 	for (lim = array_len; lim != 0; lim >>= 1) {
 		part = base + (lim >> 1);
 		cmp = (*compare)(key, *part);
+
 		if (cmp == 0) {
 			base = part;
 			break;
 		}
+
 		if (cmp > 0) { /* key > p; take right partition */
 			base = part + 1;
 			lim--;
@@ -519,12 +532,12 @@ int git__bsearch(
 }
 
 int git__bsearch_r(
-	void **array,
-	size_t array_len,
-	const void *key,
-	int (*compare_r)(const void *, const void *, void *),
-	void *payload,
-	size_t *position)
+    void **array,
+    size_t array_len,
+    const void *key,
+    int (*compare_r)(const void *, const void *, void *),
+    void *payload,
+    size_t *position)
 {
 	size_t lim;
 	int cmp = -1;
@@ -533,10 +546,12 @@ int git__bsearch_r(
 	for (lim = array_len; lim != 0; lim >>= 1) {
 		part = base + (lim >> 1);
 		cmp = (*compare_r)(key, *part, payload);
+
 		if (cmp == 0) {
 			base = part;
 			break;
 		}
+
 		if (cmp > 0) { /* key > p; take right partition */
 			base = part + 1;
 			lim--;
@@ -569,16 +584,17 @@ int git__parse_bool(int *out, const char *value)
 {
 	/* A missing value means true */
 	if (value == NULL ||
-		!strcasecmp(value, "true") ||
-		!strcasecmp(value, "yes") ||
-		!strcasecmp(value, "on")) {
+	    !strcasecmp(value, "true") ||
+	    !strcasecmp(value, "yes") ||
+	    !strcasecmp(value, "on")) {
 		*out = 1;
 		return 0;
 	}
+
 	if (!strcasecmp(value, "false") ||
-		!strcasecmp(value, "no") ||
-		!strcasecmp(value, "off") ||
-		value[0] == '\0') {
+	    !strcasecmp(value, "no") ||
+	    !strcasecmp(value, "off") ||
+	    value[0] == '\0') {
 		*out = 0;
 		return 0;
 	}
@@ -596,13 +612,13 @@ size_t git__unescape(char *str)
 	for (scan = str; *scan; pos++, scan++) {
 		if (*scan == '\\' && *(scan + 1) != '\0')
 			scan++; /* skip '\' but include next char */
+
 		if (pos != scan)
 			*pos = *scan;
 	}
 
-	if (pos != scan) {
+	if (pos != scan)
 		*pos = '\0';
-	}
 
 	return (pos - str);
 }
@@ -614,7 +630,7 @@ typedef struct {
 } git__qsort_r_glue;
 
 static int GIT_STDLIB_CALL git__qsort_r_glue_cmp(
-	void *payload, const void *a, const void *b)
+    void *payload, const void *a, const void *b)
 {
 	git__qsort_r_glue *glue = payload;
 	return glue->cmp(a, b, glue->payload);
@@ -622,7 +638,7 @@ static int GIT_STDLIB_CALL git__qsort_r_glue_cmp(
 #endif
 
 void git__qsort_r(
-	void *els, size_t nel, size_t elsize, git__sort_r_cmp cmp, void *payload)
+    void *els, size_t nel, size_t elsize, git__sort_r_cmp cmp, void *payload)
 {
 #if defined(__MINGW32__) || defined(AMIGA) || \
 	defined(__OpenBSD__) || defined(__NetBSD__) || \
@@ -643,8 +659,8 @@ void git__qsort_r(
 }
 
 void git__insertsort_r(
-	void *els, size_t nel, size_t elsize, void *swapel,
-	git__sort_r_cmp cmp, void *payload)
+    void *els, size_t nel, size_t elsize, void *swapel,
+    git__sort_r_cmp cmp, void *payload)
 {
 	uint8_t *base = els;
 	uint8_t *end = base + nel * elsize;
@@ -712,8 +728,8 @@ static const int8_t utf8proc_utf8class[256] = {
 int git__utf8_charlen(const uint8_t *str, int str_len)
 {
 	int length, i;
-
 	length = utf8proc_utf8class[str[0]];
+
 	if (!length)
 		return -1;
 
@@ -732,31 +748,40 @@ int git__utf8_iterate(const uint8_t *str, int str_len, int32_t *dst)
 {
 	int length;
 	int32_t uc = -1;
-
 	*dst = -1;
 	length = git__utf8_charlen(str, str_len);
+
 	if (length < 0)
 		return -1;
 
 	switch (length) {
-		case 1:
-			uc = str[0];
-			break;
-		case 2:
-			uc = ((str[0] & 0x1F) <<  6) + (str[1] & 0x3F);
-			if (uc < 0x80) uc = -1;
-			break;
-		case 3:
-			uc = ((str[0] & 0x0F) << 12) + ((str[1] & 0x3F) <<  6)
-				+ (str[2] & 0x3F);
-			if (uc < 0x800 || (uc >= 0xD800 && uc < 0xE000) ||
-					(uc >= 0xFDD0 && uc < 0xFDF0)) uc = -1;
-			break;
-		case 4:
-			uc = ((str[0] & 0x07) << 18) + ((str[1] & 0x3F) << 12)
-				+ ((str[2] & 0x3F) <<  6) + (str[3] & 0x3F);
-			if (uc < 0x10000 || uc >= 0x110000) uc = -1;
-			break;
+	case 1:
+		uc = str[0];
+		break;
+
+	case 2:
+		uc = ((str[0] & 0x1F) <<  6) + (str[1] & 0x3F);
+
+		if (uc < 0x80) uc = -1;
+
+		break;
+
+	case 3:
+		uc = ((str[0] & 0x0F) << 12) + ((str[1] & 0x3F) <<  6)
+		     + (str[2] & 0x3F);
+
+		if (uc < 0x800 || (uc >= 0xD800 && uc < 0xE000) ||
+		    (uc >= 0xFDD0 && uc < 0xFDF0)) uc = -1;
+
+		break;
+
+	case 4:
+		uc = ((str[0] & 0x07) << 18) + ((str[1] & 0x3F) << 12)
+		     + ((str[2] & 0x3F) <<  6) + (str[3] & 0x3F);
+
+		if (uc < 0x10000 || uc >= 0x110000) uc = -1;
+
+		break;
 	}
 
 	if (uc < 0 || ((uc & 0xFFFF) >= 0xFFFE))

@@ -49,8 +49,8 @@
 // 7.8 Format conversion of integer types
 
 typedef struct {
-   intmax_t quot;
-   intmax_t rem;
+	intmax_t quot;
+	intmax_t rem;
 } imaxdiv_t;
 
 // 7.8.1 Macros for format specifiers
@@ -284,7 +284,6 @@ _inline
 imaxdiv_t __cdecl imaxdiv(intmax_t numer, intmax_t denom)
 {
 	imaxdiv_t result;
-
 	result.quot = numer / denom;
 	result.rem = numer % denom;
 

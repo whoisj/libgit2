@@ -17,11 +17,11 @@ typedef struct git_fetchhead_ref {
 } git_fetchhead_ref;
 
 int git_fetchhead_ref_create(
-	git_fetchhead_ref **fetchhead_ref_out,
-	git_oid *oid,
-	unsigned int is_merge,
-	const char *ref_name,
-	const char *remote_url);
+    git_fetchhead_ref **fetchhead_ref_out,
+    git_oid *oid,
+    unsigned int is_merge,
+    const char *ref_name,
+    const char *remote_url);
 
 int git_fetchhead_ref_cmp(const void *a, const void *b);
 

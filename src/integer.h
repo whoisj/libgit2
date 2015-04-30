@@ -50,6 +50,7 @@ GIT_INLINE(bool) git__add_uint64_overflow(uint64_t *out, uint64_t one, uint64_t 
 {
 	if (UINT64_MAX - one < two)
 		return true;
+
 	*out = one + two;
 	return false;
 }
@@ -75,6 +76,7 @@ GIT_INLINE(bool) git__add_sizet_overflow(size_t *out, size_t one, size_t two)
 {
 	if (SIZE_MAX - one < two)
 		return true;
+
 	*out = one + two;
 	return false;
 }
@@ -87,6 +89,7 @@ GIT_INLINE(bool) git__multiply_sizet_overflow(size_t *out, size_t one, size_t tw
 {
 	if (one && SIZE_MAX / one < two)
 		return true;
+
 	*out = one * two;
 	return false;
 }

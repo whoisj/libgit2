@@ -18,6 +18,7 @@ void test_core_oidmap__basic(void)
 
 	for (i = 0; i < NITEMS; ++i) {
 		items[i].extra = i;
+
 		for (j = 0; j < GIT_OID_RAWSZ / 4; ++j) {
 			items[i].oid.id[j * 4    ] = (unsigned char)i;
 			items[i].oid.id[j * 4 + 1] = (unsigned char)(i >> 8);
@@ -32,23 +33,17 @@ void test_core_oidmap__basic(void)
 	for (i = 0; i < NITEMS; ++i) {
 		khiter_t pos;
 		int ret;
-
 		pos = kh_get(oid, map, &items[i].oid);
 		cl_assert(pos == kh_end(map));
-
 		pos = kh_put(oid, map, &items[i].oid, &ret);
 		cl_assert(ret != 0);
-
 		kh_val(map, pos) = &items[i];
 	}
 
-
 	for (i = 0; i < NITEMS; ++i) {
 		khiter_t pos;
-
 		pos = kh_get(oid, map, &items[i].oid);
 		cl_assert(pos != kh_end(map));
-
 		cl_assert_equal_p(kh_val(map, pos), &items[i]);
 	}
 
@@ -64,7 +59,6 @@ void test_core_oidmap__hash_collision(void)
 	for (i = 0; i < NITEMS; ++i) {
 		uint32_t segment = i / 8;
 		int modi = i - (segment * 8);
-
 		items[i].extra = i;
 
 		for (j = 0; j < GIT_OID_RAWSZ / 4; ++j) {
@@ -86,23 +80,17 @@ void test_core_oidmap__hash_collision(void)
 	for (i = 0; i < NITEMS; ++i) {
 		khiter_t pos;
 		int ret;
-
 		pos = kh_get(oid, map, &items[i].oid);
 		cl_assert(pos == kh_end(map));
-
 		pos = kh_put(oid, map, &items[i].oid, &ret);
 		cl_assert(ret != 0);
-
 		kh_val(map, pos) = &items[i];
 	}
 
-
 	for (i = 0; i < NITEMS; ++i) {
 		khiter_t pos;
-
 		pos = kh_get(oid, map, &items[i].oid);
 		cl_assert(pos != kh_end(map));
-
 		cl_assert_equal_p(kh_val(map, pos), &items[i]);
 	}
 

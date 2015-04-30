@@ -28,7 +28,6 @@ void test_merge_trees_renames__index(void)
 {
 	git_index *index;
 	git_merge_options *opts = NULL;
-
 	struct merge_index_entry merge_index_entries[] = {
 		{ 0100644, "68c6c84b091926c7d90aa6a79b2bc3bb6adccd8e", 0, "0a-no-change.txt" },
 		{ 0100644, "f0ce2b8e4986084d9b308fb72709e414c23eb5e6", 0, "0b-duplicated-in-ours.txt" },
@@ -72,7 +71,6 @@ void test_merge_trees_renames__index(void)
 		{ 0100644, "b42712cfe99a1a500b2a51fe984e0b8a7702ba11", 2, "7-both-renamed.txt" },
 		{ 0100644, "b69fe837e4cecfd4c9a40cdca7c138468687df07", 3, "7-both-renamed.txt" },
 	};
-
 	struct merge_name_entry merge_name_entries[] = {
 		{
 			"3a-renamed-in-ours-deleted-in-theirs.txt",
@@ -128,77 +126,93 @@ void test_merge_trees_renames__index(void)
 			"7-both-renamed.txt",
 		},
 	};
-
 	struct merge_reuc_entry merge_reuc_entries[] = {
-		{ "1a-newname-in-ours-edited-in-theirs.txt",
+		{
+			"1a-newname-in-ours-edited-in-theirs.txt",
 			0, 0100644, 0,
 			"",
 			"c3d02eeef75183df7584d8d13ac03053910c1301",
-			"" },
+			""
+		},
 
-		{ "1a-newname-in-ours.txt",
+		{
+			"1a-newname-in-ours.txt",
 			0, 0100644, 0,
 			"",
 			"d0d4594e16f2e19107e3fa7ea63e7aaaff305ffb",
-			"" },
+			""
+		},
 
-		{ "1a-renamed-in-ours-edited-in-theirs.txt",
+		{
+			"1a-renamed-in-ours-edited-in-theirs.txt",
 			0100644, 0, 0100644,
 			"c3d02eeef75183df7584d8d13ac03053910c1301",
 			"",
-			"0d872f8e871a30208305978ecbf9e66d864f1638" },
+			"0d872f8e871a30208305978ecbf9e66d864f1638"
+		},
 
-		{ "1a-renamed-in-ours.txt",
+		{
+			"1a-renamed-in-ours.txt",
 			0100644, 0, 0100644,
 			"d0d4594e16f2e19107e3fa7ea63e7aaaff305ffb",
 			"",
-			"d0d4594e16f2e19107e3fa7ea63e7aaaff305ffb" },
+			"d0d4594e16f2e19107e3fa7ea63e7aaaff305ffb"
+		},
 
-		{ "1b-newname-in-theirs-edited-in-ours.txt",
+		{
+			"1b-newname-in-theirs-edited-in-ours.txt",
 			0, 0, 0100644,
 			"",
 			"",
-			"241a1005cd9b980732741b74385b891142bcba28" },
+			"241a1005cd9b980732741b74385b891142bcba28"
+		},
 
-		{ "1b-newname-in-theirs.txt",
+		{
+			"1b-newname-in-theirs.txt",
 			0, 0, 0100644,
 			"",
 			"",
-			"2b5f1f181ee3b58ea751f5dd5d8f9b445520a136" },
+			"2b5f1f181ee3b58ea751f5dd5d8f9b445520a136"
+		},
 
-		{ "1b-renamed-in-theirs-edited-in-ours.txt",
+		{
+			"1b-renamed-in-theirs-edited-in-ours.txt",
 			0100644, 0100644, 0,
 			"241a1005cd9b980732741b74385b891142bcba28",
 			"ed9523e62e453e50dd9be1606af19399b96e397a",
-			"" },
+			""
+		},
 
-		{ "1b-renamed-in-theirs.txt",
+		{
+			"1b-renamed-in-theirs.txt",
 			0100644, 0100644, 0,
 			"2b5f1f181ee3b58ea751f5dd5d8f9b445520a136",
 			"2b5f1f181ee3b58ea751f5dd5d8f9b445520a136",
-			"" },
+			""
+		},
 
-		{ "2-newname-in-both.txt",
+		{
+			"2-newname-in-both.txt",
 			0, 0100644, 0100644,
 			"",
 			"178940b450f238a56c0d75b7955cb57b38191982",
-			"178940b450f238a56c0d75b7955cb57b38191982" },
+			"178940b450f238a56c0d75b7955cb57b38191982"
+		},
 
-		{ "2-renamed-in-both.txt",
+		{
+			"2-renamed-in-both.txt",
 			0100644, 0, 0,
 			"178940b450f238a56c0d75b7955cb57b38191982",
 			"",
-			"" },
+			""
+		},
 	};
-
 	cl_git_pass(merge_trees_from_branches(&index, repo,
-		BRANCH_RENAME_OURS, BRANCH_RENAME_THEIRS,
-		opts));
-
+	                                      BRANCH_RENAME_OURS, BRANCH_RENAME_THEIRS,
+	                                      opts));
 	cl_assert(merge_test_index(index, merge_index_entries, 41));
 	cl_assert(merge_test_names(index, merge_name_entries, 9));
 	cl_assert(merge_test_reuc(index, merge_reuc_entries, 10));
-
 	git_index_free(index);
 }
 
@@ -206,7 +220,6 @@ void test_merge_trees_renames__no_rename_index(void)
 {
 	git_index *index;
 	git_merge_options opts = GIT_MERGE_OPTIONS_INIT;
-
 	struct merge_index_entry merge_index_entries[] = {
 		{ 0100644, "68c6c84b091926c7d90aa6a79b2bc3bb6adccd8e", 0, "0a-no-change.txt" },
 		{ 0100644, "f0ce2b8e4986084d9b308fb72709e414c23eb5e6", 0, "0b-duplicated-in-ours.txt" },
@@ -241,12 +254,9 @@ void test_merge_trees_renames__no_rename_index(void)
 		{ 0100644, "b42712cfe99a1a500b2a51fe984e0b8a7702ba11", 2, "7-both-renamed.txt" },
 		{ 0100644, "b69fe837e4cecfd4c9a40cdca7c138468687df07", 3, "7-both-renamed.txt" },
 	};
-
 	cl_git_pass(merge_trees_from_branches(&index, repo,
-		BRANCH_RENAME_OURS, BRANCH_RENAME_THEIRS,
-		&opts));
-
+	                                      BRANCH_RENAME_OURS, BRANCH_RENAME_THEIRS,
+	                                      &opts));
 	cl_assert(merge_test_index(index, merge_index_entries, 32));
-
 	git_index_free(index);
 }

@@ -19,12 +19,11 @@ git__DIR *git__opendir(const char *dir)
 	dirlen = strlen(dir);
 
 	if (GIT_ADD_SIZET_OVERFLOW(&alloclen, sizeof(*new), dirlen) ||
-		GIT_ADD_SIZET_OVERFLOW(&alloclen, alloclen, 1) ||
-		!(new = git__calloc(1, alloclen)))
+	    GIT_ADD_SIZET_OVERFLOW(&alloclen, alloclen, 1) ||
+	    !(new = git__calloc(1, alloclen)))
 		return NULL;
 
 	memcpy(new->dir, dir, dirlen);
-
 	new->h = FindFirstFileW(filter_w, &new->f);
 
 	if (new->h == INVALID_HANDLE_VALUE) {
@@ -38,10 +37,10 @@ git__DIR *git__opendir(const char *dir)
 }
 
 int git__readdir_ext(
-	git__DIR *d,
-	struct git__dirent *entry,
-	struct git__dirent **result,
-	int *is_dir)
+    git__DIR *d,
+    struct git__dirent *entry,
+    struct git__dirent **result,
+    int *is_dir)
 {
 	if (!d || !entry || !result || d->h == INVALID_HANDLE_VALUE)
 		return -1;
@@ -53,6 +52,7 @@ int git__readdir_ext(
 	else if (!FindNextFileW(d->h, &d->f)) {
 		if (GetLastError() == ERROR_NO_MORE_FILES)
 			return 0;
+
 		giterr_set(GITERR_OS, "Could not read from directory '%s'", d->dir);
 		return -1;
 	}
@@ -62,7 +62,6 @@ int git__readdir_ext(
 		return -1;
 
 	entry->d_ino = 0;
-
 	*result = entry;
 
 	if (is_dir != NULL)
@@ -74,8 +73,10 @@ int git__readdir_ext(
 struct git__dirent *git__readdir(git__DIR *d)
 {
 	struct git__dirent *result;
+
 	if (git__readdir_ext(d, &d->entry, &result, NULL) < 0)
 		return NULL;
+
 	return result;
 }
 

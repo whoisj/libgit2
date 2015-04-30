@@ -84,7 +84,7 @@ extern int git_path_to_dir(git_buf *path);
 /**
  * Ensure string has a trailing '/' if there is space for it.
  */
-extern void git_path_string_to_dir(char* path, size_t size);
+extern void git_path_string_to_dir(char *path, size_t size);
 
 /**
  * Taken from git.git; returns nonzero if the given path is "." or "..".
@@ -92,16 +92,16 @@ extern void git_path_string_to_dir(char* path, size_t size);
 GIT_INLINE(int) git_path_is_dot_or_dotdot(const char *name)
 {
 	return (name[0] == '.' &&
-			  (name[1] == '\0' ||
-				(name[1] == '.' && name[2] == '\0')));
+	        (name[1] == '\0' ||
+	         (name[1] == '.' && name[2] == '\0')));
 }
 
 #ifdef GIT_WIN32
 GIT_INLINE(int) git_path_is_dot_or_dotdotW(const wchar_t *name)
 {
 	return (name[0] == L'.' &&
-			  (name[1] == L'\0' ||
-				(name[1] == L'.' && name[2] == L'\0')));
+	        (name[1] == L'\0' ||
+	         (name[1] == L'.' && name[2] == L'\0')));
 }
 
 /**
@@ -223,7 +223,7 @@ extern bool git_path_contains_file(git_buf *dir, const char *file);
  * is, either the end of the base directory prefix or the path root.
  */
 extern int git_path_join_unrooted(
-	git_buf *path_out, const char *path, const char *base, ssize_t *root_at);
+    git_buf *path_out, const char *path, const char *base, ssize_t *root_at);
 
 /**
  * Clean up path, prepending base if it is not already rooted.
@@ -289,18 +289,18 @@ enum {
  * @return 0 on success or error code from OS error or from callback
  */
 extern int git_path_direach(
-	git_buf *pathbuf,
-	uint32_t flags,
-	int (*callback)(void *payload, git_buf *path),
-	void *payload);
+    git_buf *pathbuf,
+    uint32_t flags,
+    int (*callback)(void *payload, git_buf *path),
+    void *payload);
 
 /**
  * Sort function to order two paths
  */
 extern int git_path_cmp(
-	const char *name1, size_t len1, int isdir1,
-	const char *name2, size_t len2, int isdir2,
-	int (*compare)(const char *, const char *, size_t));
+    const char *name1, size_t len1, int isdir1,
+    const char *name2, size_t len2, int isdir2,
+    int (*compare)(const char *, const char *, size_t));
 
 /**
  * Invoke callback up path directory by directory until the ceiling is
@@ -321,10 +321,10 @@ extern int git_path_cmp(
  * @param state Passed to fn as the first ath.
  */
 extern int git_path_walk_up(
-	git_buf *pathbuf,
-	const char *ceiling,
-	int (*callback)(void *payload, const char *path),
-	void *payload);
+    git_buf *pathbuf,
+    const char *ceiling,
+    int (*callback)(void *payload, const char *path),
+    void *payload);
 
 /**
  * Load all directory entries (except '.' and '..') into a vector.
@@ -344,11 +344,11 @@ extern int git_path_walk_up(
  * @param contents Vector to fill with directory entry names.
  */
 extern int git_path_dirload(
-	const char *path,
-	size_t prefix_len,
-	size_t alloc_extra,
-	uint32_t flags,
-	git_vector *contents);
+    const char *path,
+    size_t prefix_len,
+    size_t alloc_extra,
+    uint32_t flags,
+    git_vector *contents);
 
 
 typedef struct {
@@ -380,12 +380,12 @@ extern int git_path_with_stat_cmp_icase(const void *a, const void *b);
  * @param contents Vector to fill with git_path_with_stat structures
  */
 extern int git_path_dirload_with_stat(
-	const char *path,
-	size_t prefix_len,
-	uint32_t flags,
-	const char *start_stat,
-	const char *end_stat,
-	git_vector *contents);
+    const char *path,
+    size_t prefix_len,
+    uint32_t flags,
+    const char *start_stat,
+    const char *end_stat,
+    git_vector *contents);
 
 enum { GIT_PATH_NOTEQUAL = 0, GIT_PATH_EQUAL = 1, GIT_PATH_PREFIX = 2 };
 
@@ -395,9 +395,9 @@ enum { GIT_PATH_NOTEQUAL = 0, GIT_PATH_EQUAL = 1, GIT_PATH_PREFIX = 2 };
  * @param child The possible child
  */
 GIT_INLINE(int) git_path_equal_or_prefixed(
-	const char *parent,
-	const char *child,
-	ssize_t *prefixlen)
+    const char *parent,
+    const char *child,
+    ssize_t *prefixlen)
 {
 	const char *p = parent, *c = child;
 	int lastslash = 0;
@@ -431,7 +431,7 @@ GIT_INLINE(int) git_path_equal_or_prefixed(
 
 /* translate errno to libgit2 error code and set error message */
 extern int git_path_set_error(
-	int errno_value, const char *path, const char *action);
+    int errno_value, const char *path, const char *action);
 
 /* check if non-ascii characters are present in filename */
 extern bool git_path_has_non_ascii(const char *path, size_t pathlen);
@@ -515,8 +515,8 @@ extern int git_path_from_url_or_path(git_buf *local_path_out, const char *url_or
  * in addition to the default of "git~1".
  */
 extern bool git_path_isvalid(
-	git_repository *repo,
-	const char *path,
-	unsigned int flags);
+    git_repository *repo,
+    const char *path,
+    unsigned int flags);
 
 #endif

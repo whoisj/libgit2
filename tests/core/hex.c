@@ -14,7 +14,6 @@ void test_core_hex__fromhex(void)
 	cl_assert(git__fromhex('a') == 0xa);
 	cl_assert(git__fromhex('c') == 0xc);
 	cl_assert(git__fromhex('f') == 0xf);
-
 	/* Failing cases */
 	cl_assert(git__fromhex('g') == -1);
 	cl_assert(git__fromhex('z') == -1);

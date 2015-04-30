@@ -67,7 +67,7 @@ int git_odb__hashfd(git_oid *out, git_file fd, size_t size, git_otype type);
  * Acts just like git_odb__hashfd with the addition of filters...
  */
 int git_odb__hashfd_filtered(
-	git_oid *out, git_file fd, size_t len, git_otype type, git_filter_list *fl);
+    git_oid *out, git_file fd, size_t len, git_otype type, git_filter_list *fl);
 
 /*
  * Hash a `path`, assuming it could be a POSIX symlink: if the path is a
@@ -94,8 +94,8 @@ int git_odb__error_ambiguous(const char *message);
  * not be read.
  */
 int git_odb__read_header_or_object(
-	git_odb_object **out, size_t *len_p, git_otype *type_p,
-	git_odb *db, const git_oid *id);
+    git_odb_object **out, size_t *len_p, git_otype *type_p,
+    git_odb *db, const git_oid *id);
 
 /* fully free the object; internal method, DO NOT EXPORT */
 void git_odb_object__free(void *object);

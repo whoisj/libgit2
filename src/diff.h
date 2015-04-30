@@ -72,7 +72,7 @@ struct git_diff {
 };
 
 extern void git_diff__cleanup_modes(
-	uint32_t diffcaps, uint32_t *omode, uint32_t *nmode);
+    uint32_t diffcaps, uint32_t *omode, uint32_t *nmode);
 
 extern void git_diff_addref(git_diff *diff);
 
@@ -82,46 +82,46 @@ extern int git_diff_delta__casecmp(const void *a, const void *b);
 extern const char *git_diff_delta__path(const git_diff_delta *delta);
 
 extern bool git_diff_delta__should_skip(
-	const git_diff_options *opts, const git_diff_delta *delta);
+    const git_diff_options *opts, const git_diff_delta *delta);
 
 extern int git_diff_delta__format_file_header(
-	git_buf *out,
-	const git_diff_delta *delta,
-	const char *oldpfx,
-	const char *newpfx,
-	int oid_strlen);
+    git_buf *out,
+    const git_diff_delta *delta,
+    const char *oldpfx,
+    const char *newpfx,
+    int oid_strlen);
 
 extern int git_diff__oid_for_file(
-	git_oid *out, git_diff *, const char *, uint16_t, git_off_t);
+    git_oid *out, git_diff *, const char *, uint16_t, git_off_t);
 extern int git_diff__oid_for_entry(
-	git_oid *out, git_diff *, const git_index_entry *, const git_oid *update);
+    git_oid *out, git_diff *, const git_index_entry *, const git_oid *update);
 
 extern int git_diff__from_iterators(
-	git_diff **diff_ptr,
-	git_repository *repo,
-	git_iterator *old_iter,
-	git_iterator *new_iter,
-	const git_diff_options *opts);
+    git_diff **diff_ptr,
+    git_repository *repo,
+    git_iterator *old_iter,
+    git_iterator *new_iter,
+    const git_diff_options *opts);
 
 extern int git_diff__paired_foreach(
-	git_diff *idx2head,
-	git_diff *wd2idx,
-	int (*cb)(git_diff_delta *i2h, git_diff_delta *w2i, void *payload),
-	void *payload);
+    git_diff *idx2head,
+    git_diff *wd2idx,
+    int (*cb)(git_diff_delta *i2h, git_diff_delta *w2i, void *payload),
+    void *payload);
 
 extern int git_diff_find_similar__hashsig_for_file(
-	void **out, const git_diff_file *f, const char *path, void *p);
+    void **out, const git_diff_file *f, const char *path, void *p);
 
 extern int git_diff_find_similar__hashsig_for_buf(
-	void **out, const git_diff_file *f, const char *buf, size_t len, void *p);
+    void **out, const git_diff_file *f, const char *buf, size_t len, void *p);
 
 extern void git_diff_find_similar__hashsig_free(void *sig, void *payload);
 
 extern int git_diff_find_similar__calc_similarity(
-	int *score, void *siga, void *sigb, void *payload);
+    int *score, void *siga, void *sigb, void *payload);
 
 extern int git_diff__commit(
-	git_diff **diff, git_repository *repo, const git_commit *commit, const git_diff_options *opts);
+    git_diff **diff, git_repository *repo, const git_commit *commit, const git_diff_options *opts);
 
 /*
  * Sometimes a git_diff_file will have a zero size; this attempts to
@@ -130,7 +130,7 @@ extern int git_diff__commit(
  * loaded and the caller can use it or dispose of it as needed.
  */
 GIT_INLINE(int) git_diff_file__resolve_zero_size(
-	git_diff_file *file, git_odb_object **odb_obj, git_repository *repo)
+    git_diff_file *file, git_odb_object **odb_obj, git_repository *repo)
 {
 	int error;
 	git_odb *odb;
@@ -141,8 +141,7 @@ GIT_INLINE(int) git_diff_file__resolve_zero_size(
 		return error;
 
 	error = git_odb__read_header_or_object(
-		odb_obj, &len, &type, odb, &file->id);
-
+	            odb_obj, &len, &type, odb, &file->id);
 	git_odb_free(odb);
 
 	if (!error)

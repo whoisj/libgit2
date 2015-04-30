@@ -21,9 +21,9 @@ typedef struct {
 } checkout_counts;
 
 extern int checkout_count_callback(
-	git_checkout_notify_t why,
-	const char *path,
-	const git_diff_file *baseline,
-	const git_diff_file *target,
-	const git_diff_file *workdir,
-	void *payload);
+    git_checkout_notify_t why,
+    const char *path,
+    const git_diff_file *baseline,
+    const git_diff_file *target,
+    const git_diff_file *workdir,
+    void *payload);

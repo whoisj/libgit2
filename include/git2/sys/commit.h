@@ -32,16 +32,16 @@ GIT_BEGIN_DECL
  * @see git_commit_create
  */
 GIT_EXTERN(int) git_commit_create_from_ids(
-	git_oid *id,
-	git_repository *repo,
-	const char *update_ref,
-	const git_signature *author,
-	const git_signature *committer,
-	const char *message_encoding,
-	const char *message,
-	const git_oid *tree,
-	size_t parent_count,
-	const git_oid *parents[]);
+    git_oid *id,
+    git_repository *repo,
+    const char *update_ref,
+    const git_signature *author,
+    const git_signature *committer,
+    const char *message_encoding,
+    const char *message,
+    const git_oid *tree,
+    size_t parent_count,
+    const git_oid *parents[]);
 
 /**
  * Callback function to return parents for commit.
@@ -64,16 +64,16 @@ typedef const git_oid *(*git_commit_parent_callback)(size_t idx, void *payload);
  * @see git_commit_create
  */
 GIT_EXTERN(int) git_commit_create_from_callback(
-	git_oid *id,
-	git_repository *repo,
-	const char *update_ref,
-	const git_signature *author,
-	const git_signature *committer,
-	const char *message_encoding,
-	const char *message,
-	const git_oid *tree,
-	git_commit_parent_callback parent_cb,
-	void *parent_payload);
+    git_oid *id,
+    git_repository *repo,
+    const char *update_ref,
+    const git_signature *author,
+    const git_signature *committer,
+    const char *message_encoding,
+    const char *message,
+    const git_oid *tree,
+    git_commit_parent_callback parent_cb,
+    void *parent_payload);
 
 /** @} */
 GIT_END_DECL

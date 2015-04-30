@@ -20,9 +20,9 @@
 # define GIT_BEGIN_DECL extern "C" {
 # define GIT_END_DECL	}
 #else
- /** Start declarations in C mode */
+/** Start declarations in C mode */
 # define GIT_BEGIN_DECL /* empty */
- /** End declarations in C mode */
+/** End declarations in C mode */
 # define GIT_END_DECL	/* empty */
 #endif
 

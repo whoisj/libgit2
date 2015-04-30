@@ -19,23 +19,23 @@ struct git_refdb {
 void git_refdb__free(git_refdb *db);
 
 int git_refdb_exists(
-	int *exists,
-	git_refdb *refdb,
-	const char *ref_name);
+    int *exists,
+    git_refdb *refdb,
+    const char *ref_name);
 
 int git_refdb_lookup(
-	git_reference **out,
-	git_refdb *refdb,
-	const char *ref_name);
+    git_reference **out,
+    git_refdb *refdb,
+    const char *ref_name);
 
 int git_refdb_rename(
-	git_reference **out,
-	git_refdb *db,
-	const char *old_name,
-	const char *new_name,
-	int force,
-	const git_signature *who,
-	const char *message);
+    git_reference **out,
+    git_refdb *db,
+    const char *old_name,
+    const char *new_name,
+    int force,
+    const git_signature *who,
+    const char *message);
 
 int git_refdb_iterator(git_reference_iterator **out, git_refdb *db, const char *glob);
 int git_refdb_iterator_next(git_reference **out, git_reference_iterator *iter);

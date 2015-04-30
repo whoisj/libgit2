@@ -21,11 +21,11 @@ extern void git_patch__old_data(char **, size_t *, git_patch *);
 extern void git_patch__new_data(char **, size_t *, git_patch *);
 
 extern int git_patch__invoke_callbacks(
-	git_patch *patch,
-	git_diff_file_cb file_cb,
-	git_diff_hunk_cb hunk_cb,
-	git_diff_line_cb line_cb,
-	void *payload);
+    git_patch *patch,
+    git_diff_file_cb file_cb,
+    git_diff_hunk_cb hunk_cb,
+    git_diff_line_cb line_cb,
+    void *payload);
 
 typedef struct git_diff_output git_diff_output;
 struct git_diff_output {

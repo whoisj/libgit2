@@ -47,17 +47,17 @@ typedef struct {
 
 	/** Function to initialize an authentication context */
 	int (*init_context)(
-		git_http_auth_context **out,
-		const gitno_connection_data *connection_data);
+	    git_http_auth_context **out,
+	    const gitno_connection_data *connection_data);
 } git_http_auth_scheme;
 
 int git_http_auth_dummy(
-	git_http_auth_context **out,
-	const gitno_connection_data *connection_data);
+    git_http_auth_context **out,
+    const gitno_connection_data *connection_data);
 
 int git_http_auth_basic(
-	git_http_auth_context **out,
-	const gitno_connection_data *connection_data);
+    git_http_auth_context **out,
+    const gitno_connection_data *connection_data);
 
 #endif
 

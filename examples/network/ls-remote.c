@@ -11,11 +11,12 @@ static int use_remote(git_repository *repo, char *name)
 	const git_remote_head **refs;
 	size_t refs_len, i;
 	git_remote_callbacks callbacks = GIT_REMOTE_CALLBACKS_INIT;
-
 	// Find the remote by name
 	error = git_remote_lookup(&remote, repo, name);
+
 	if (error < 0) {
 		error = git_remote_create_anonymous(&remote, repo, name, NULL);
+
 		if (error < 0)
 			goto cleanup;
 	}
@@ -26,8 +27,8 @@ static int use_remote(git_repository *repo, char *name)
 	 */
 	callbacks.credentials = cred_acquire_cb;
 	git_remote_set_callbacks(remote, &callbacks);
-
 	error = git_remote_connect(remote, GIT_DIRECTION_FETCH);
+
 	if (error < 0)
 		goto cleanup;
 
@@ -60,6 +61,5 @@ int ls_remote(git_repository *repo, int argc, char **argv)
 	}
 
 	error = use_remote(repo, argv[1]);
-
 	return error;
 }

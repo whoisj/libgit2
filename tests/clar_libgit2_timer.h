@@ -1,8 +1,7 @@
 #ifndef __CLAR_LIBGIT2_TIMER__
 #define __CLAR_LIBGIT2_TIMER__
 
-struct cl_perf_timer
-{
+struct cl_perf_timer {
 	/* cummulative running time across all start..stop intervals */
 	double sum;
 

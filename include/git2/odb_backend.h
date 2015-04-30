@@ -46,12 +46,12 @@ GIT_EXTERN(int) git_odb_backend_pack(git_odb_backend **out, const char *objects_
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_odb_backend_loose(
-	git_odb_backend **out,
-	const char *objects_dir,
-	int compression_level,
-	int do_fsync,
-	unsigned int dir_mode,
-	unsigned int file_mode);
+    git_odb_backend **out,
+    const char *objects_dir,
+    int compression_level,
+    int do_fsync,
+    unsigned int dir_mode,
+    unsigned int file_mode);
 
 /**
  * Create a backend out of a single packfile

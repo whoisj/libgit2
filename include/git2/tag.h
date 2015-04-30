@@ -31,7 +31,7 @@ GIT_BEGIN_DECL
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_tag_lookup(
-	git_tag **out, git_repository *repo, const git_oid *id);
+    git_tag **out, git_repository *repo, const git_oid *id);
 
 /**
  * Lookup a tag object from the repository,
@@ -46,7 +46,7 @@ GIT_EXTERN(int) git_tag_lookup(
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_tag_lookup_prefix(
-	git_tag **out, git_repository *repo, const git_oid *id, size_t len);
+    git_tag **out, git_repository *repo, const git_oid *id, size_t len);
 
 /**
  * Close an open tag
@@ -169,13 +169,13 @@ GIT_EXTERN(const char *) git_tag_message(const git_tag *tag);
  *	is written in the /refs/tags folder, pointing to it
  */
 GIT_EXTERN(int) git_tag_create(
-	git_oid *oid,
-	git_repository *repo,
-	const char *tag_name,
-	const git_object *target,
-	const git_signature *tagger,
-	const char *message,
-	int force);
+    git_oid *oid,
+    git_repository *repo,
+    const char *tag_name,
+    const git_object *target,
+    const git_signature *tagger,
+    const char *message,
+    int force);
 
 /**
  * Create a new tag in the object database pointing to a git_object
@@ -201,12 +201,12 @@ GIT_EXTERN(int) git_tag_create(
  * @return 0 on success or an error code
  */
 GIT_EXTERN(int) git_tag_annotation_create(
-	git_oid *oid,
-	git_repository *repo,
-	const char *tag_name,
-	const git_object *target,
-	const git_signature *tagger,
-	const char *message);
+    git_oid *oid,
+    git_repository *repo,
+    const char *tag_name,
+    const git_object *target,
+    const git_signature *tagger,
+    const char *message);
 
 /**
  * Create a new tag in the repository from a buffer
@@ -218,10 +218,10 @@ GIT_EXTERN(int) git_tag_annotation_create(
  * @return 0 on success; error code otherwise
  */
 GIT_EXTERN(int) git_tag_create_frombuffer(
-	git_oid *oid,
-	git_repository *repo,
-	const char *buffer,
-	int force);
+    git_oid *oid,
+    git_repository *repo,
+    const char *buffer,
+    int force);
 
 /**
  * Create a new lightweight tag pointing at a target object
@@ -254,11 +254,11 @@ GIT_EXTERN(int) git_tag_create_frombuffer(
  * pointing to the provided target object
  */
 GIT_EXTERN(int) git_tag_create_lightweight(
-	git_oid *oid,
-	git_repository *repo,
-	const char *tag_name,
-	const git_object *target,
-	int force);
+    git_oid *oid,
+    git_repository *repo,
+    const char *tag_name,
+    const git_object *target,
+    int force);
 
 /**
  * Delete an existing tag reference.
@@ -274,8 +274,8 @@ GIT_EXTERN(int) git_tag_create_lightweight(
  * @return 0 on success, GIT_EINVALIDSPEC or an error code
  */
 GIT_EXTERN(int) git_tag_delete(
-	git_repository *repo,
-	const char *tag_name);
+    git_repository *repo,
+    const char *tag_name);
 
 /**
  * Fill a list with all the tags in the Repository
@@ -291,8 +291,8 @@ GIT_EXTERN(int) git_tag_delete(
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_tag_list(
-	git_strarray *tag_names,
-	git_repository *repo);
+    git_strarray *tag_names,
+    git_repository *repo);
 
 /**
  * Fill a list with all the tags in the Repository
@@ -313,9 +313,9 @@ GIT_EXTERN(int) git_tag_list(
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_tag_list_match(
-	git_strarray *tag_names,
-	const char *pattern,
-	git_repository *repo);
+    git_strarray *tag_names,
+    const char *pattern,
+    git_repository *repo);
 
 
 typedef int (*git_tag_foreach_cb)(const char *name, git_oid *oid, void *payload);
@@ -328,9 +328,9 @@ typedef int (*git_tag_foreach_cb)(const char *name, git_oid *oid, void *payload)
  * @param payload Pointer to callback data (optional)
  */
 GIT_EXTERN(int) git_tag_foreach(
-	git_repository *repo,
-	git_tag_foreach_cb callback,
-	void *payload);
+    git_repository *repo,
+    git_tag_foreach_cb callback,
+    void *payload);
 
 
 /**
@@ -344,8 +344,8 @@ GIT_EXTERN(int) git_tag_foreach(
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_tag_peel(
-	git_object **tag_target_out,
-	const git_tag *tag);
+    git_object **tag_target_out,
+    const git_tag *tag);
 
 /** @} */
 GIT_END_DECL

@@ -221,24 +221,24 @@ typedef struct {
 
 /** Checkout notification callback function */
 typedef int (*git_checkout_notify_cb)(
-	git_checkout_notify_t why,
-	const char *path,
-	const git_diff_file *baseline,
-	const git_diff_file *target,
-	const git_diff_file *workdir,
-	void *payload);
+    git_checkout_notify_t why,
+    const char *path,
+    const git_diff_file *baseline,
+    const git_diff_file *target,
+    const git_diff_file *workdir,
+    void *payload);
 
 /** Checkout progress notification function */
 typedef void (*git_checkout_progress_cb)(
-	const char *path,
-	size_t completed_steps,
-	size_t total_steps,
-	void *payload);
+    const char *path,
+    size_t completed_steps,
+    size_t total_steps,
+    void *payload);
 
 /** Checkout perfdata notification function */
 typedef void (*git_checkout_perfdata_cb)(
-	const git_checkout_perfdata *perfdata,
-	void *payload);
+    const git_checkout_perfdata *perfdata,
+    void *payload);
 
 /**
  * Checkout options structure
@@ -297,8 +297,8 @@ typedef struct git_checkout_options {
 * @return Zero on success; -1 on failure.
 */
 GIT_EXTERN(int) git_checkout_init_options(
-	git_checkout_options *opts,
-	unsigned int version);
+    git_checkout_options *opts,
+    unsigned int version);
 
 /**
  * Updates files in the index and the working tree to match the content of
@@ -311,8 +311,8 @@ GIT_EXTERN(int) git_checkout_init_options(
  *         other error code < 0 (use giterr_last for error details)
  */
 GIT_EXTERN(int) git_checkout_head(
-	git_repository *repo,
-	const git_checkout_options *opts);
+    git_repository *repo,
+    const git_checkout_options *opts);
 
 /**
  * Updates files in the working tree to match the content of the index.
@@ -324,9 +324,9 @@ GIT_EXTERN(int) git_checkout_head(
  *         code < 0 (use giterr_last for error details)
  */
 GIT_EXTERN(int) git_checkout_index(
-	git_repository *repo,
-	git_index *index,
-	const git_checkout_options *opts);
+    git_repository *repo,
+    git_index *index,
+    const git_checkout_options *opts);
 
 /**
  * Updates files in the index and working tree to match the content of the
@@ -340,9 +340,9 @@ GIT_EXTERN(int) git_checkout_index(
  *         code < 0 (use giterr_last for error details)
  */
 GIT_EXTERN(int) git_checkout_tree(
-	git_repository *repo,
-	const git_object *treeish,
-	const git_checkout_options *opts);
+    git_repository *repo,
+    const git_object *treeish,
+    const git_checkout_options *opts);
 
 /** @} */
 GIT_END_DECL

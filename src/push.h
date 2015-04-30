@@ -70,8 +70,8 @@ int git_push_new(git_push **out, git_remote *remote);
  * @return 0 or an error code
  */
 int git_push_set_options(
-	git_push *push,
-	const git_push_options *opts);
+    git_push *push,
+    const git_push_options *opts);
 
 /**
  * Set the callbacks for a push
@@ -88,11 +88,11 @@ int git_push_set_options(
  * @return 0 or an error code
  */
 int git_push_set_callbacks(
-	git_push *push,
-	git_packbuilder_progress pack_progress_cb,
-	void *pack_progress_cb_payload,
-	git_push_transfer_progress transfer_progress_cb,
-	void *transfer_progress_cb_payload);
+    git_push *push,
+    git_packbuilder_progress pack_progress_cb,
+    void *pack_progress_cb_payload,
+    git_push_transfer_progress transfer_progress_cb,
+    void *transfer_progress_cb_payload);
 
 /**
  * Add a refspec to be pushed
@@ -146,8 +146,8 @@ int git_push_finish(git_push *push);
  * @return 0 on success, non-zero callback return value, or error code
  */
 int git_push_status_foreach(git_push *push,
-			int (*cb)(const char *ref, const char *msg, void *data),
-			void *data);
+                            int (*cb)(const char *ref, const char *msg, void *data),
+                            void *data);
 
 /**
  * Free the given push object

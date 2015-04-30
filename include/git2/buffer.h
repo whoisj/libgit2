@@ -103,7 +103,7 @@ GIT_EXTERN(int) git_buf_grow(git_buf *buffer, size_t target_size);
  * @return 0 on success, -1 on allocation failure
  */
 GIT_EXTERN(int) git_buf_set(
-	git_buf *buffer, const void *data, size_t datalen);
+    git_buf *buffer, const void *data, size_t datalen);
 
 /**
 * Check quickly if buffer looks like it contains binary data

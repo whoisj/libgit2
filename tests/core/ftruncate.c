@@ -23,7 +23,6 @@ void test_core_ftruncate__cleanup(void)
 
 	p_close(fd);
 	fd = 0;
-
 	p_unlink(filename);
 }
 
@@ -31,7 +30,6 @@ static void _extend(git_off_t i64len)
 {
 	struct stat st;
 	int error;
-
 	cl_assert((error = p_ftruncate(fd, i64len)) == 0);
 	cl_assert((error = p_fstat(fd, &st)) == 0);
 	cl_assert(st.st_size == i64len);

@@ -45,8 +45,8 @@ typedef struct {
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_revert_init_options(
-	git_revert_options *opts,
-	unsigned int version);
+    git_revert_options *opts,
+    unsigned int version);
 
 /**
  * Reverts the given commit against the given "our" commit, producing an
@@ -63,12 +63,12 @@ GIT_EXTERN(int) git_revert_init_options(
  * @return zero on success, -1 on failure.
  */
 GIT_EXTERN(int) git_revert_commit(
-	git_index **out,
-	git_repository *repo,
-	git_commit *revert_commit,
-	git_commit *our_commit,
-	unsigned int mainline,
-	const git_merge_options *merge_options);
+    git_index **out,
+    git_repository *repo,
+    git_commit *revert_commit,
+    git_commit *our_commit,
+    unsigned int mainline,
+    const git_merge_options *merge_options);
 
 /**
  * Reverts the given commit, producing changes in the index and working directory.
@@ -79,9 +79,9 @@ GIT_EXTERN(int) git_revert_commit(
  * @return zero on success, -1 on failure.
  */
 GIT_EXTERN(int) git_revert(
-	git_repository *repo,
-	git_commit *commit,
-	const git_revert_options *given_opts);
+    git_repository *repo,
+    git_commit *commit,
+    const git_revert_options *given_opts);
 
 /** @} */
 GIT_END_DECL

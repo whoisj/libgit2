@@ -39,23 +39,23 @@ typedef struct {
 	 * `git_cert`.
 	 */
 	git_cert_t cert_type;
-        /**
-         * A hostkey type from libssh2, either
-         * `GIT_CERT_SSH_MD5` or `GIT_CERT_SSH_SHA1`
-         */
+	/**
+	 * A hostkey type from libssh2, either
+	 * `GIT_CERT_SSH_MD5` or `GIT_CERT_SSH_SHA1`
+	 */
 	git_cert_ssh_t type;
 
-        /**
-         * Hostkey hash. If type has `GIT_CERT_SSH_MD5` set, this will
-         * have the MD5 hash of the hostkey.
-         */
+	/**
+	 * Hostkey hash. If type has `GIT_CERT_SSH_MD5` set, this will
+	 * have the MD5 hash of the hostkey.
+	 */
 	unsigned char hash_md5[16];
 
-        /**
-         * Hostkey hash. If type has `GIT_CERT_SSH_SHA1` set, this will
-         * have the SHA-1 hash of the hostkey.
-         */
-        unsigned char hash_sha1[20];
+	/**
+	 * Hostkey hash. If type has `GIT_CERT_SSH_SHA1` set, this will
+	 * have the SHA-1 hash of the hostkey.
+	 */
+	unsigned char hash_sha1[20];
 } git_cert_hostkey;
 
 /**
@@ -134,7 +134,7 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE LIBSSH2_USERAUTH_KBDINT_RESPONS
 #endif
 
 typedef int (*git_cred_sign_callback)(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len, const unsigned char *data, size_t data_len, void **abstract);
-typedef void (*git_cred_ssh_interactive_callback)(const char* name, int name_len, const char* instruction, int instruction_len, int num_prompts, const LIBSSH2_USERAUTH_KBDINT_PROMPT* prompts, LIBSSH2_USERAUTH_KBDINT_RESPONSE* responses, void **abstract);
+typedef void (*git_cred_ssh_interactive_callback)(const char *name, int name_len, const char *instruction, int instruction_len, int num_prompts, const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts, LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses, void **abstract);
 
 /**
  * A ssh key from disk
@@ -196,9 +196,9 @@ GIT_EXTERN(int) git_cred_has_username(git_cred *cred);
  * @return 0 for success or an error code for failure
  */
 GIT_EXTERN(int) git_cred_userpass_plaintext_new(
-	git_cred **out,
-	const char *username,
-	const char *password);
+    git_cred **out,
+    const char *username,
+    const char *password);
 
 /**
  * Create a new passphrase-protected ssh key credential object.
@@ -212,11 +212,11 @@ GIT_EXTERN(int) git_cred_userpass_plaintext_new(
  * @return 0 for success or an error code for failure
  */
 GIT_EXTERN(int) git_cred_ssh_key_new(
-	git_cred **out,
-	const char *username,
-	const char *publickey,
-	const char *privatekey,
-	const char *passphrase);
+    git_cred **out,
+    const char *username,
+    const char *publickey,
+    const char *privatekey,
+    const char *passphrase);
 
 /**
  * Create a new ssh keyboard-interactive based credential object.
@@ -228,10 +228,10 @@ GIT_EXTERN(int) git_cred_ssh_key_new(
  * @return 0 for success or an error code for failure.
  */
 GIT_EXTERN(int) git_cred_ssh_interactive_new(
-	git_cred **out,
-	const char *username,
-	git_cred_ssh_interactive_callback prompt_callback,
-	void *payload);
+    git_cred **out,
+    const char *username,
+    git_cred_ssh_interactive_callback prompt_callback,
+    void *payload);
 
 /**
  * Create a new ssh key credential object used for querying an ssh-agent.
@@ -242,8 +242,8 @@ GIT_EXTERN(int) git_cred_ssh_interactive_new(
  * @return 0 for success or an error code for failure
  */
 GIT_EXTERN(int) git_cred_ssh_key_from_agent(
-	git_cred **out,
-	const char *username);
+    git_cred **out,
+    const char *username);
 
 /**
  * Create an ssh key credential with a custom signing function.
@@ -264,12 +264,12 @@ GIT_EXTERN(int) git_cred_ssh_key_from_agent(
  * @return 0 for success or an error code for failure
  */
 GIT_EXTERN(int) git_cred_ssh_custom_new(
-	git_cred **out,
-	const char *username,
-	const char *publickey,
-	size_t publickey_len,
-	git_cred_sign_callback sign_callback,
-	void *payload);
+    git_cred **out,
+    const char *username,
+    const char *publickey,
+    size_t publickey_len,
+    git_cred_sign_callback sign_callback,
+    void *payload);
 
 /**
  * Create a "default" credential usable for Negotiate mechanisms like NTLM
@@ -300,11 +300,11 @@ GIT_EXTERN(int) git_cred_username_new(git_cred **cred, const char *username);
  *       no credential was acquired
  */
 typedef int (*git_cred_acquire_cb)(
-	git_cred **cred,
-	const char *url,
-	const char *username_from_url,
-	unsigned int allowed_types,
-	void *payload);
+    git_cred **cred,
+    const char *url,
+    const char *username_from_url,
+    unsigned int allowed_types,
+    void *payload);
 
 /** @} */
 GIT_END_DECL

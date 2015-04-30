@@ -94,19 +94,19 @@ const char *git_reference__shorthand(const char *name);
  * @return 0 on success or < 0 on error; not being able to resolve the reference is an error unless 0 was passed for max_deref
  */
 int git_reference_lookup_resolved(
-	git_reference **reference_out,
-	git_repository *repo,
-	const char *name,
-	int max_deref);
+    git_reference **reference_out,
+    git_repository *repo,
+    const char *name,
+    int max_deref);
 
 int git_reference__log_signature(git_signature **out, git_repository *repo);
 
 /** Update a reference after a commit. */
 int git_reference__update_for_commit(
-	git_repository *repo,
-	git_reference *ref,
-	const char *ref_name,
-	const git_oid *id,
-	const char *operation);
+    git_repository *repo,
+    git_reference *ref,
+    const char *ref_name,
+    const git_oid *id,
+    const char *operation);
 
 #endif

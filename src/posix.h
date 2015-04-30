@@ -149,7 +149,7 @@ struct addrinfo {
 };
 
 extern int p_getaddrinfo(const char *host, const char *port,
-	struct addrinfo *hints, struct addrinfo **info);
+                         struct addrinfo *hints, struct addrinfo **info);
 extern void p_freeaddrinfo(struct addrinfo *info);
 extern const char *p_gai_strerror(int ret);
 #else

@@ -11,7 +11,6 @@ void test_core_pqueue__items_are_put_in_order(void)
 {
 	git_pqueue pq;
 	int i, vals[20];
-
 	cl_git_pass(git_pqueue_init(&pq, 0, 20, cmp_ints));
 
 	for (i = 0; i < 20; ++i) {
@@ -32,7 +31,6 @@ void test_core_pqueue__items_are_put_in_order(void)
 	}
 
 	cl_assert_equal_i(0, git_pqueue_size(&pq));
-
 	git_pqueue_free(&pq);
 }
 
@@ -40,7 +38,6 @@ void test_core_pqueue__interleave_inserts_and_pops(void)
 {
 	git_pqueue pq;
 	int chunk, v, i, vals[200];
-
 	cl_git_pass(git_pqueue_init(&pq, 0, 20, cmp_ints));
 
 	for (v = 0, chunk = 20; chunk <= 200; chunk += 20) {
@@ -66,7 +63,6 @@ void test_core_pqueue__interleave_inserts_and_pops(void)
 	}
 
 	cl_assert_equal_i(0, git_pqueue_size(&pq));
-
 	git_pqueue_free(&pq);
 }
 
@@ -74,7 +70,6 @@ void test_core_pqueue__max_heap_size(void)
 {
 	git_pqueue pq;
 	int i, vals[100];
-
 	cl_git_pass(git_pqueue_init(&pq, GIT_PQUEUE_FIXED_SIZE, 50, cmp_ints));
 
 	for (i = 0; i < 100; ++i) {
@@ -91,9 +86,7 @@ void test_core_pqueue__max_heap_size(void)
 	}
 
 	cl_assert_equal_i(0, git_pqueue_size(&pq));
-
 	git_pqueue_free(&pq);
-
 }
 
 static int cmp_ints_like_commit_time(const void *a, const void *b)
@@ -106,10 +99,9 @@ void test_core_pqueue__interleaved_pushes_and_pops(void)
 	git_pqueue pq;
 	int i, j, *val;
 	static int commands[] =
-		{ 6, 9, 8, 0, 5, 0, 7, 0, 4, 3, 0, 0, 0, 4, 0, 2, 0, 1, 0, 0, -1 };
+	{ 6, 9, 8, 0, 5, 0, 7, 0, 4, 3, 0, 0, 0, 4, 0, 2, 0, 1, 0, 0, -1 };
 	static int expected[] =
-		{ 9, 8, 7, 6, 5, 4, 4, 3, 2, 1, -1 };
-
+	{ 9, 8, 7, 6, 5, 4, 4, 3, 2, 1, -1 };
 	cl_git_pass(git_pqueue_init(&pq, 0, 10, cmp_ints_like_commit_time));
 
 	for (i = 0, j = 0; commands[i] >= 0; ++i) {
@@ -117,9 +109,8 @@ void test_core_pqueue__interleaved_pushes_and_pops(void)
 			cl_assert((val = git_pqueue_pop(&pq)) != NULL);
 			cl_assert_equal_i(expected[j], *val);
 			++j;
-		} else {
+		} else
 			cl_git_pass(git_pqueue_insert(&pq, &commands[i]));
-		}
 	}
 
 	cl_assert_equal_i(0, git_pqueue_size(&pq));

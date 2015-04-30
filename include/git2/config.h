@@ -187,10 +187,10 @@ GIT_EXTERN(int) git_config_new(git_config **out);
  *  GIT_ENOTFOUND when the file doesn't exist or error code
  */
 GIT_EXTERN(int) git_config_add_file_ondisk(
-	git_config *cfg,
-	const char *path,
-	git_config_level_t level,
-	int force);
+    git_config *cfg,
+    const char *path,
+    git_config_level_t level,
+    int force);
 
 /**
  * Create a new config instance containing a single on-disk file
@@ -224,9 +224,9 @@ GIT_EXTERN(int) git_config_open_ondisk(git_config **out, const char *path);
  * multi-level parent config, or an error code
  */
 GIT_EXTERN(int) git_config_open_level(
-	git_config **out,
-	const git_config *parent,
-	git_config_level_t level);
+    git_config **out,
+    const git_config *parent,
+    git_config_level_t level);
 
 /**
  * Open the global/XDG configuration file according to git's rules
@@ -276,9 +276,9 @@ GIT_EXTERN(void) git_config_free(git_config *cfg);
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_config_get_entry(
-	git_config_entry **out,
-	const git_config *cfg,
-	const char *name);
+    git_config_entry **out,
+    const git_config *cfg,
+    const char *name);
 
 /**
  * Get the value of an integer config variable.
@@ -515,9 +515,9 @@ GIT_EXTERN(int) git_config_delete_multivar(git_config *cfg, const char *name, co
  * @return 0 on success, non-zero callback return value, or error code
  */
 GIT_EXTERN(int) git_config_foreach(
-	const git_config *cfg,
-	git_config_foreach_cb callback,
-	void *payload);
+    const git_config *cfg,
+    git_config_foreach_cb callback,
+    void *payload);
 
 /**
  * Iterate over all the config variables
@@ -559,10 +559,10 @@ GIT_EXTERN(int) git_config_iterator_glob_new(git_config_iterator **out, const gi
  * @return 0 or the return value of the callback which didn't return 0
  */
 GIT_EXTERN(int) git_config_foreach_match(
-	const git_config *cfg,
-	const char *regexp,
-	git_config_foreach_cb callback,
-	void *payload);
+    const git_config *cfg,
+    const char *regexp,
+    git_config_foreach_cb callback,
+    void *payload);
 
 /**
  * Query the value of a config variable and return it mapped to
@@ -599,11 +599,11 @@ GIT_EXTERN(int) git_config_foreach_match(
  * @return 0 on success, error code otherwise
  */
 GIT_EXTERN(int) git_config_get_mapped(
-	int *out,
-	const git_config *cfg,
-	const char *name,
-	const git_cvar_map *maps,
-	size_t map_n);
+    int *out,
+    const git_config *cfg,
+    const char *name,
+    const git_cvar_map *maps,
+    size_t map_n);
 
 /**
  * Maps a string value to an integer constant
@@ -614,10 +614,10 @@ GIT_EXTERN(int) git_config_get_mapped(
  * @param value value to parse
  */
 GIT_EXTERN(int) git_config_lookup_map_value(
-	int *out,
-	const git_cvar_map *maps,
-	size_t map_n,
-	const char *value);
+    int *out,
+    const git_cvar_map *maps,
+    size_t map_n,
+    const char *value);
 
 /**
  * Parse a string value as a bool.
@@ -683,10 +683,10 @@ GIT_EXTERN(int) git_config_parse_path(git_buf *out, const char *value);
  * @param payload the data to pass to the callback
  */
 GIT_EXTERN(int) git_config_backend_foreach_match(
-	git_config_backend *backend,
-	const char *regexp,
-	git_config_foreach_cb callback,
-	void *payload);
+    git_config_backend *backend,
+    const char *regexp,
+    git_config_foreach_cb callback,
+    void *payload);
 
 
 /** @} */

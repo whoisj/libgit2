@@ -15,26 +15,22 @@ void test_notes_notes__cleanup(void)
 {
 	git_signature_free(_sig);
 	_sig = NULL;
-
 	cl_git_sandbox_cleanup();
 }
 
-static void assert_note_equal(git_note *note, char *message, git_oid *note_oid) {
+static void assert_note_equal(git_note *note, char *message, git_oid *note_oid)
+{
 	git_blob *blob;
-
 	cl_assert_equal_s(git_note_message(note), message);
 	cl_assert_equal_oid(git_note_id(note), note_oid);
-
 	cl_git_pass(git_blob_lookup(&blob, _repo, note_oid));
 	cl_assert_equal_s(git_note_message(note), (const char *)git_blob_rawcontent(blob));
-
 	git_blob_free(blob);
 }
 
 static void create_note(git_oid *note_oid, const char *canonical_namespace, const char *target_sha, const char *message)
 {
 	git_oid oid;
-
 	cl_git_pass(git_oid_fromstr(&oid, target_sha));
 	cl_git_pass(git_note_create(note_oid, _repo, canonical_namespace, _sig, _sig, &oid, message, 0));
 }
@@ -54,22 +50,16 @@ list_expectations[] = {
 #define EXPECTATIONS_COUNT (sizeof(list_expectations)/sizeof(list_expectations[0])) - 1
 
 static int note_list_cb(
-	const git_oid *blob_id, const git_oid *annotated_obj_id, void *payload)
+    const git_oid *blob_id, const git_oid *annotated_obj_id, void *payload)
 {
 	git_oid expected_note_oid, expected_target_oid;
-
 	unsigned int *count = (unsigned int *)payload;
-
 	cl_assert(*count < EXPECTATIONS_COUNT);
-
 	cl_git_pass(git_oid_fromstr(&expected_note_oid, list_expectations[*count].note_sha));
 	cl_assert_equal_oid(&expected_note_oid, blob_id);
-
 	cl_git_pass(git_oid_fromstr(&expected_target_oid, list_expectations[*count].annotated_object_sha));
 	cl_assert_equal_oid(&expected_target_oid, annotated_obj_id);
-
 	(*count)++;
-
 	return 0;
 }
 
@@ -95,28 +85,22 @@ void test_notes_notes__can_retrieve_a_list_of_notes_for_a_given_namespace(void)
 {
 	git_oid note_oid1, note_oid2, note_oid3, note_oid4;
 	unsigned int retrieved_notes = 0;
-
 	create_note(&note_oid1, "refs/notes/i-can-see-dead-notes", "a65fedf39aefe402d3bb6e24df4d4f5fe4547750", "I decorate a65f\n");
 	create_note(&note_oid2, "refs/notes/i-can-see-dead-notes", "c47800c7266a2be04c571c04d5a6614691ea99bd", "I decorate c478\n");
 	create_note(&note_oid3, "refs/notes/i-can-see-dead-notes", "9fd738e8f7967c078dceed8190330fc8648ee56a", "I decorate 9fd7 and 4a20\n");
 	create_note(&note_oid4, "refs/notes/i-can-see-dead-notes", "4a202b346bb0fb0db7eff3cffeb3c70babbd2045", "I decorate 9fd7 and 4a20\n");
-
 	cl_git_pass(git_note_foreach
-(_repo, "refs/notes/i-can-see-dead-notes", note_list_cb, &retrieved_notes));
-
+	            (_repo, "refs/notes/i-can-see-dead-notes", note_list_cb, &retrieved_notes));
 	cl_assert_equal_i(4, retrieved_notes);
 }
 
 static int note_cancel_cb(
-	const git_oid *blob_id, const git_oid *annotated_obj_id, void *payload)
+    const git_oid *blob_id, const git_oid *annotated_obj_id, void *payload)
 {
 	unsigned int *count = (unsigned int *)payload;
-
 	GIT_UNUSED(blob_id);
 	GIT_UNUSED(annotated_obj_id);
-
 	(*count)++;
-
 	return (*count > 2);
 }
 
@@ -124,27 +108,23 @@ void test_notes_notes__can_cancel_foreach(void)
 {
 	git_oid note_oid1, note_oid2, note_oid3, note_oid4;
 	unsigned int retrieved_notes = 0;
-
 	create_note(&note_oid1, "refs/notes/i-can-see-dead-notes", "a65fedf39aefe402d3bb6e24df4d4f5fe4547750", "I decorate a65f\n");
 	create_note(&note_oid2, "refs/notes/i-can-see-dead-notes", "c47800c7266a2be04c571c04d5a6614691ea99bd", "I decorate c478\n");
 	create_note(&note_oid3, "refs/notes/i-can-see-dead-notes", "9fd738e8f7967c078dceed8190330fc8648ee56a", "I decorate 9fd7 and 4a20\n");
 	create_note(&note_oid4, "refs/notes/i-can-see-dead-notes", "4a202b346bb0fb0db7eff3cffeb3c70babbd2045", "I decorate 9fd7 and 4a20\n");
-
 	cl_assert_equal_i(
-		1,
-		git_note_foreach(_repo, "refs/notes/i-can-see-dead-notes",
-			note_cancel_cb, &retrieved_notes));
+	    1,
+	    git_note_foreach(_repo, "refs/notes/i-can-see-dead-notes",
+	                     note_cancel_cb, &retrieved_notes));
 }
 
 void test_notes_notes__retrieving_a_list_of_notes_for_an_unknown_namespace_returns_ENOTFOUND(void)
 {
 	int error;
 	unsigned int retrieved_notes = 0;
-
 	error = git_note_foreach(_repo, "refs/notes/i-am-not", note_list_cb, &retrieved_notes);
 	cl_git_fail(error);
 	cl_assert_equal_i(GIT_ENOTFOUND, error);
-
 	cl_assert_equal_i(0, retrieved_notes);
 }
 
@@ -153,18 +133,13 @@ void test_notes_notes__inserting_a_note_without_passing_a_namespace_uses_the_def
 	git_oid note_oid, target_oid;
 	git_note *note, *default_namespace_note;
 	git_buf default_ref = GIT_BUF_INIT;
-
 	cl_git_pass(git_oid_fromstr(&target_oid, "08b041783f40edfe12bb406c9c9a8a040177c125"));
 	cl_git_pass(git_note_default_ref(&default_ref, _repo));
-
 	create_note(&note_oid, NULL, "08b041783f40edfe12bb406c9c9a8a040177c125", "hello world\n");
-
 	cl_git_pass(git_note_read(&note, _repo, NULL, &target_oid));
 	cl_git_pass(git_note_read(&default_namespace_note, _repo, git_buf_cstr(&default_ref), &target_oid));
-
 	assert_note_equal(note, "hello world\n", &note_oid);
 	assert_note_equal(default_namespace_note, "hello world\n", &note_oid);
-
 	git_buf_free(&default_ref);
 	git_note_free(note);
 	git_note_free(default_namespace_note);
@@ -174,15 +149,10 @@ void test_notes_notes__can_insert_a_note_with_a_custom_namespace(void)
 {
 	git_oid note_oid, target_oid;
 	git_note *note;
-
 	cl_git_pass(git_oid_fromstr(&target_oid, "08b041783f40edfe12bb406c9c9a8a040177c125"));
-
 	create_note(&note_oid, "refs/notes/some/namespace", "08b041783f40edfe12bb406c9c9a8a040177c125", "hello world on a custom namespace\n");
-
 	cl_git_pass(git_note_read(&note, _repo, "refs/notes/some/namespace", &target_oid));
-
 	assert_note_equal(note, "hello world on a custom namespace\n", &note_oid);
-
 	git_note_free(note);
 }
 
@@ -194,14 +164,11 @@ void test_notes_notes__creating_a_note_on_a_target_which_already_has_one_returns
 {
 	int error;
 	git_oid note_oid, target_oid;
-
 	cl_git_pass(git_oid_fromstr(&target_oid, "08b041783f40edfe12bb406c9c9a8a040177c125"));
-
 	create_note(&note_oid, NULL, "08b041783f40edfe12bb406c9c9a8a040177c125", "hello world\n");
 	error = git_note_create(&note_oid, _repo, NULL, _sig, _sig, &target_oid, "hello world\n", 0);
 	cl_git_fail(error);
 	cl_assert_equal_i(GIT_EEXISTS, error);
-
 	create_note(&note_oid, "refs/notes/some/namespace", "08b041783f40edfe12bb406c9c9a8a040177c125", "hello world\n");
 	error = git_note_create(&note_oid, _repo, "refs/notes/some/namespace", _sig, _sig, &target_oid, "hello world\n", 0);
 	cl_git_fail(error);
@@ -213,21 +180,15 @@ void test_notes_notes__creating_a_note_on_a_target_can_overwrite_existing_note(v
 {
 	git_oid note_oid, target_oid;
 	git_note *note, *namespace_note;
-
 	cl_git_pass(git_oid_fromstr(&target_oid, "08b041783f40edfe12bb406c9c9a8a040177c125"));
-
 	create_note(&note_oid, NULL, "08b041783f40edfe12bb406c9c9a8a040177c125", "hello old world\n");
 	cl_git_pass(git_note_create(&note_oid, _repo, NULL, _sig, _sig, &target_oid, "hello new world\n", 1));
-
 	cl_git_pass(git_note_read(&note, _repo, NULL, &target_oid));
 	assert_note_equal(note, "hello new world\n", &note_oid);
-
 	create_note(&note_oid, "refs/notes/some/namespace", "08b041783f40edfe12bb406c9c9a8a040177c125", "hello old world\n");
 	cl_git_pass(git_note_create(&note_oid, _repo, "refs/notes/some/namespace", _sig, _sig, &target_oid, "hello new ref world\n", 1));
-
 	cl_git_pass(git_note_read(&namespace_note, _repo, "refs/notes/some/namespace", &target_oid));
 	assert_note_equal(namespace_note, "hello new ref world\n", &note_oid);
-
 	git_note_free(note);
 	git_note_free(namespace_note);
 }
@@ -268,14 +229,12 @@ void test_notes_notes__can_insert_a_note_in_an_existing_fanout(void)
 	size_t i;
 	git_oid note_oid, target_oid;
 	git_note *_note;
-
 	cl_git_pass(git_oid_fromstr(&target_oid, "08b041783f40edfe12bb406c9c9a8a040177c125"));
-	
+
 	for (i = 0; i <  MESSAGES_COUNT; i++) {
 		cl_git_pass(git_note_create(&note_oid, _repo, "refs/notes/fanout", _sig, _sig, &target_oid, messages[i], 0));
 		cl_git_pass(git_note_read(&_note, _repo, "refs/notes/fanout", &target_oid));
 		git_note_free(_note);
-
 		git_oid_cpy(&target_oid, &note_oid);
 	}
 }
@@ -288,13 +247,10 @@ void test_notes_notes__can_read_a_note_in_an_existing_fanout(void)
 {
 	git_oid note_oid, target_oid;
 	git_note *note;
-
 	cl_git_pass(git_oid_fromstr(&target_oid, "8496071c1b46c854b31185ea97743be6a8774479"));
 	cl_git_pass(git_note_read(&note, _repo, "refs/notes/fanout", &target_oid));
-
 	cl_git_pass(git_oid_fromstr(&note_oid, "08b041783f40edfe12bb406c9c9a8a040177c125"));
 	cl_assert_equal_oid(git_note_id(note), &note_oid);
-
 	git_note_free(note);
 }
 
@@ -302,10 +258,8 @@ void test_notes_notes__can_remove_a_note_in_an_existing_fanout(void)
 {
 	git_oid target_oid;
 	git_note *note;
-
 	cl_git_pass(git_oid_fromstr(&target_oid, "8496071c1b46c854b31185ea97743be6a8774479"));
 	cl_git_pass(git_note_remove(_repo, "refs/notes/fanout", _sig, _sig, &target_oid));
-
 	cl_git_fail(git_note_read(&note, _repo, "refs/notes/fanout", &target_oid));
 }
 
@@ -313,10 +267,8 @@ void test_notes_notes__removing_a_note_which_doesnt_exists_returns_ENOTFOUND(voi
 {
 	int error;
 	git_oid target_oid;
-
 	cl_git_pass(git_oid_fromstr(&target_oid, "8496071c1b46c854b31185ea97743be6a8774479"));
 	cl_git_pass(git_note_remove(_repo, "refs/notes/fanout", _sig, _sig, &target_oid));
-	
 	error = git_note_remove(_repo, "refs/notes/fanout", _sig, _sig, &target_oid);
 	cl_git_fail(error);
 	cl_assert_equal_i(GIT_ENOTFOUND, error);
@@ -328,17 +280,15 @@ void test_notes_notes__can_iterate_default_namespace(void)
 	git_note *note;
 	git_oid note_id, annotated_id;
 	git_oid note_created[2];
-	const char* note_message[] = {
+	const char *note_message[] = {
 		"I decorate a65f\n",
 		"I decorate c478\n"
 	};
 	int i, err;
-
 	create_note(&note_created[0], "refs/notes/commits",
-		"a65fedf39aefe402d3bb6e24df4d4f5fe4547750", note_message[0]);
+	            "a65fedf39aefe402d3bb6e24df4d4f5fe4547750", note_message[0]);
 	create_note(&note_created[1], "refs/notes/commits",
-		"c47800c7266a2be04c571c04d5a6614691ea99bd", note_message[1]);
-
+	            "c47800c7266a2be04c571c04d5a6614691ea99bd", note_message[1]);
 	cl_git_pass(git_note_iterator_new(&iter, _repo, NULL));
 
 	for (i = 0; (err = git_note_next(&note_id, &annotated_id, iter)) >= 0; ++i) {
@@ -358,17 +308,15 @@ void test_notes_notes__can_iterate_custom_namespace(void)
 	git_note *note;
 	git_oid note_id, annotated_id;
 	git_oid note_created[2];
-	const char* note_message[] = {
+	const char *note_message[] = {
 		"I decorate a65f\n",
 		"I decorate c478\n"
 	};
 	int i, err;
-
 	create_note(&note_created[0], "refs/notes/beer",
-		"a65fedf39aefe402d3bb6e24df4d4f5fe4547750", note_message[0]);
+	            "a65fedf39aefe402d3bb6e24df4d4f5fe4547750", note_message[0]);
 	create_note(&note_created[1], "refs/notes/beer",
-		"c47800c7266a2be04c571c04d5a6614691ea99bd", note_message[1]);
-
+	            "c47800c7266a2be04c571c04d5a6614691ea99bd", note_message[1]);
 	cl_git_pass(git_note_iterator_new(&iter, _repo, "refs/notes/beer"));
 
 	for (i = 0; (err = git_note_next(&note_id, &annotated_id, iter)) >= 0; ++i) {
@@ -385,6 +333,5 @@ void test_notes_notes__can_iterate_custom_namespace(void)
 void test_notes_notes__empty_iterate(void)
 {
 	git_note_iterator *iter;
-
 	cl_git_fail(git_note_iterator_new(&iter, _repo, "refs/notes/commits"));
 }

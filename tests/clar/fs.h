@@ -16,8 +16,8 @@ static int
 fs__dotordotdot(WCHAR *_tocheck)
 {
 	return _tocheck[0] == '.' &&
-		(_tocheck[1] == '\0' ||
-		 (_tocheck[1] == '.' && _tocheck[2] == '\0'));
+	       (_tocheck[1] == '\0' ||
+	        (_tocheck[1] == '.' && _tocheck[2] == '\0'));
 }
 
 static int
@@ -29,7 +29,7 @@ fs_rmdir_rmdir(WCHAR *_wpath)
 		/* Only retry when we have retries remaining, and the
 		 * error was ERROR_DIR_NOT_EMPTY. */
 		if (retries++ > RM_RETRY_COUNT ||
-			ERROR_DIR_NOT_EMPTY != GetLastError())
+		    ERROR_DIR_NOT_EMPTY != GetLastError())
 			return -1;
 
 		/* Give whatever has a handle to a child item some time
@@ -47,12 +47,10 @@ fs_rmdir_helper(WCHAR *_wsource)
 	HANDLE find_handle;
 	WIN32_FIND_DATAW find_data;
 	size_t buffer_prefix_len;
-
 	/* Set up the buffer and capture the length */
 	wcscpy_s(buffer, MAX_PATH, _wsource);
 	wcscat_s(buffer, MAX_PATH, L"\\");
 	buffer_prefix_len = wcslen(buffer);
-
 	/* FindFirstFile needs a wildcard to match multiple items */
 	wcscat_s(buffer, MAX_PATH, L"*");
 	find_handle = FindFirstFileW(buffer, &find_data);
@@ -75,15 +73,12 @@ fs_rmdir_helper(WCHAR *_wsource)
 
 			cl_assert(DeleteFileW(buffer));
 		}
-	}
-	while (FindNextFileW(find_handle, &find_data));
+	} while (FindNextFileW(find_handle, &find_data));
 
 	/* Ensure that we successfully completed the enumeration */
 	cl_assert(ERROR_NO_MORE_FILES == GetLastError());
-
 	/* Close the find handle */
 	FindClose(find_handle);
-
 	/* Now that the directory is empty, remove it */
 	cl_assert(0 == fs_rmdir_rmdir(_wsource));
 }
@@ -102,12 +97,11 @@ fs_rm_wait(WCHAR *_wpath)
 
 		/* Is the item gone? */
 		if (ERROR_FILE_NOT_FOUND == last_error ||
-			ERROR_PATH_NOT_FOUND == last_error)
+		    ERROR_PATH_NOT_FOUND == last_error)
 			return 0;
 
-		Sleep(RM_RETRY_DELAY * retries * retries);	
-	}
-	while (retries++ <= RM_RETRY_COUNT);
+		Sleep(RM_RETRY_DELAY * retries * retries);
+	} while (retries++ <= RM_RETRY_COUNT);
 
 	return -1;
 }
@@ -117,16 +111,14 @@ fs_rm(const char *_source)
 {
 	WCHAR wsource[MAX_PATH];
 	DWORD attrs;
-
 	/* The input path is UTF-8. Convert it to wide characters
 	 * for use with the Windows API */
 	cl_assert(MultiByteToWideChar(CP_UTF8,
-				MB_ERR_INVALID_CHARS,
-				_source,
-				-1, /* Indicates NULL termination */
-				wsource,
-				MAX_PATH));
-
+	                              MB_ERR_INVALID_CHARS,
+	                              _source,
+	                              -1, /* Indicates NULL termination */
+	                              wsource,
+	                              MAX_PATH));
 	/* Does the item exist? If not, we have no work to do */
 	attrs = GetFileAttributesW(wsource);
 
@@ -154,20 +146,16 @@ fs_copydir_helper(WCHAR *_wsource, WCHAR *_wdest)
 	HANDLE find_handle;
 	WIN32_FIND_DATAW find_data;
 	size_t buf_source_prefix_len, buf_dest_prefix_len;
-
 	wcscpy_s(buf_source, MAX_PATH, _wsource);
 	wcscat_s(buf_source, MAX_PATH, L"\\");
 	buf_source_prefix_len = wcslen(buf_source);
-
 	wcscpy_s(buf_dest, MAX_PATH, _wdest);
 	wcscat_s(buf_dest, MAX_PATH, L"\\");
 	buf_dest_prefix_len = wcslen(buf_dest);
-
 	/* Get an enumerator for the items in the source. */
 	wcscat_s(buf_source, MAX_PATH, L"*");
 	find_handle = FindFirstFileW(buf_source, &find_data);
 	cl_assert(INVALID_HANDLE_VALUE != find_handle);
-
 	/* Create the target directory. */
 	cl_assert(CreateDirectoryW(_wdest, NULL));
 
@@ -184,12 +172,10 @@ fs_copydir_helper(WCHAR *_wsource, WCHAR *_wdest)
 			fs_copydir_helper(buf_source, buf_dest);
 		else
 			cl_assert(CopyFileW(buf_source, buf_dest, TRUE));
-	}
-	while (FindNextFileW(find_handle, &find_data));
+	} while (FindNextFileW(find_handle, &find_data));
 
 	/* Ensure that we successfully completed the enumeration */
 	cl_assert(ERROR_NO_MORE_FILES == GetLastError());
-
 	/* Close the find handle */
 	FindClose(find_handle);
 }
@@ -201,27 +187,23 @@ fs_copy(const char *_source, const char *_dest)
 	DWORD source_attrs, dest_attrs;
 	HANDLE find_handle;
 	WIN32_FIND_DATAW find_data;
-
 	/* The input paths are UTF-8. Convert them to wide characters
 	 * for use with the Windows API. */
 	cl_assert(MultiByteToWideChar(CP_UTF8,
-				MB_ERR_INVALID_CHARS,
-				_source,
-				-1,
-				wsource,
-				MAX_PATH));
-
+	                              MB_ERR_INVALID_CHARS,
+	                              _source,
+	                              -1,
+	                              wsource,
+	                              MAX_PATH));
 	cl_assert(MultiByteToWideChar(CP_UTF8,
-				MB_ERR_INVALID_CHARS,
-				_dest,
-				-1,
-				wdest,
-				MAX_PATH));
-
+	                              MB_ERR_INVALID_CHARS,
+	                              _dest,
+	                              -1,
+	                              wdest,
+	                              MAX_PATH));
 	/* Check the source for existence */
 	source_attrs = GetFileAttributesW(wsource);
 	cl_assert(INVALID_FILE_ATTRIBUTES != source_attrs);
-
 	/* Check the target for existence */
 	dest_attrs = GetFileAttributesW(wdest);
 
@@ -233,7 +215,6 @@ fs_copy(const char *_source, const char *_dest)
 		wcscat_s(wdest, MAX_PATH, L"\\");
 		wcscat_s(wdest, MAX_PATH, find_data.cFileName);
 		FindClose(find_handle);
-
 		/* Check the new target for existence */
 		cl_assert(INVALID_FILE_ATTRIBUTES == GetFileAttributesW(wdest));
 	}
@@ -256,23 +237,21 @@ cl_fs_cleanup(void)
 #include <string.h>
 
 static int
-shell_out(char * const argv[])
+shell_out(char *const argv[])
 {
 	int status, piderr;
 	pid_t pid;
-
 	pid = fork();
 
 	if (pid < 0) {
 		fprintf(stderr,
-			"System error: `fork()` call failed (%d) - %s\n",
-			errno, strerror(errno));
+		        "System error: `fork()` call failed (%d) - %s\n",
+		        errno, strerror(errno));
 		exit(-1);
 	}
 
-	if (pid == 0) {
+	if (pid == 0)
 		execv(argv[0], argv);
-	}
 
 	do {
 		piderr = waitpid(pid, &status, WUNTRACED);
@@ -287,7 +266,6 @@ fs_copy(const char *_source, const char *dest)
 	char *argv[5];
 	char *source;
 	size_t source_len;
-
 	source = strdup(_source);
 	source_len = strlen(source);
 
@@ -299,12 +277,10 @@ fs_copy(const char *_source, const char *dest)
 	argv[2] = source;
 	argv[3] = (char *)dest;
 	argv[4] = NULL;
-
 	cl_must_pass_(
-		shell_out(argv),
-		"Failed to copy test fixtures to sandbox"
+	    shell_out(argv),
+	    "Failed to copy test fixtures to sandbox"
 	);
-
 	free(source);
 }
 
@@ -312,15 +288,13 @@ static void
 fs_rm(const char *source)
 {
 	char *argv[4];
-
 	argv[0] = "/bin/rm";
 	argv[1] = "-Rf";
 	argv[2] = (char *)source;
 	argv[3] = NULL;
-
 	cl_must_pass_(
-		shell_out(argv),
-		"Failed to cleanup the sandbox"
+	    shell_out(argv),
+	    "Failed to cleanup the sandbox"
 	);
 }
 

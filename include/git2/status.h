@@ -58,7 +58,7 @@ typedef enum {
  * `payload` is the value you passed to the foreach function as payload.
  */
 typedef int (*git_status_cb)(
-	const char *path, unsigned int status_flags, void *payload);
+    const char *path, unsigned int status_flags, void *payload);
 
 /**
  * Select the files on which to report status.
@@ -192,8 +192,8 @@ typedef struct {
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_status_init_options(
-	git_status_options *opts,
-	unsigned int version);
+    git_status_options *opts,
+    unsigned int version);
 
 /**
  * A status entry, providing the differences between the file as it exists
@@ -232,9 +232,9 @@ typedef struct {
  * @return 0 on success, non-zero callback return value, or error code
  */
 GIT_EXTERN(int) git_status_foreach(
-	git_repository *repo,
-	git_status_cb callback,
-	void *payload);
+    git_repository *repo,
+    git_status_cb callback,
+    void *payload);
 
 /**
  * Gather file status information and run callbacks as requested.
@@ -256,10 +256,10 @@ GIT_EXTERN(int) git_status_foreach(
  * @return 0 on success, non-zero callback return value, or error code
  */
 GIT_EXTERN(int) git_status_foreach_ext(
-	git_repository *repo,
-	const git_status_options *opts,
-	git_status_cb callback,
-	void *payload);
+    git_repository *repo,
+    const git_status_options *opts,
+    git_status_cb callback,
+    void *payload);
 
 /**
  * Get file status for a single file.
@@ -288,9 +288,9 @@ GIT_EXTERN(int) git_status_foreach_ext(
  *      or if it refers to a folder, and -1 on other errors.
  */
 GIT_EXTERN(int) git_status_file(
-	unsigned int *status_flags,
-	git_repository *repo,
-	const char *path);
+    unsigned int *status_flags,
+    git_repository *repo,
+    const char *path);
 
 /**
  * Gather file status information and populate the `git_status_list`.
@@ -306,9 +306,9 @@ GIT_EXTERN(int) git_status_file(
  * @return 0 on success or error code
  */
 GIT_EXTERN(int) git_status_list_new(
-	git_status_list **out,
-	git_repository *repo,
-	const git_status_options *opts);
+    git_status_list **out,
+    git_repository *repo,
+    const git_status_options *opts);
 
 /**
  * Gets the count of status entries in this list.
@@ -320,7 +320,7 @@ GIT_EXTERN(int) git_status_list_new(
  * @return the number of status entries
  */
 GIT_EXTERN(size_t) git_status_list_entrycount(
-	git_status_list *statuslist);
+    git_status_list *statuslist);
 
 /**
  * Get a pointer to one of the entries in the status list.
@@ -332,8 +332,8 @@ GIT_EXTERN(size_t) git_status_list_entrycount(
  * @return Pointer to the entry; NULL if out of bounds
  */
 GIT_EXTERN(const git_status_entry *) git_status_byindex(
-	git_status_list *statuslist,
-	size_t idx);
+    git_status_list *statuslist,
+    size_t idx);
 
 /**
  * Free an existing status list
@@ -341,7 +341,7 @@ GIT_EXTERN(const git_status_entry *) git_status_byindex(
  * @param statuslist Existing status list object
  */
 GIT_EXTERN(void) git_status_list_free(
-	git_status_list *statuslist);
+    git_status_list *statuslist);
 
 /**
  * Test if the ignore rules apply to a given file.
@@ -360,9 +360,9 @@ GIT_EXTERN(void) git_status_list_free(
  *         of whether it exists or not), or an error < 0 if they could not.
  */
 GIT_EXTERN(int) git_status_should_ignore(
-	int *ignored,
-	git_repository *repo,
-	const char *path);
+    int *ignored,
+    git_repository *repo,
+    const char *path);
 
 /** @} */
 GIT_END_DECL

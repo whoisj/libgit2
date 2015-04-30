@@ -35,7 +35,7 @@ GIT_BEGIN_DECL
  * @return 0 on success, GIT_ENOTFOUND, GIT_EAMBIGUOUS, GIT_EINVALIDSPEC or an error code
  */
 GIT_EXTERN(int) git_revparse_single(
-	git_object **out, git_repository *repo, const char *spec);
+    git_object **out, git_repository *repo, const char *spec);
 
 /**
  * Find a single object and intermediate reference by a revision string.
@@ -59,10 +59,10 @@ GIT_EXTERN(int) git_revparse_single(
  * or an error code
  */
 GIT_EXTERN(int) git_revparse_ext(
-	git_object **object_out,
-	git_reference **reference_out,
-	git_repository *repo,
-	const char *spec);
+    git_object **object_out,
+    git_reference **reference_out,
+    git_repository *repo,
+    const char *spec);
 
 /**
  * Revparse flags.  These indicate the intended behavior of the spec passed to
@@ -103,9 +103,9 @@ typedef struct {
  * @return 0 on success, GIT_INVALIDSPEC, GIT_ENOTFOUND, GIT_EAMBIGUOUS or an error code
  */
 GIT_EXTERN(int) git_revparse(
-	git_revspec *revspec,
-	git_repository *repo,
-	const char *spec);
+    git_revspec *revspec,
+    git_repository *repo,
+    const char *spec);
 
 
 /** @} */

@@ -58,8 +58,8 @@ typedef struct {
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_merge_file_init_input(
-	git_merge_file_input *opts,
-	unsigned int version);
+    git_merge_file_input *opts,
+    unsigned int version);
 
 /**
  * Flags for `git_merge_tree` options.  A combination of these flags can be
@@ -186,8 +186,8 @@ typedef struct {
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_merge_file_init_options(
-	git_merge_file_options *opts,
-	unsigned int version);
+    git_merge_file_options *opts,
+    unsigned int version);
 
 /**
  * Information about file-level merging
@@ -262,8 +262,8 @@ typedef struct {
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_merge_init_options(
-	git_merge_options *opts,
-	unsigned int version);
+    git_merge_options *opts,
+    unsigned int version);
 
 /**
  * The results of `git_merge_analysis` indicate the merge opportunities.
@@ -333,11 +333,11 @@ typedef enum {
  * @return 0 on success or error code
  */
 GIT_EXTERN(int) git_merge_analysis(
-	git_merge_analysis_t *analysis_out,
-	git_merge_preference_t *preference_out,
-	git_repository *repo,
-	const git_annotated_commit **their_heads,
-	size_t their_heads_len);
+    git_merge_analysis_t *analysis_out,
+    git_merge_preference_t *preference_out,
+    git_repository *repo,
+    const git_annotated_commit **their_heads,
+    size_t their_heads_len);
 
 /**
  * Find a merge base between two commits
@@ -349,10 +349,10 @@ GIT_EXTERN(int) git_merge_analysis(
  * @return 0 on success, GIT_ENOTFOUND if not found or error code
  */
 GIT_EXTERN(int) git_merge_base(
-	git_oid *out,
-	git_repository *repo,
-	const git_oid *one,
-	const git_oid *two);
+    git_oid *out,
+    git_repository *repo,
+    const git_oid *one,
+    const git_oid *two);
 
 /**
  * Find merge bases between two commits
@@ -364,10 +364,10 @@ GIT_EXTERN(int) git_merge_base(
  * @return 0 on success, GIT_ENOTFOUND if not found or error code
  */
 GIT_EXTERN(int) git_merge_bases(
-	git_oidarray *out,
-	git_repository *repo,
-	const git_oid *one,
-	const git_oid *two);
+    git_oidarray *out,
+    git_repository *repo,
+    const git_oid *one,
+    const git_oid *two);
 
 /**
  * Find a merge base given a list of commits
@@ -379,10 +379,10 @@ GIT_EXTERN(int) git_merge_bases(
  * @return Zero on success; GIT_ENOTFOUND or -1 on failure.
  */
 GIT_EXTERN(int) git_merge_base_many(
-	git_oid *out,
-	git_repository *repo,
-	size_t length,
-	const git_oid input_array[]);
+    git_oid *out,
+    git_repository *repo,
+    size_t length,
+    const git_oid input_array[]);
 
 /**
  * Find all merge bases given a list of commits
@@ -394,10 +394,10 @@ GIT_EXTERN(int) git_merge_base_many(
  * @return Zero on success; GIT_ENOTFOUND or -1 on failure.
  */
 GIT_EXTERN(int) git_merge_bases_many(
-	git_oidarray *out,
-	git_repository *repo,
-	size_t length,
-	const git_oid input_array[]);
+    git_oidarray *out,
+    git_repository *repo,
+    size_t length,
+    const git_oid input_array[]);
 
 /**
  * Find a merge base in preparation for an octopus merge
@@ -409,10 +409,10 @@ GIT_EXTERN(int) git_merge_bases_many(
  * @return Zero on success; GIT_ENOTFOUND or -1 on failure.
  */
 GIT_EXTERN(int) git_merge_base_octopus(
-	git_oid *out,
-	git_repository *repo,
-	size_t length,
-	const git_oid input_array[]);
+    git_oid *out,
+    git_repository *repo,
+    size_t length,
+    const git_oid input_array[]);
 
 /**
  * Merge two files as they exist in the in-memory data structures, using
@@ -431,11 +431,11 @@ GIT_EXTERN(int) git_merge_base_octopus(
  * @return 0 on success or error code
  */
 GIT_EXTERN(int) git_merge_file(
-	git_merge_file_result *out,
-	const git_merge_file_input *ancestor,
-	const git_merge_file_input *ours,
-	const git_merge_file_input *theirs,
-	const git_merge_file_options *opts);
+    git_merge_file_result *out,
+    const git_merge_file_input *ancestor,
+    const git_merge_file_input *ours,
+    const git_merge_file_input *theirs,
+    const git_merge_file_options *opts);
 
 /**
  * Merge two files as they exist in the index, using the given common
@@ -452,12 +452,12 @@ GIT_EXTERN(int) git_merge_file(
  * @return 0 on success or error code
  */
 GIT_EXTERN(int) git_merge_file_from_index(
-	git_merge_file_result *out,
-	git_repository *repo,
-	const git_index_entry *ancestor,
-	const git_index_entry *ours,
-	const git_index_entry *theirs,
-	const git_merge_file_options *opts);
+    git_merge_file_result *out,
+    git_repository *repo,
+    const git_index_entry *ancestor,
+    const git_index_entry *ours,
+    const git_index_entry *theirs,
+    const git_merge_file_options *opts);
 
 /**
  * Frees a `git_merge_file_result`.
@@ -483,12 +483,12 @@ GIT_EXTERN(void) git_merge_file_result_free(git_merge_file_result *result);
  * @return 0 on success or error code
  */
 GIT_EXTERN(int) git_merge_trees(
-	git_index **out,
-	git_repository *repo,
-	const git_tree *ancestor_tree,
-	const git_tree *our_tree,
-	const git_tree *their_tree,
-	const git_merge_options *opts);
+    git_index **out,
+    git_repository *repo,
+    const git_tree *ancestor_tree,
+    const git_tree *our_tree,
+    const git_tree *their_tree,
+    const git_merge_options *opts);
 
 /**
  * Merge two commits, producing a `git_index` that reflects the result of
@@ -510,11 +510,11 @@ GIT_EXTERN(int) git_merge_trees(
  * @return 0 on success or error code
  */
 GIT_EXTERN(int) git_merge_commits(
-	git_index **out,
-	git_repository *repo,
-	const git_commit *our_commit,
-	const git_commit *their_commit,
-	const git_merge_options *opts);
+    git_index **out,
+    git_repository *repo,
+    const git_commit *our_commit,
+    const git_commit *their_commit,
+    const git_merge_options *opts);
 
 /**
  * Merges the given commit(s) into HEAD, writing the results into the working
@@ -539,11 +539,11 @@ GIT_EXTERN(int) git_merge_commits(
  * @return 0 on success or error code
  */
 GIT_EXTERN(int) git_merge(
-	git_repository *repo,
-	const git_annotated_commit **their_heads,
-	size_t their_heads_len,
-	const git_merge_options *merge_opts,
-	const git_checkout_options *checkout_opts);
+    git_repository *repo,
+    const git_annotated_commit **their_heads,
+    size_t their_heads_len,
+    const git_merge_options *merge_opts,
+    const git_checkout_options *checkout_opts);
 
 /** @} */
 GIT_END_DECL

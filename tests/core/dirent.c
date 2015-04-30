@@ -19,16 +19,13 @@ static walk_data *state_loc;
 static void setup(walk_data *d)
 {
 	name_data *n;
-
 	cl_must_pass(p_mkdir(top_dir, 0777));
-
 	cl_must_pass(p_chdir(top_dir));
 
 	if (strcmp(d->sub, ".") != 0)
 		cl_must_pass(p_mkdir(d->sub, 0777));
 
 	cl_git_pass(git_buf_sets(&d->path, d->sub));
-
 	state_loc = d;
 
 	for (n = d->names; n->name; n++) {
@@ -44,17 +41,14 @@ static void dirent_cleanup__cb(void *_d)
 	walk_data *d = _d;
 	name_data *n;
 
-	for (n = d->names; n->name; n++) {
+	for (n = d->names; n->name; n++)
 		cl_must_pass(p_unlink(n->name));
-	}
 
 	if (strcmp(d->sub, ".") != 0)
 		cl_must_pass(p_rmdir(d->sub));
 
 	cl_must_pass(p_chdir(".."));
-
 	cl_must_pass(p_rmdir(top_dir));
-
 	git_buf_free(&d->path);
 }
 
@@ -62,9 +56,8 @@ static void check_counts(walk_data *d)
 {
 	name_data *n;
 
-	for (n = d->names; n->name; n++) {
+	for (n = d->names; n->name; n++)
 		cl_assert(n->count == 1);
-	}
 }
 
 static int one_entry(void *state, git_buf *path)
@@ -106,9 +99,7 @@ void test_core_dirent__dont_traverse_dot(void)
 {
 	cl_set_cleanup(&dirent_cleanup__cb, &dot);
 	setup(&dot);
-
 	cl_git_pass(git_path_direach(&dot.path, 0, one_entry, &dot));
-
 	check_counts(&dot);
 }
 
@@ -130,9 +121,7 @@ void test_core_dirent__traverse_subfolder(void)
 {
 	cl_set_cleanup(&dirent_cleanup__cb, &sub);
 	setup(&sub);
-
 	cl_git_pass(git_path_direach(&sub.path, 0, one_entry, &sub));
-
 	check_counts(&sub);
 }
 
@@ -148,9 +137,7 @@ void test_core_dirent__traverse_slash_terminated_folder(void)
 {
 	cl_set_cleanup(&dirent_cleanup__cb, &sub_slash);
 	setup(&sub_slash);
-
 	cl_git_pass(git_path_direach(&sub_slash.path, 0, one_entry, &sub_slash));
-
 	check_counts(&sub_slash);
 }
 
@@ -169,11 +156,8 @@ void test_core_dirent__dont_traverse_empty_folders(void)
 {
 	cl_set_cleanup(&dirent_cleanup__cb, &empty);
 	setup(&empty);
-
 	cl_git_pass(git_path_direach(&empty.path, 0, one_entry, &empty));
-
 	check_counts(&empty);
-
 	/* make sure callback not called */
 	cl_assert(git_path_is_empty_dir(empty.path.ptr));
 }
@@ -197,9 +181,7 @@ void test_core_dirent__traverse_weird_filenames(void)
 {
 	cl_set_cleanup(&dirent_cleanup__cb, &odd);
 	setup(&odd);
-
 	cl_git_pass(git_path_direach(&odd.path, 0, one_entry, &odd));
-
 	check_counts(&odd);
 }
 
@@ -209,9 +191,7 @@ void test_core_dirent__length_limits(void)
 	char *big_filename = (char *)git__malloc(FILENAME_MAX + 1);
 	memset(big_filename, 'a', FILENAME_MAX + 1);
 	big_filename[FILENAME_MAX] = 0;
-
 	cl_must_fail(p_creat(big_filename, 0666));
-
 	git__free(big_filename);
 }
 
@@ -219,18 +199,13 @@ void test_core_dirent__empty_dir(void)
 {
 	cl_must_pass(p_mkdir("empty_dir", 0777));
 	cl_assert(git_path_is_empty_dir("empty_dir"));
-
 	cl_git_mkfile("empty_dir/content", "whatever\n");
 	cl_assert(!git_path_is_empty_dir("empty_dir"));
 	cl_assert(!git_path_is_empty_dir("empty_dir/content"));
-
 	cl_must_pass(p_unlink("empty_dir/content"));
-
 	cl_must_pass(p_mkdir("empty_dir/content", 0777));
 	cl_assert(!git_path_is_empty_dir("empty_dir"));
 	cl_assert(git_path_is_empty_dir("empty_dir/content"));
-
 	cl_must_pass(p_rmdir("empty_dir/content"));
-
 	cl_must_pass(p_rmdir("empty_dir"));
 }

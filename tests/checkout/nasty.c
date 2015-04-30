@@ -13,7 +13,6 @@ static git_checkout_options checkout_opts;
 void test_checkout_nasty__initialize(void)
 {
 	repo = cl_git_sandbox_init(repo_name);
-
 	GIT_INIT_STRUCTURE(&checkout_opts, GIT_CHECKOUT_OPTIONS_VERSION);
 	checkout_opts.checkout_strategy = GIT_CHECKOUT_FORCE;
 }
@@ -29,18 +28,13 @@ static void test_checkout_passes(const char *refname, const char *filename)
 	git_commit *commit;
 	git_checkout_options opts = GIT_CHECKOUT_OPTIONS_INIT;
 	git_buf path = GIT_BUF_INIT;
-
 	cl_git_pass(git_buf_joinpath(&path, repo_name, filename));
-
 	cl_git_pass(git_reference_name_to_id(&commit_id, repo, refname));
 	cl_git_pass(git_commit_lookup(&commit, repo, &commit_id));
-
 	opts.checkout_strategy = GIT_CHECKOUT_FORCE |
-		GIT_CHECKOUT_DONT_UPDATE_INDEX;
-
+	                         GIT_CHECKOUT_DONT_UPDATE_INDEX;
 	cl_git_pass(git_checkout_tree(repo, (const git_object *)commit, &opts));
 	cl_assert(!git_path_exists(path.ptr));
-
 	git_commit_free(commit);
 	git_buf_free(&path);
 }
@@ -51,17 +45,12 @@ static void test_checkout_fails(const char *refname, const char *filename)
 	git_commit *commit;
 	git_checkout_options opts = GIT_CHECKOUT_OPTIONS_INIT;
 	git_buf path = GIT_BUF_INIT;
-
 	cl_git_pass(git_buf_joinpath(&path, repo_name, filename));
-
 	cl_git_pass(git_reference_name_to_id(&commit_id, repo, refname));
 	cl_git_pass(git_commit_lookup(&commit, repo, &commit_id));
-
 	opts.checkout_strategy = GIT_CHECKOUT_FORCE;
-
 	cl_git_fail(git_checkout_tree(repo, (const git_object *)commit, &opts));
 	cl_assert(!git_path_exists(path.ptr));
-
 	git_commit_free(commit);
 	git_buf_free(&path);
 }
@@ -217,11 +206,12 @@ void test_checkout_nasty__git_tilde1(void)
 void test_checkout_nasty__git_custom_shortname(void)
 {
 #ifdef GIT_WIN32
+
 	if (!cl_sandbox_supports_8dot3())
 		clar__skip();
 
 	cl_must_pass(p_rename("nasty/.git", "nasty/_temp"));
-	cl_git_write2file("nasty/git~1", "", 0, O_RDWR|O_CREAT, 0666);
+	cl_git_write2file("nasty/git~1", "", 0, O_RDWR | O_CREAT, 0666);
 	cl_must_pass(p_rename("nasty/_temp", "nasty/.git"));
 	test_checkout_fails("refs/heads/git_tilde2", ".git/foobar");
 #endif
@@ -237,19 +227,14 @@ void test_checkout_nasty__only_looks_like_a_git_shortname(void)
 	git_oid commit_id;
 	git_commit *commit;
 	git_checkout_options opts = GIT_CHECKOUT_OPTIONS_INIT;
-
 	cl_must_pass(p_rename("nasty/.git", "nasty/_temp"));
-	cl_git_write2file("nasty/git~1", "", 0, O_RDWR|O_CREAT, 0666);
+	cl_git_write2file("nasty/git~1", "", 0, O_RDWR | O_CREAT, 0666);
 	cl_must_pass(p_rename("nasty/_temp", "nasty/.git"));
-
 	cl_git_pass(git_reference_name_to_id(&commit_id, repo, "refs/heads/git_tilde3"));
 	cl_git_pass(git_commit_lookup(&commit, repo, &commit_id));
-
 	opts.checkout_strategy = GIT_CHECKOUT_FORCE;
-
 	cl_git_pass(git_checkout_tree(repo, (const git_object *)commit, &opts));
 	cl_assert(git_path_exists("nasty/git~3/foobar"));
-
 	git_commit_free(commit);
 #endif
 }
@@ -320,7 +305,6 @@ void test_checkout_nasty__dot_git_hfs_ignorable(void)
 void test_checkout_nasty__honors_core_protecthfs(void)
 {
 	cl_repo_set_bool(repo, "core.protectHFS", true);
-
 	test_checkout_fails("refs/heads/dotgit_hfs_ignorable_1", ".git/foobar");
 	test_checkout_fails("refs/heads/dotgit_hfs_ignorable_2", ".git/foobar");
 	test_checkout_fails("refs/heads/dotgit_hfs_ignorable_3", ".git/foobar");
@@ -342,7 +326,6 @@ void test_checkout_nasty__honors_core_protecthfs(void)
 void test_checkout_nasty__honors_core_protectntfs(void)
 {
 	cl_repo_set_bool(repo, "core.protectNTFS", true);
-
 	test_checkout_fails("refs/heads/dotgit_backslash_path", ".git/foobar");
 	test_checkout_fails("refs/heads/dotcapitalgit_backslash_path", ".GIT/foobar");
 	test_checkout_fails("refs/heads/dot_git_dot", ".git/foobar");

@@ -16,10 +16,10 @@ struct attr_expected {
 };
 
 GIT_INLINE(void) attr_check_expected(
-	enum attr_expect_t expected,
-	const char *expected_str,
-	const char *name,
-	const char *value)
+    enum attr_expect_t expected,
+    const char *expected_str,
+    const char *name,
+    const char *value)
 {
 	switch (expected) {
 	case EXPECT_TRUE:

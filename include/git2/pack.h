@@ -162,11 +162,11 @@ GIT_EXTERN(int) git_packbuilder_write_buf(git_buf *buf, git_packbuilder *pb);
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_packbuilder_write(
-	git_packbuilder *pb,
-	const char *path,
-	unsigned int mode,
-	git_transfer_progress_cb progress_cb,
-	void *progress_cb_payload);
+    git_packbuilder *pb,
+    const char *path,
+    unsigned int mode,
+    git_transfer_progress_cb progress_cb,
+    void *progress_cb_payload);
 
 /**
 * Get the packfile's hash
@@ -208,10 +208,10 @@ GIT_EXTERN(uint32_t) git_packbuilder_written(git_packbuilder *pb);
 
 /** Packbuilder progress notification function */
 typedef int (*git_packbuilder_progress)(
-	int stage,
-	unsigned int current,
-	unsigned int total,
-	void *payload);
+    int stage,
+    unsigned int current,
+    unsigned int total,
+    void *payload);
 
 /**
  * Set the callbacks for a packbuilder
@@ -224,9 +224,9 @@ typedef int (*git_packbuilder_progress)(
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_packbuilder_set_callbacks(
-	git_packbuilder *pb,
-	git_packbuilder_progress progress_cb,
-	void *progress_cb_payload);
+    git_packbuilder *pb,
+    git_packbuilder_progress progress_cb,
+    void *progress_cb_payload);
 
 /**
  * Free the packbuilder and all associated data

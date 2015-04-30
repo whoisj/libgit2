@@ -26,17 +26,12 @@ void record_callbacks_data_clear(record_callbacks_data *data)
 	size_t i;
 	updated_tip *tip;
 	push_status *status;
-
 	git_vector_foreach(&data->updated_tips, i, tip)
-		updated_tip_free(tip);
-
+	updated_tip_free(tip);
 	git_vector_free(&data->updated_tips);
-
 	git_vector_foreach(&data->statuses, i, status)
-		push_status_free(status);
-
+	push_status_free(status);
 	git_vector_free(&data->statuses);
-
 	data->pack_progress_calls = 0;
 	data->transfer_progress_calls = 0;
 }
@@ -45,18 +40,13 @@ int record_update_tips_cb(const char *refname, const git_oid *a, const git_oid *
 {
 	updated_tip *t;
 	record_callbacks_data *record_data = (record_callbacks_data *)data;
-
 	cl_assert(t = git__malloc(sizeof(*t)));
-
 	cl_assert(t->name = git__strdup(refname));
 	cl_assert(t->old_oid = git__malloc(sizeof(*t->old_oid)));
 	git_oid_cpy(t->old_oid, a);
-
 	cl_assert(t->new_oid = git__malloc(sizeof(*t->new_oid)));
 	git_oid_cpy(t->new_oid, b);
-
 	git_vector_insert(&record_data->updated_tips, t);
-
 	return 0;
 }
 
@@ -67,6 +57,7 @@ int create_deletion_refspecs(git_vector *out, const git_remote_head **heads, siz
 
 	for (i = 0; i < heads_len; i++) {
 		const git_remote_head *head = heads[i];
+
 		/* Ignore malformed ref names (which also saves us from tag^{} */
 		if (!git_reference_is_valid_name(head->name))
 			return 0;
@@ -99,6 +90,7 @@ void verify_remote_refs(const git_remote_head *actual_refs[], size_t actual_refs
 	/* We don't care whether "master" is present on the other end or not */
 	for (i = 0; i < actual_refs_len; i++) {
 		actual = actual_refs[i];
+
 		if (!strcmp(actual->name, "refs/heads/master")) {
 			master_present = true;
 			break;
@@ -110,29 +102,31 @@ void verify_remote_refs(const git_remote_head *actual_refs[], size_t actual_refs
 
 	for (i = 0; i < actual_refs_len; i++) {
 		actual = actual_refs[i];
+
 		if (master_present && !strcmp(actual->name, "refs/heads/master"))
 			continue;
 
 		if (strcmp(expected_refs[j].name, actual->name) ||
-			git_oid_cmp(expected_refs[j].oid, &actual->oid))
+		    git_oid_cmp(expected_refs[j].oid, &actual->oid))
 			goto failed;
 
 		j++;
 	}
 
 	return;
-
 failed:
 	git_buf_puts(&msg, "Expected and actual refs differ:\nEXPECTED:\n");
 
-	for(i = 0; i < expected_refs_len; i++) {
+	for (i = 0; i < expected_refs_len; i++) {
 		oid_str = git_oid_tostr_s(expected_refs[i].oid);
 		cl_git_pass(git_buf_printf(&msg, "%s = %s\n", expected_refs[i].name, oid_str));
 	}
 
 	git_buf_puts(&msg, "\nACTUAL:\n");
+
 	for (i = 0; i < actual_refs_len; i++) {
 		actual = actual_refs[i];
+
 		if (master_present && !strcmp(actual->name, "refs/heads/master"))
 			continue;
 
@@ -141,6 +135,5 @@ failed:
 	}
 
 	cl_fail(git_buf_cstr(&msg));
-
 	git_buf_free(&msg);
 }

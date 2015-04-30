@@ -88,12 +88,12 @@ typedef struct git_filter_list git_filter_list;
  *         needed for the requested file), <0 on error
  */
 GIT_EXTERN(int) git_filter_list_load(
-	git_filter_list **filters,
-	git_repository *repo,
-	git_blob *blob, /* can be NULL */
-	const char *path,
-	git_filter_mode_t mode,
-	uint32_t flags);
+    git_filter_list **filters,
+    git_repository *repo,
+    git_blob *blob, /* can be NULL */
+    const char *path,
+    git_filter_mode_t mode,
+    uint32_t flags);
 
 /**
  * Apply filter list to a data buffer.
@@ -116,42 +116,42 @@ GIT_EXTERN(int) git_filter_list_load(
  * @return 0 on success, an error code otherwise
  */
 GIT_EXTERN(int) git_filter_list_apply_to_data(
-	git_buf *out,
-	git_filter_list *filters,
-	git_buf *in);
+    git_buf *out,
+    git_filter_list *filters,
+    git_buf *in);
 
 /**
  * Apply filter list to the contents of a file on disk
  */
 GIT_EXTERN(int) git_filter_list_apply_to_file(
-	git_buf *out,
-	git_filter_list *filters,
-	git_repository *repo,
-	const char *path);
+    git_buf *out,
+    git_filter_list *filters,
+    git_repository *repo,
+    const char *path);
 
 /**
  * Apply filter list to the contents of a blob
  */
 GIT_EXTERN(int) git_filter_list_apply_to_blob(
-	git_buf *out,
-	git_filter_list *filters,
-	git_blob *blob);
+    git_buf *out,
+    git_filter_list *filters,
+    git_blob *blob);
 
 GIT_EXTERN(int) git_filter_list_stream_data(
-	git_filter_list *filters,
-	git_buf *data,
-	git_writestream *target);
+    git_filter_list *filters,
+    git_buf *data,
+    git_writestream *target);
 
 GIT_EXTERN(int) git_filter_list_stream_file(
-	git_filter_list *filters,
-	git_repository *repo,
-	const char *path,
-	git_writestream *target);
+    git_filter_list *filters,
+    git_repository *repo,
+    const char *path,
+    git_writestream *target);
 
 GIT_EXTERN(int) git_filter_list_stream_blob(
-	git_filter_list *filters,
-	git_blob *blob,
-	git_writestream *target);
+    git_filter_list *filters,
+    git_blob *blob,
+    git_writestream *target);
 
 /**
  * Free a git_filter_list

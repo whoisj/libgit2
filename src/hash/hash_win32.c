@@ -29,20 +29,20 @@ GIT_INLINE(int) hash_cng_prov_init(void)
 
 	/* Load bcrypt.dll explicitly from the system directory */
 	if ((dll_path_len = GetSystemDirectory(dll_path, MAX_PATH)) == 0 ||
-		dll_path_len > MAX_PATH ||
-		StringCchCat(dll_path, MAX_PATH, "\\") < 0 ||
-		StringCchCat(dll_path, MAX_PATH, GIT_HASH_CNG_DLL_NAME) < 0 ||
-		(hash_prov.prov.cng.dll = LoadLibrary(dll_path)) == NULL)
+	    dll_path_len > MAX_PATH ||
+	    StringCchCat(dll_path, MAX_PATH, "\\") < 0 ||
+	    StringCchCat(dll_path, MAX_PATH, GIT_HASH_CNG_DLL_NAME) < 0 ||
+	    (hash_prov.prov.cng.dll = LoadLibrary(dll_path)) == NULL)
 		return -1;
 
 	/* Load the function addresses */
 	if ((hash_prov.prov.cng.open_algorithm_provider = (hash_win32_cng_open_algorithm_provider_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptOpenAlgorithmProvider")) == NULL ||
-		(hash_prov.prov.cng.get_property = (hash_win32_cng_get_property_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptGetProperty")) == NULL ||
-		(hash_prov.prov.cng.create_hash = (hash_win32_cng_create_hash_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptCreateHash")) == NULL ||
-		(hash_prov.prov.cng.finish_hash = (hash_win32_cng_finish_hash_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptFinishHash")) == NULL ||
-		(hash_prov.prov.cng.hash_data = (hash_win32_cng_hash_data_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptHashData")) == NULL ||
-		(hash_prov.prov.cng.destroy_hash = (hash_win32_cng_destroy_hash_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptDestroyHash")) == NULL ||
-		(hash_prov.prov.cng.close_algorithm_provider = (hash_win32_cng_close_algorithm_provider_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptCloseAlgorithmProvider")) == NULL) {
+	    (hash_prov.prov.cng.get_property = (hash_win32_cng_get_property_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptGetProperty")) == NULL ||
+	    (hash_prov.prov.cng.create_hash = (hash_win32_cng_create_hash_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptCreateHash")) == NULL ||
+	    (hash_prov.prov.cng.finish_hash = (hash_win32_cng_finish_hash_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptFinishHash")) == NULL ||
+	    (hash_prov.prov.cng.hash_data = (hash_win32_cng_hash_data_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptHashData")) == NULL ||
+	    (hash_prov.prov.cng.destroy_hash = (hash_win32_cng_destroy_hash_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptDestroyHash")) == NULL ||
+	    (hash_prov.prov.cng.close_algorithm_provider = (hash_win32_cng_close_algorithm_provider_fn)GetProcAddress(hash_prov.prov.cng.dll, "BCryptCloseAlgorithmProvider")) == NULL) {
 		FreeLibrary(hash_prov.prov.cng.dll);
 		return -1;
 	}
@@ -68,7 +68,6 @@ GIT_INLINE(void) hash_cng_prov_shutdown(void)
 {
 	hash_prov.prov.cng.close_algorithm_provider(hash_prov.prov.cng.handle, 0);
 	FreeLibrary(hash_prov.prov.cng.dll);
-
 	hash_prov.type = INVALID;
 }
 
@@ -85,7 +84,6 @@ GIT_INLINE(int) hash_cryptoapi_prov_init()
 GIT_INLINE(void) hash_cryptoapi_prov_shutdown(void)
 {
 	CryptReleaseContext(hash_prov.prov.cryptoapi.handle, 0);
-
 	hash_prov.type = INVALID;
 }
 
@@ -93,7 +91,7 @@ static void git_hash_global_shutdown(void)
 {
 	if (hash_prov.type == CNG)
 		hash_cng_prov_shutdown();
-	else if(hash_prov.type == CRYPTOAPI)
+	else if (hash_prov.type == CRYPTOAPI)
 		hash_cryptoapi_prov_shutdown();
 }
 
@@ -108,7 +106,6 @@ int git_hash_global_init(void)
 		error = hash_cryptoapi_prov_init();
 
 	git__on_shutdown(git_hash_global_shutdown);
-
 	return error;
 }
 
@@ -118,7 +115,6 @@ GIT_INLINE(int) hash_ctx_cryptoapi_init(git_hash_ctx *ctx)
 {
 	ctx->type = CRYPTOAPI;
 	ctx->prov = &hash_prov;
-
 	return git_hash_init(ctx);
 }
 
@@ -150,7 +146,6 @@ GIT_INLINE(int) hash_cryptoapi_final(git_oid *out, git_hash_ctx *ctx)
 {
 	DWORD len = 20;
 	int error = 0;
-
 	assert(ctx->ctx.cryptoapi.valid);
 
 	if (!CryptGetHashParam(ctx->ctx.cryptoapi.hash_handle, HP_HASHVAL, out->id, &len, 0))
@@ -158,7 +153,6 @@ GIT_INLINE(int) hash_cryptoapi_final(git_oid *out, git_hash_ctx *ctx)
 
 	CryptDestroyHash(ctx->ctx.cryptoapi.hash_handle);
 	ctx->ctx.cryptoapi.valid = 0;
-
 	return error;
 }
 
@@ -182,7 +176,6 @@ GIT_INLINE(int) hash_ctx_cng_init(git_hash_ctx *ctx)
 
 	ctx->type = CNG;
 	ctx->prov = &hash_prov;
-
 	return 0;
 }
 
@@ -198,7 +191,6 @@ GIT_INLINE(int) hash_cng_init(git_hash_ctx *ctx)
 		return -1;
 
 	ctx->ctx.cng.updated = 0;
-
 	return 0;
 }
 
@@ -216,7 +208,6 @@ GIT_INLINE(int) hash_cng_final(git_oid *out, git_hash_ctx *ctx)
 		return -1;
 
 	ctx->ctx.cng.updated = 0;
-
 	return 0;
 }
 
@@ -231,7 +222,6 @@ GIT_INLINE(void) hash_ctx_cng_cleanup(git_hash_ctx *ctx)
 int git_hash_ctx_init(git_hash_ctx *ctx)
 {
 	int error = 0;
-
 	assert(ctx);
 
 	/*
@@ -243,7 +233,6 @@ int git_hash_ctx_init(git_hash_ctx *ctx)
 		return error;
 
 	memset(ctx, 0x0, sizeof(git_hash_ctx));
-
 	return (hash_prov.type == CNG) ? hash_ctx_cng_init(ctx) : hash_ctx_cryptoapi_init(ctx);
 }
 
@@ -271,6 +260,6 @@ void git_hash_ctx_cleanup(git_hash_ctx *ctx)
 
 	if (ctx->type == CNG)
 		hash_ctx_cng_cleanup(ctx);
-	else if(ctx->type == CRYPTOAPI)
+	else if (ctx->type == CRYPTOAPI)
 		hash_ctx_cryptoapi_cleanup(ctx);
 }

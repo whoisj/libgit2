@@ -74,12 +74,12 @@
  * "hi" is higher than the entry it is looking for.
  */
 int sha1_entry_pos(const void *table,
-			size_t elem_size,
-			size_t key_offset,
-			unsigned lo, unsigned hi, unsigned nr,
-			const unsigned char *key)
+                   size_t elem_size,
+                   size_t key_offset,
+                   unsigned lo, unsigned hi, unsigned nr,
+                   const unsigned char *key)
 {
-	const unsigned char *base = (const unsigned char*)table;
+	const unsigned char *base = (const unsigned char *)table;
 	const unsigned char *hi_key, *lo_key;
 	unsigned ofs_0;
 
@@ -90,21 +90,24 @@ int sha1_entry_pos(const void *table,
 		hi_key = NULL;
 	else
 		hi_key = base + elem_size * hi + key_offset;
-	lo_key = base + elem_size * lo + key_offset;
 
+	lo_key = base + elem_size * lo + key_offset;
 	ofs_0 = 0;
+
 	do {
 		int cmp;
 		unsigned ofs, mi, range;
 		unsigned lov, hiv, kyv;
 		const unsigned char *mi_key;
-
 		range = hi - lo;
+
 		if (hi_key) {
 			for (ofs = ofs_0; ofs < 20; ofs++)
 				if (lo_key[ofs] != hi_key[ofs])
 					break;
+
 			ofs_0 = ofs;
+
 			/*
 			 * byte 0 thru (ofs-1) are the same between
 			 * lo and hi; ofs is the first byte that is
@@ -149,8 +152,10 @@ int sha1_entry_pos(const void *table,
 				mi = lo;
 				mi_key = base + elem_size * mi + key_offset;
 				cmp = memcmp(mi_key, key, 20);
+
 				if (!cmp)
 					return mi;
+
 				if (cmp < 0)
 					return -1 - hi;
 				else
@@ -158,23 +163,29 @@ int sha1_entry_pos(const void *table,
 			}
 
 			hiv = hi_key[ofs_0];
+
 			if (ofs_0 < 19)
-				hiv = (hiv << 8) | hi_key[ofs_0+1];
+				hiv = (hiv << 8) | hi_key[ofs_0 + 1];
 		} else {
 			hiv = 256;
+
 			if (ofs_0 < 19)
 				hiv <<= 8;
 		}
+
 		lov = lo_key[ofs_0];
 		kyv = key[ofs_0];
+
 		if (ofs_0 < 19) {
-			lov = (lov << 8) | lo_key[ofs_0+1];
-			kyv = (kyv << 8) | key[ofs_0+1];
+			lov = (lov << 8) | lo_key[ofs_0 + 1];
+			kyv = (kyv << 8) | key[ofs_0 + 1];
 		}
+
 		assert(lov < hiv);
 
 		if (kyv < lov)
 			return -1 - lo;
+
 		if (hiv < kyv)
 			return -1 - hi;
 
@@ -191,18 +202,19 @@ int sha1_entry_pos(const void *table,
 		 * middle than we would otherwise pick.
 		 */
 		kyv = (kyv * 6 + lov + hiv) / 8;
+
 		if (lov < hiv - 1) {
 			if (kyv == lov)
 				kyv++;
 			else if (kyv == hiv)
 				kyv--;
 		}
-		mi = (range - 1) * (kyv - lov) / (hiv - lov) + lo;
 
+		mi = (range - 1) * (kyv - lov) / (hiv - lov) + lo;
 #ifdef INDEX_DEBUG_LOOKUP
 		printf("lo %u hi %u rg %u mi %u ", lo, hi, range, mi);
 		printf("ofs %u lov %x, hiv %x, kyv %x\n",
-				ofs_0, lov, hiv, kyv);
+		       ofs_0, lov, hiv, kyv);
 #endif
 
 		if (!(lo <= mi && mi < hi)) {
@@ -212,8 +224,10 @@ int sha1_entry_pos(const void *table,
 
 		mi_key = base + elem_size * mi + key_offset;
 		cmp = memcmp(mi_key + ofs_0, key + ofs_0, 20 - ofs_0);
+
 		if (!cmp)
 			return mi;
+
 		if (cmp > 0) {
 			hi = mi;
 			hi_key = mi_key;
@@ -222,13 +236,14 @@ int sha1_entry_pos(const void *table,
 			lo_key = mi_key + elem_size;
 		}
 	} while (lo < hi);
-	return -((int)lo)-1;
+
+	return -((int)lo) - 1;
 }
 
 int sha1_position(const void *table,
-			size_t stride,
-			unsigned lo, unsigned hi,
-			const unsigned char *key)
+                  size_t stride,
+                  unsigned lo, unsigned hi,
+                  const unsigned char *key)
 {
 	const unsigned char *base = table;
 
@@ -242,8 +257,8 @@ int sha1_position(const void *table,
 		if (cmp > 0)
 			hi = mi;
 		else
-			lo = mi+1;
+			lo = mi + 1;
 	} while (lo < hi);
 
-	return -((int)lo)-1;
+	return -((int)lo) - 1;
 }

@@ -7,7 +7,6 @@ void test_core_init__returns_count(void)
 	 */
 	cl_assert_equal_i(2, git_libgit2_init());
 	cl_assert_equal_i(3, git_libgit2_init());
-
 	cl_assert_equal_i(2, git_libgit2_shutdown());
 	cl_assert_equal_i(1, git_libgit2_shutdown());
 }

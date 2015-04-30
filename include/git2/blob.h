@@ -122,10 +122,10 @@ GIT_EXTERN(git_off_t) git_blob_rawsize(const git_blob *blob);
  * @return 0 on success or an error code
  */
 GIT_EXTERN(int) git_blob_filtered_content(
-	git_buf *out,
-	git_blob *blob,
-	const char *as_path,
-	int check_for_binary_data);
+    git_buf *out,
+    git_blob *blob,
+    const char *as_path,
+    int check_for_binary_data);
 
 /**
  * Read a file from the working folder of a repository
@@ -187,11 +187,11 @@ typedef int (*git_blob_chunk_cb)(char *content, size_t max_length, void *payload
  * @return 0 or error code (from either libgit2 or callback function)
  */
 GIT_EXTERN(int) git_blob_create_fromchunks(
-	git_oid *id,
-	git_repository *repo,
-	const char *hintpath,
-	git_blob_chunk_cb callback,
-	void *payload);
+    git_oid *id,
+    git_repository *repo,
+    const char *hintpath,
+    git_blob_chunk_cb callback,
+    void *payload);
 
 /**
  * Write an in-memory buffer to the ODB as a blob
@@ -203,7 +203,7 @@ GIT_EXTERN(int) git_blob_create_fromchunks(
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_blob_create_frombuffer(
-	git_oid *id, git_repository *repo, const void *buffer, size_t len);
+    git_oid *id, git_repository *repo, const void *buffer, size_t len);
 
 /**
  * Determine if the blob content is most certainly binary or not.

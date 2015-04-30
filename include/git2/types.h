@@ -191,14 +191,14 @@ typedef enum {
 	GIT_REF_INVALID = 0, /**< Invalid reference */
 	GIT_REF_OID = 1, /**< A reference which points at an object id */
 	GIT_REF_SYMBOLIC = 2, /**< A reference which points at another reference */
-	GIT_REF_LISTALL = GIT_REF_OID|GIT_REF_SYMBOLIC,
+	GIT_REF_LISTALL = GIT_REF_OID | GIT_REF_SYMBOLIC,
 } git_ref_t;
 
 /** Basic type of any Git branch. */
 typedef enum {
 	GIT_BRANCH_LOCAL = 1,
 	GIT_BRANCH_REMOTE = 2,
-	GIT_BRANCH_ALL = GIT_BRANCH_LOCAL|GIT_BRANCH_REMOTE,
+	GIT_BRANCH_ALL = GIT_BRANCH_LOCAL | GIT_BRANCH_REMOTE,
 } git_branch_t;
 
 /** Valid modes for index and tree entries. */
@@ -277,15 +277,15 @@ typedef int (*git_transport_message_cb)(const char *str, int len, void *payload)
  * Type of host certificate structure that is passed to the check callback
  */
 typedef enum git_cert_t {
-        /**
-         * The `data` argument to the callback will be a pointer to
-         * the DER-encoded data.
-         */
+	/**
+	 * The `data` argument to the callback will be a pointer to
+	 * the DER-encoded data.
+	 */
 	GIT_CERT_X509,
-        /**
-         * The `data` argument to the callback will be a pointer to a
-         * `git_cert_hostkey` structure.
-         */
+	/**
+	 * The `data` argument to the callback will be a pointer to a
+	 * `git_cert_hostkey` structure.
+	 */
 	GIT_CERT_HOSTKEY_LIBSSH2,
 } git_cert_t;
 

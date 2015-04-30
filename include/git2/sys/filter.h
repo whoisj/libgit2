@@ -55,10 +55,10 @@ GIT_EXTERN(git_filter *) git_filter_lookup(const char *name);
  * your own chains of filters.
  */
 GIT_EXTERN(int) git_filter_list_new(
-	git_filter_list **out,
-	git_repository *repo,
-	git_filter_mode_t mode,
-	uint32_t options);
+    git_filter_list **out,
+    git_repository *repo,
+    git_filter_mode_t mode,
+    uint32_t options);
 
 /**
  * Add a filter to a filter list with the given payload.
@@ -74,7 +74,7 @@ GIT_EXTERN(int) git_filter_list_new(
  * may fail with a NULL payload.  Good luck!
  */
 GIT_EXTERN(int) git_filter_list_push(
-	git_filter_list *fl, git_filter *filter, void *payload);
+    git_filter_list *fl, git_filter *filter, void *payload);
 
 /**
  * Look up how many filters are in the list
@@ -184,10 +184,10 @@ typedef void (*git_filter_shutdown_fn)(git_filter *self);
  * `payload`, it will need a `cleanup` callback to free the payload.
  */
 typedef int (*git_filter_check_fn)(
-	git_filter  *self,
-	void       **payload, /* points to NULL ptr on entry, may be set */
-	const git_filter_source *src,
-	const char **attr_values);
+    git_filter  *self,
+    void       **payload, /* points to NULL ptr on entry, may be set */
+    const git_filter_source *src,
+    const char **attr_values);
 
 /**
  * Callback to actually perform the data filtering
@@ -202,18 +202,18 @@ typedef int (*git_filter_check_fn)(
  * `check` callback.  It may be read from or written to as needed.
  */
 typedef int (*git_filter_apply_fn)(
-	git_filter    *self,
-	void         **payload, /* may be read and/or set */
-	git_buf       *to,
-	const git_buf *from,
-	const git_filter_source *src);
+    git_filter    *self,
+    void         **payload, /* may be read and/or set */
+    git_buf       *to,
+    const git_buf *from,
+    const git_filter_source *src);
 
 typedef int (*git_filter_stream_fn)(
-	git_writestream **out,
-	git_filter *self,
-	void **payload,
-	const git_filter_source *src,
-	git_writestream *next);
+    git_writestream **out,
+    git_filter *self,
+    void **payload,
+    const git_filter_source *src,
+    git_writestream *next);
 
 /**
  * Callback to clean up after filtering has been applied
@@ -224,8 +224,8 @@ typedef int (*git_filter_stream_fn)(
  * callback to free that payload and release resources as required.
  */
 typedef void (*git_filter_cleanup_fn)(
-	git_filter *self,
-	void       *payload);
+    git_filter *self,
+    void       *payload);
 
 /**
  * Filter structure used to register custom filters.
@@ -287,7 +287,7 @@ struct git_filter {
  * @return 0 on successful registry, error code <0 on failure
  */
 GIT_EXTERN(int) git_filter_register(
-	const char *name, git_filter *filter, int priority);
+    const char *name, git_filter *filter, int priority);
 
 /**
  * Remove the filter with the given name

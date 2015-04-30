@@ -58,11 +58,13 @@ int p_ftruncate(int fd, git_off_t size)
 #if !defined(__MINGW32__) || defined(MINGW_HAS_SECURE_API)
 	return ((_chsize_s(fd, size) == 0) ? 0 : -1);
 #else
+
 	/* TODO MINGW32 Find a replacement for _chsize() that handles big files. */
 	if (size > INT32_MAX) {
 		errno = EFBIG;
 		return -1;
 	}
+
 	return _chsize(fd, (long)size);
 #endif
 }
@@ -70,7 +72,6 @@ int p_ftruncate(int fd, git_off_t size)
 int p_mkdir(const char *path, mode_t mode)
 {
 	git_win32_path buf;
-
 	GIT_UNUSED(mode);
 
 	if (git_win32_path_from_utf8(buf, path) < 0)
@@ -146,8 +147,8 @@ static bool path_is_volume(wchar_t *target, size_t target_len)
 /* On success, returns the length, in characters, of the path stored in dest.
  * On failure, returns a negative value. */
 static int readlink_w(
-	git_win32_path dest,
-	const git_win32_path path)
+    git_win32_path dest,
+    const git_win32_path path)
 {
 	BYTE buf[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
 	GIT_REPARSE_DATA_BUFFER *reparse_buf = (GIT_REPARSE_DATA_BUFFER *)buf;
@@ -155,12 +156,10 @@ static int readlink_w(
 	DWORD ioctl_ret;
 	wchar_t *target;
 	size_t target_len;
-
 	int error = -1;
-
 	handle = CreateFileW(path, GENERIC_READ,
-		FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
-		FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS, NULL);
+	                     FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
+	                     FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS, NULL);
 
 	if (handle == INVALID_HANDLE_VALUE) {
 		errno = ENOENT;
@@ -168,7 +167,7 @@ static int readlink_w(
 	}
 
 	if (!DeviceIoControl(handle, FSCTL_GET_REPARSE_POINT, NULL, 0,
-		reparse_buf, sizeof(buf), &ioctl_ret, NULL)) {
+	                     reparse_buf, sizeof(buf), &ioctl_ret, NULL)) {
 		errno = EINVAL;
 		goto on_error;
 	}
@@ -176,14 +175,16 @@ static int readlink_w(
 	switch (reparse_buf->ReparseTag) {
 	case IO_REPARSE_TAG_SYMLINK:
 		target = reparse_buf->SymbolicLinkReparseBuffer.PathBuffer +
-			(reparse_buf->SymbolicLinkReparseBuffer.SubstituteNameOffset / sizeof(WCHAR));
+		         (reparse_buf->SymbolicLinkReparseBuffer.SubstituteNameOffset / sizeof(WCHAR));
 		target_len = reparse_buf->SymbolicLinkReparseBuffer.SubstituteNameLength / sizeof(WCHAR);
 		break;
+
 	case IO_REPARSE_TAG_MOUNT_POINT:
 		target = reparse_buf->MountPointReparseBuffer.PathBuffer +
-			(reparse_buf->MountPointReparseBuffer.SubstituteNameOffset / sizeof(WCHAR));
+		         (reparse_buf->MountPointReparseBuffer.SubstituteNameOffset / sizeof(WCHAR));
 		target_len = reparse_buf->MountPointReparseBuffer.SubstituteNameLength / sizeof(WCHAR);
 		break;
+
 	default:
 		errno = EINVAL;
 		goto on_error;
@@ -215,9 +216,9 @@ on_error:
 #define WIN32_IS_WSEP(CH) ((CH) == L'/' || (CH) == L'\\')
 
 static int lstat_w(
-	wchar_t *path,
-	struct stat *buf,
-	bool posix_enotdir)
+    wchar_t *path,
+    struct stat *buf,
+    bool posix_enotdir)
 {
 	WIN32_FILE_ATTRIBUTE_DATA fdata;
 
@@ -286,6 +287,7 @@ static int lstat_w(
 			if (attrs != INVALID_FILE_ATTRIBUTES) {
 				if (!(attrs & FILE_ATTRIBUTE_DIRECTORY))
 					errno = ENOTDIR;
+
 				break;
 			}
 		}
@@ -303,7 +305,6 @@ static int do_lstat(const char *path, struct stat *buf, bool posixly_correct)
 		return -1;
 
 	git_win32__path_trim_end(path_w, len);
-
 	return lstat_w(path_w, buf, posixly_correct);
 }
 
@@ -331,13 +332,12 @@ int p_readlink(const char *path, char *buf, size_t bufsiz)
 	 * we need to buffer the result on the stack. */
 
 	if (git_win32_path_from_utf8(path_w, path) < 0 ||
-		readlink_w(target_w, path_w) < 0 ||
-		(len = git_win32_path_to_utf8(target, target_w)) < 0)
+	    readlink_w(target_w, path_w) < 0 ||
+	    (len = git_win32_path_to_utf8(target, target_w)) < 0)
 		return -1;
 
 	bufsiz = min((size_t)len, bufsiz);
 	memcpy(buf, target, bufsiz);
-
 	return (int)bufsiz;
 }
 
@@ -359,7 +359,6 @@ int p_open(const char *path, int flags, ...)
 
 	if (flags & O_CREAT) {
 		va_list arg_list;
-
 		va_start(arg_list, flags);
 		mode = (mode_t)va_arg(arg_list, int);
 		va_end(arg_list);
@@ -376,8 +375,8 @@ int p_creat(const char *path, mode_t mode)
 		return -1;
 
 	return _wopen(buf,
-		_O_WRONLY | _O_CREAT | _O_TRUNC | STANDARD_OPEN_FLAGS,
-		mode & WIN32_MODE_MASK);
+	              _O_WRONLY | _O_CREAT | _O_TRUNC | STANDARD_OPEN_FLAGS,
+	              mode & WIN32_MODE_MASK);
 }
 
 int p_getcwd(char *buffer_out, size_t size)
@@ -422,13 +421,12 @@ static PFGetFinalPathNameByHandleW get_fpnbyhandle(void)
 	}
 
 	assert(toReturn);
-
 	return toReturn;
 }
 
 static int getfinalpath_w(
-	git_win32_path dest,
-	const wchar_t *path)
+    git_win32_path dest,
+    const wchar_t *path)
 {
 	PFGetFinalPathNameByHandleW pgfp = get_fpnbyhandle();
 	HANDLE hFile;
@@ -441,7 +439,7 @@ static int getfinalpath_w(
 	* specify FILE_FLAG_OPEN_REPARSE_POINT; we want to open a handle to the
 	* target of the link. */
 	hFile = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE,
-		NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+	                    NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 
 	if (INVALID_HANDLE_VALUE == hFile)
 		return -1;
@@ -457,7 +455,7 @@ static int getfinalpath_w(
 	return (int)git_win32__canonicalize_path(dest, dwChars);
 }
 
-static int follow_and_lstat_link(git_win32_path path, struct stat* buf)
+static int follow_and_lstat_link(git_win32_path path, struct stat *buf)
 {
 	git_win32_path target_w;
 
@@ -467,13 +465,13 @@ static int follow_and_lstat_link(git_win32_path path, struct stat* buf)
 	return lstat_w(target_w, buf, false);
 }
 
-int p_stat(const char* path, struct stat* buf)
+int p_stat(const char *path, struct stat *buf)
 {
 	git_win32_path path_w;
 	int len;
 
 	if ((len = git_win32_path_from_utf8(path_w, path)) < 0 ||
-		lstat_w(path_w, buf, false) < 0)
+	    lstat_w(path_w, buf, false) < 0)
 		return -1;
 
 	/* The item is a symbolic link or mount point. No need to iterate
@@ -484,7 +482,7 @@ int p_stat(const char* path, struct stat* buf)
 	return 0;
 }
 
-int p_chdir(const char* path)
+int p_chdir(const char *path)
 {
 	git_win32_path buf;
 
@@ -494,7 +492,7 @@ int p_chdir(const char* path)
 	return _wchdir(buf);
 }
 
-int p_chmod(const char* path, mode_t mode)
+int p_chmod(const char *path, mode_t mode)
 {
 	git_win32_path buf;
 
@@ -504,7 +502,7 @@ int p_chmod(const char* path, mode_t mode)
 	return _wchmod(buf, mode);
 }
 
-int p_rmdir(const char* path)
+int p_rmdir(const char *path)
 {
 	git_win32_path buf;
 	int error;
@@ -516,18 +514,18 @@ int p_rmdir(const char* path)
 
 	if (error == -1) {
 		switch (GetLastError()) {
-			/* _wrmdir() is documented to return EACCES if "A program has an open
-			 * handle to the directory."  This sounds like what everybody else calls
-			 * EBUSY.  Let's convert appropriate error codes.
-			 */
-			case ERROR_SHARING_VIOLATION:
-				errno = EBUSY;
-				break;
+		/* _wrmdir() is documented to return EACCES if "A program has an open
+		 * handle to the directory."  This sounds like what everybody else calls
+		 * EBUSY.  Let's convert appropriate error codes.
+		 */
+		case ERROR_SHARING_VIOLATION:
+			errno = EBUSY;
+			break;
 
-			/* This error can be returned when trying to rmdir an extant file. */
-			case ERROR_DIRECTORY:
-				errno = ENOTDIR;
-				break;
+		/* This error can be returned when trying to rmdir an extant file. */
+		case ERROR_DIRECTORY:
+			errno = ENOTDIR;
+			break;
 		}
 	}
 
@@ -571,7 +569,6 @@ char *p_realpath(const char *orig_path, char *buffer)
 		return NULL;
 
 	git_path_mkposix(buffer);
-
 	return buffer;
 }
 
@@ -583,11 +580,11 @@ int p_vsnprintf(char *buffer, size_t count, const char *format, va_list argptr)
 	if (count == 0)
 		return _vscprintf(format, argptr);
 
-	#if _MSC_VER >= 1500
+#if _MSC_VER >= 1500
 	len = _vsnprintf_s(buffer, count, _TRUNCATE, format, argptr);
-	#else
+#else
 	len = _vsnprintf(buffer, count, format, argptr);
-	#endif
+#endif
 
 	if (len < 0)
 		return _vscprintf(format, argptr);
@@ -602,11 +599,9 @@ int p_snprintf(char *buffer, size_t count, const char *format, ...)
 {
 	va_list va;
 	int r;
-
 	va_start(va, format);
 	r = p_vsnprintf(buffer, count, format, va);
 	va_end(va);
-
 	return r;
 }
 
@@ -614,17 +609,20 @@ int p_snprintf(char *buffer, size_t count, const char *format, ...)
 int p_mkstemp(char *tmp_path)
 {
 #if defined(_MSC_VER) && _MSC_VER >= 1500
+
 	if (_mktemp_s(tmp_path, strlen(tmp_path) + 1) != 0)
 		return -1;
+
 #else
+
 	if (_mktemp(tmp_path) == NULL)
 		return -1;
-#endif
 
+#endif
 	return p_open(tmp_path, O_RDWR | O_CREAT | O_EXCL, 0744); //-V536
 }
 
-int p_access(const char* path, mode_t mode)
+int p_access(const char *path, mode_t mode)
 {
 	git_win32_path buf;
 
@@ -637,8 +635,8 @@ int p_access(const char* path, mode_t mode)
 static int ensure_writable(wchar_t *fpath)
 {
 	DWORD attrs;
-
 	attrs = GetFileAttributesW(fpath);
+
 	if (attrs == INVALID_FILE_ATTRIBUTES) {
 		if (GetLastError() == ERROR_FILE_NOT_FOUND)
 			return 0;
@@ -651,6 +649,7 @@ static int ensure_writable(wchar_t *fpath)
 		return 0;
 
 	attrs &= ~FILE_ATTRIBUTE_READONLY;
+
 	if (!SetFileAttributesW(fpath, attrs)) {
 		giterr_set(GITERR_OS, "failed to set attributes");
 		return -1;
@@ -668,27 +667,29 @@ int p_rename(const char *from, const char *to)
 	int error;
 
 	if (git_win32_path_from_utf8(wfrom, from) < 0 ||
-		git_win32_path_from_utf8(wto, to) < 0)
+	    git_win32_path_from_utf8(wto, to) < 0)
 		return -1;
 
 	/* wait up to 50ms if file is locked by another thread or process */
 	rename_tries = 0;
 	rename_succeeded = 0;
+
 	while (rename_tries < 10) {
 		if (ensure_writable(wto) == 0 &&
 		    MoveFileExW(wfrom, wto, MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED) != 0) {
 			rename_succeeded = 1;
 			break;
 		}
-		
+
 		error = GetLastError();
+
 		if (error == ERROR_SHARING_VIOLATION || error == ERROR_ACCESS_DENIED) {
 			Sleep(5);
 			rename_tries++;
 		} else
 			break;
 	}
-	
+
 	return rename_succeeded ? 0 : -1;
 }
 
@@ -760,12 +761,14 @@ int p_inet_pton(int af, const char *src, void *dst)
 		return 1;
 	}
 
-	switch(WSAGetLastError()) {
+	switch (WSAGetLastError()) {
 	case WSAEINVAL:
 		return 0;
+
 	case WSAEFAULT:
 		errno = ENOSPC;
 		return -1;
+
 	case WSA_NOT_ENOUGH_MEMORY:
 		errno = ENOMEM;
 		return -1;

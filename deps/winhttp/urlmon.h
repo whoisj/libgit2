@@ -12,8 +12,7 @@
 
 typedef struct IInternetSecurityManager IInternetSecurityManager;
 
-typedef struct IInternetSecurityManagerVtbl
-{
+typedef struct IInternetSecurityManagerVtbl {
 	HRESULT(STDMETHODCALLTYPE *QueryInterface)(IInternetSecurityManager *, REFIID, void **);
 	ULONG(STDMETHODCALLTYPE *AddRef)(IInternetSecurityManager *);
 	ULONG(STDMETHODCALLTYPE *Release)(IInternetSecurityManager *);
@@ -27,8 +26,7 @@ typedef struct IInternetSecurityManagerVtbl
 	LPVOID GetZoneMappings;
 } IInternetSecurityManagerVtbl;
 
-struct IInternetSecurityManager
-{
+struct IInternetSecurityManager {
 	CONST_VTBL struct IInternetSecurityManagerVtbl *lpVtbl;
 };
 

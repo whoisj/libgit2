@@ -21,7 +21,6 @@ int git_tls_stream_new(git_stream **out, const char *host, const char *port)
 	GIT_UNUSED(out);
 	GIT_UNUSED(host);
 	GIT_UNUSED(port);
-
 	giterr_set(GITERR_SSL, "there is no TLS stream available");
 	return -1;
 #endif

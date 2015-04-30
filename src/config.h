@@ -27,9 +27,9 @@ struct git_config {
 extern int git_config__global_location(git_buf *buf);
 
 extern int git_config_rename_section(
-	git_repository *repo,
-	const char *old_section_name,	/* eg "branch.dummy" */
-	const char *new_section_name);	/* NULL to drop the old section */
+    git_repository *repo,
+    const char *old_section_name,	/* eg "branch.dummy" */
+    const char *new_section_name);	/* NULL to drop the old section */
 
 /**
  * Create a configuration file backend for ondisk files
@@ -48,18 +48,18 @@ extern int git_config__normalize_name(const char *in, char **out);
 
 /* internal only: does not normalize key and sets out to NULL if not found */
 extern int git_config__lookup_entry(
-	git_config_entry **out,
-	const git_config *cfg,
-	const char *key,
-	bool no_errors);
+    git_config_entry **out,
+    const git_config *cfg,
+    const char *key,
+    bool no_errors);
 
 /* internal only: update and/or delete entry string with constraints */
 extern int git_config__update_entry(
-	git_config *cfg,
-	const char *key,
-	const char *value,
-	bool overwrite_existing,
-	bool only_if_existing);
+    git_config *cfg,
+    const char *key,
+    const char *value,
+    bool overwrite_existing,
+    bool only_if_existing);
 
 /*
  * Lookup functions that cannot fail.  These functions look up a config
@@ -68,18 +68,18 @@ extern int git_config__update_entry(
  */
 
 extern char *git_config__get_string_force(
-	const git_config *cfg, const char *key, const char *fallback_value);
+    const git_config *cfg, const char *key, const char *fallback_value);
 
 extern int git_config__get_bool_force(
-	const git_config *cfg, const char *key, int fallback_value);
+    const git_config *cfg, const char *key, int fallback_value);
 
 extern int git_config__get_int_force(
-	const git_config *cfg, const char *key, int fallback_value);
+    const git_config *cfg, const char *key, int fallback_value);
 
 /* API for repository cvar-style lookups from config - not cached, but
  * uses cvar value maps and fallbacks
  */
 extern int git_config__cvar(
-	int *out, git_config *config, git_cvar_cached cvar);
+    int *out, git_config *config, git_cvar_cached cvar);
 
 #endif

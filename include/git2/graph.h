@@ -46,9 +46,9 @@ GIT_EXTERN(int) git_graph_ahead_behind(size_t *ahead, size_t *behind, git_reposi
  * 0 if not, error code otherwise.
  */
 GIT_EXTERN(int) git_graph_descendant_of(
-	git_repository *repo,
-	const git_oid *commit,
-	const git_oid *ancestor);
+    git_repository *repo,
+    const git_oid *commit,
+    const git_oid *ancestor);
 
 /** @} */
 GIT_END_DECL

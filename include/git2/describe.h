@@ -118,9 +118,9 @@ typedef struct git_describe_result git_describe_result;
  * @param opts the lookup options
  */
 GIT_EXTERN(int) git_describe_commit(
-	git_describe_result **result,
-	git_object *committish,
-	git_describe_options *opts);
+    git_describe_result **result,
+    git_object *committish,
+    git_describe_options *opts);
 
 /**
  * Describe a commit
@@ -135,9 +135,9 @@ GIT_EXTERN(int) git_describe_commit(
  * @param opts the lookup options
  */
 GIT_EXTERN(int) git_describe_workdir(
-	git_describe_result **out,
-	git_repository *repo,
-	git_describe_options *opts);
+    git_describe_result **out,
+    git_repository *repo,
+    git_describe_options *opts);
 
 /**
  * Print the describe result to a buffer
@@ -148,9 +148,9 @@ GIT_EXTERN(int) git_describe_workdir(
  * @param opts the formatting options
  */
 GIT_EXTERN(int) git_describe_format(
-	git_buf *out,
-	const git_describe_result *result,
-	const git_describe_format_options *opts);
+    git_buf *out,
+    const git_describe_result *result,
+    const git_describe_format_options *opts);
 
 /**
  * Free the describe result.

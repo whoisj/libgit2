@@ -7,10 +7,10 @@
 #include "buf_text.h"
 
 int git_buf_text_puts_escaped(
-	git_buf *buf,
-	const char *string,
-	const char *esc_chars,
-	const char *esc_with)
+    git_buf *buf,
+    const char *string,
+    const char *esc_chars,
+    const char *esc_with)
 {
 	const char *scan;
 	size_t total = 0, esc_len = strlen(esc_with), count, alloclen;
@@ -30,12 +30,12 @@ int git_buf_text_puts_escaped(
 	}
 
 	GITERR_CHECK_ALLOC_ADD(&alloclen, total, 1);
+
 	if (git_buf_grow_by(buf, alloclen) < 0)
 		return -1;
 
 	for (scan = string; *scan; ) {
 		count = strcspn(scan, esc_chars);
-
 		memmove(buf->ptr + buf->size, scan, count);
 		scan += count;
 		buf->size += count;
@@ -52,7 +52,6 @@ int git_buf_text_puts_escaped(
 	}
 
 	buf->ptr[buf->size] = '\0';
-
 	return 0;
 }
 
@@ -68,7 +67,6 @@ int git_buf_text_crlf_to_lf(git_buf *tgt, const git_buf *src)
 	const char *next = memchr(scan, '\r', src->size);
 	size_t new_size;
 	char *out;
-
 	assert(tgt != src);
 
 	if (!next)
@@ -76,6 +74,7 @@ int git_buf_text_crlf_to_lf(git_buf *tgt, const git_buf *src)
 
 	/* reduce reallocs while in the loop */
 	GITERR_CHECK_ALLOC_ADD(&new_size, src->size, 1);
+
 	if (git_buf_grow(tgt, new_size) < 0)
 		return -1;
 
@@ -104,7 +103,6 @@ int git_buf_text_crlf_to_lf(git_buf *tgt, const git_buf *src)
 
 	tgt->size = (size_t)(out - tgt->ptr);
 	tgt->ptr[tgt->size] = '\0';
-
 	return 0;
 }
 
@@ -115,7 +113,6 @@ int git_buf_text_lf_to_crlf(git_buf *tgt, const git_buf *src)
 	const char *scan = start;
 	const char *next = memchr(scan, '\n', src->size);
 	size_t alloclen;
-
 	assert(tgt != src);
 
 	if (!next)
@@ -124,8 +121,10 @@ int git_buf_text_lf_to_crlf(git_buf *tgt, const git_buf *src)
 	/* attempt to reduce reallocs while in the loop */
 	GITERR_CHECK_ALLOC_ADD(&alloclen, src->size, src->size >> 4);
 	GITERR_CHECK_ALLOC_ADD(&alloclen, alloclen, 1);
+
 	if (git_buf_grow(tgt, alloclen) < 0)
 		return -1;
+
 	tgt->size = 0;
 
 	for (; next; scan = next + 1, next = memchr(scan, '\n', end - scan)) {
@@ -138,6 +137,7 @@ int git_buf_text_lf_to_crlf(git_buf *tgt, const git_buf *src)
 		}
 
 		GITERR_CHECK_ALLOC_ADD(&alloclen, copylen, 3);
+
 		if (git_buf_grow_by(tgt, alloclen) < 0)
 			return -1;
 
@@ -158,7 +158,6 @@ int git_buf_text_common_prefix(git_buf *buf, const git_strarray *strings)
 {
 	size_t i;
 	const char *str, *pfx;
-
 	git_buf_clear(buf);
 
 	if (!strings || !strings->count)
@@ -170,9 +169,8 @@ int git_buf_text_common_prefix(git_buf *buf, const git_strarray *strings)
 
 	/* go through the rest of the strings, truncating to shared prefix */
 	for (i = 1; i < strings->count; ++i) {
-
 		for (str = strings->strings[i], pfx = buf->ptr;
-			 *str && *str == *pfx; str++, pfx++)
+		     *str && *str == *pfx; str++, pfx++)
 			/* scanning */;
 
 		git_buf_truncate(buf, pfx - buf->ptr);
@@ -189,7 +187,6 @@ bool git_buf_text_is_binary(const git_buf *buf)
 	const char *scan = buf->ptr, *end = buf->ptr + buf->size;
 	git_bom_t bom;
 	int printable = 0, nonprintable = 0;
-
 	scan += git_buf_text_detect_bom(&bom, buf, 0);
 
 	if (bom > GIT_BOM_UTF8)
@@ -221,8 +218,8 @@ int git_buf_text_detect_bom(git_bom_t *bom, const git_buf *buf, size_t offset)
 {
 	const char *ptr;
 	size_t len;
-
 	*bom = GIT_BOM_NONE;
+
 	/* need at least 2 bytes after offset to look for any BOM */
 	if (buf->size < offset + 2)
 		return 0;
@@ -236,22 +233,29 @@ int git_buf_text_detect_bom(git_bom_t *bom, const git_buf *buf, size_t offset)
 			*bom = GIT_BOM_UTF32_BE;
 			return 4;
 		}
+
 		break;
+
 	case '\xEF':
 		if (len >= 3 && ptr[0] == '\xBB' && ptr[1] == '\xBF') {
 			*bom = GIT_BOM_UTF8;
 			return 3;
 		}
+
 		break;
+
 	case '\xFE':
 		if (*ptr == '\xFF') {
 			*bom = GIT_BOM_UTF16_BE;
 			return 2;
 		}
+
 		break;
+
 	case '\xFF':
 		if (*ptr != '\xFE')
 			break;
+
 		if (len >= 4 && ptr[1] == 0 && ptr[2] == 0) {
 			*bom = GIT_BOM_UTF32_LE;
 			return 4;
@@ -259,7 +263,9 @@ int git_buf_text_detect_bom(git_bom_t *bom, const git_buf *buf, size_t offset)
 			*bom = GIT_BOM_UTF16_LE;
 			return 2;
 		}
+
 		break;
+
 	default:
 		break;
 	}
@@ -268,15 +274,14 @@ int git_buf_text_detect_bom(git_bom_t *bom, const git_buf *buf, size_t offset)
 }
 
 bool git_buf_text_gather_stats(
-	git_buf_text_stats *stats, const git_buf *buf, bool skip_bom)
+    git_buf_text_stats *stats, const git_buf *buf, bool skip_bom)
 {
 	const char *scan = buf->ptr, *end = buf->ptr + buf->size;
 	int skip;
-
 	memset(stats, 0, sizeof(*stats));
-
 	/* BOM detection */
 	skip = git_buf_text_detect_bom(&stats->bom, buf, 0);
+
 	if (skip_bom)
 		scan += skip;
 
@@ -295,17 +300,27 @@ bool git_buf_text_gather_stats(
 				stats->nul++;
 				stats->nonprintable++;
 				break;
+
 			case '\n':
 				stats->lf++;
 				break;
+
 			case '\r':
 				stats->cr++;
+
 				if (scan < end && *scan == '\n')
 					stats->crlf++;
+
 				break;
-			case '\t': case '\f': case '\v': case '\b': case 0x1b: /*ESC*/
+
+			case '\t':
+			case '\f':
+			case '\v':
+			case '\b':
+			case 0x1b: /*ESC*/
 				stats->printable++;
 				break;
+
 			default:
 				stats->nonprintable++;
 				break;
@@ -313,5 +328,5 @@ bool git_buf_text_gather_stats(
 	}
 
 	return (stats->nul > 0 ||
-		((stats->printable >> 7) < stats->nonprintable));
+	        ((stats->printable >> 7) < stats->nonprintable));
 }

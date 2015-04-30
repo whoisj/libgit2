@@ -1,7 +1,6 @@
 #if defined(GIT_WIN32)
 
-struct perf__timer
-{
+struct perf__timer {
 	LARGE_INTEGER sum;
 	LARGE_INTEGER time_started;
 };
@@ -10,8 +9,7 @@ struct perf__timer
 
 #else
 
-struct perf__timer
-{
+struct perf__timer {
 	uint32_t sum;
 	uint32_t time_started;
 };

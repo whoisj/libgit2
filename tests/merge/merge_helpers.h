@@ -49,7 +49,7 @@
 
 struct merge_index_entry {
 	uint16_t mode;
-	char oid_str[GIT_OID_HEXSZ+1];
+	char oid_str[GIT_OID_HEXSZ + 1];
 	int stage;
 	char path[128];
 };
@@ -70,9 +70,9 @@ struct merge_reuc_entry {
 	unsigned int ancestor_mode;
 	unsigned int our_mode;
 	unsigned int their_mode;
-	char ancestor_oid_str[GIT_OID_HEXSZ+1];
-	char our_oid_str[GIT_OID_HEXSZ+1];
-	char their_oid_str[GIT_OID_HEXSZ+1];
+	char ancestor_oid_str[GIT_OID_HEXSZ + 1];
+	char our_oid_str[GIT_OID_HEXSZ + 1];
+	char their_oid_str[GIT_OID_HEXSZ + 1];
 };
 
 struct merge_index_conflict_data {
@@ -83,18 +83,18 @@ struct merge_index_conflict_data {
 };
 
 int merge_trees_from_branches(
-	git_index **index, git_repository *repo,
-	const char *ours_name, const char *theirs_name,
-	git_merge_options *opts);
+    git_index **index, git_repository *repo,
+    const char *ours_name, const char *theirs_name,
+    git_merge_options *opts);
 
 int merge_commits_from_branches(
-	git_index **index, git_repository *repo,
-	const char *ours_name, const char *theirs_name,
-	git_merge_options *opts);
+    git_index **index, git_repository *repo,
+    const char *ours_name, const char *theirs_name,
+    git_merge_options *opts);
 
 int merge_branches(git_repository *repo,
-	const char *ours_branch, const char *theirs_branch,
-	git_merge_options *merge_opts, git_checkout_options *checkout_opts);
+                   const char *ours_branch, const char *theirs_branch,
+                   git_merge_options *merge_opts, git_checkout_options *checkout_opts);
 
 int merge_test_diff_list(git_merge_diff_list *diff_list, const struct merge_index_entry expected[], size_t expected_len);
 

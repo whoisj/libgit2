@@ -14,9 +14,8 @@ static void *run_workdir_iterator(void *arg)
 	int error = 0;
 	git_iterator *iter;
 	const git_index_entry *entry = NULL;
-
 	cl_git_pass(git_iterator_for_workdir(
-		&iter, _repo, NULL, NULL, GIT_ITERATOR_DONT_AUTOEXPAND, NULL, NULL));
+	                &iter, _repo, NULL, NULL, GIT_ITERATOR_DONT_AUTOEXPAND, NULL, NULL));
 
 	while (!error) {
 		if (entry && entry->mode == GIT_FILEMODE_TREE) {
@@ -24,16 +23,14 @@ static void *run_workdir_iterator(void *arg)
 
 			if (error == GIT_ENOTFOUND)
 				error = git_iterator_advance(&entry, iter);
-		} else {
+		} else
 			error = git_iterator_advance(&entry, iter);
-		}
 
 		if (!error)
 			(void)git_iterator_current_is_ignored(iter);
 	}
 
 	cl_assert_equal_i(GIT_ITEROVER, error);
-
 	git_iterator_free(iter);
 	giterr_clear();
 	return arg;
@@ -43,7 +40,6 @@ static void *run_workdir_iterator(void *arg)
 void test_threads_iterator__workdir(void)
 {
 	_repo = cl_git_sandbox_init("status");
-
 	run_in_parallel(
-		1, 20, run_workdir_iterator, NULL, NULL);
+	    1, 20, run_workdir_iterator, NULL, NULL);
 }

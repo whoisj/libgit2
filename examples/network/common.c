@@ -15,20 +15,17 @@
 #endif
 
 int cred_acquire_cb(git_cred **out,
-		const char * UNUSED(url),
-		const char * UNUSED(username_from_url),
-		unsigned int UNUSED(allowed_types),
-		void * UNUSED(payload))
+                    const char *UNUSED(url),
+                    const char *UNUSED(username_from_url),
+                    unsigned int UNUSED(allowed_types),
+                    void *UNUSED(payload))
 {
 	char username[128] = {0};
 	char password[128] = {0};
-
 	printf("Username: ");
 	scanf("%s", username);
-
 	/* Yup. Right there on your terminal. Careful where you copy/paste output. */
 	printf("Password: ");
 	scanf("%s", password);
-
 	return git_cred_userpass_plaintext_new(out, username, password);
 }

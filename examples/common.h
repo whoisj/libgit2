@@ -49,11 +49,11 @@ struct args_info {
 /**
  * Check current `args` entry against `opt` string.  If it matches
  * exactly, take the next arg as a string; if it matches as a prefix with
- * an equal sign, take the remainder as a string; if value not supplied, 
+ * an equal sign, take the remainder as a string; if value not supplied,
  * default value `def` will be given. otherwise return 0.
  */
 extern int optional_str_arg(
-	const char **out, struct args_info *args, const char *opt, const char *def);
+    const char **out, struct args_info *args, const char *opt, const char *def);
 
 /**
  * Check current `args` entry against `opt` string.  If it matches
@@ -61,7 +61,7 @@ extern int optional_str_arg(
  * an equal sign, take the remainder as a string; otherwise return 0.
  */
 extern int match_str_arg(
-	const char **out, struct args_info *args, const char *opt);
+    const char **out, struct args_info *args, const char *opt);
 
 /**
  * Check current `args` entry against `opt` string parsing as uint16.  If
@@ -70,7 +70,7 @@ extern int match_str_arg(
  * uint16_t value; otherwise return 0.
  */
 extern int match_uint16_arg(
-	uint16_t *out, struct args_info *args, const char *opt);
+    uint16_t *out, struct args_info *args, const char *opt);
 
 /**
  * Check current `args` entry against `opt` string parsing as int.  If
@@ -79,18 +79,18 @@ extern int match_uint16_arg(
  * int value; otherwise return 0.
  */
 extern int match_int_arg(
-	int *out, struct args_info *args, const char *opt, int allow_negative);
+    int *out, struct args_info *args, const char *opt, int allow_negative);
 
 /**
  * Basic output function for plain text diff output
  * Pass `FILE*` such as `stdout` or `stderr` as payload (or NULL == `stdout`)
  */
 extern int diff_output(
-	const git_diff_delta*, const git_diff_hunk*, const git_diff_line*, void*);
+    const git_diff_delta *, const git_diff_hunk *, const git_diff_line *, void *);
 
 /**
  * Convert a treeish argument to an actual tree; this will call check_lg2
  * and exit the program if `treeish` cannot be resolved to a tree
  */
 extern void treeish_to_tree(
-	git_tree **out, git_repository *repo, const char *treeish);
+    git_tree **out, git_repository *repo, const char *treeish);

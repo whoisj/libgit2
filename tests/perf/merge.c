@@ -3,12 +3,12 @@
 
 /* This test requires a large repo with many files.
  * It doesn't care about the contents, just the size.
- * 
+ *
  * For now, we use the LibGit2 repo containing the
  * source tree because it is already here.
  *
  * `find . | wc -l` reports 5128.
- * 
+ *
  */
 #define SRC_REPO (cl_fixture("../.."))
 

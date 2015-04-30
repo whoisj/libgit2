@@ -143,11 +143,11 @@ GIT_EXTERN(git_attr_t) git_attr_value(const char *attr);
  * @param name The name of the attribute to look up.
  */
 GIT_EXTERN(int) git_attr_get(
-	const char **value_out,
-	git_repository *repo,
-	uint32_t flags,
-	const char *path,
-	const char *name);
+    const char **value_out,
+    git_repository *repo,
+    uint32_t flags,
+    const char *path,
+    const char *name);
 
 /**
  * Look up a list of git attributes for path.
@@ -179,12 +179,12 @@ GIT_EXTERN(int) git_attr_get(
  * @param names An array of num_attr strings containing attribute names.
  */
 GIT_EXTERN(int) git_attr_get_many(
-	const char **values_out,
-	git_repository *repo,
-	uint32_t flags,
-	const char *path,
-	size_t num_attr,
-	const char **names);
+    const char **values_out,
+    git_repository *repo,
+    uint32_t flags,
+    const char *path,
+    size_t num_attr,
+    const char **names);
 
 typedef int (*git_attr_foreach_cb)(const char *name, const char *value, void *payload);
 
@@ -207,11 +207,11 @@ typedef int (*git_attr_foreach_cb)(const char *name, const char *value, void *pa
  * @return 0 on success, non-zero callback return value, or error code
  */
 GIT_EXTERN(int) git_attr_foreach(
-	git_repository *repo,
-	uint32_t flags,
-	const char *path,
-	git_attr_foreach_cb callback,
-	void *payload);
+    git_repository *repo,
+    uint32_t flags,
+    const char *path,
+    git_attr_foreach_cb callback,
+    void *payload);
 
 /**
  * Flush the gitattributes cache.
@@ -222,7 +222,7 @@ GIT_EXTERN(int) git_attr_foreach(
  * access function is called.
  */
 GIT_EXTERN(void) git_attr_cache_flush(
-	git_repository *repo);
+    git_repository *repo);
 
 /**
  * Add a macro definition.
@@ -235,9 +235,9 @@ GIT_EXTERN(void) git_attr_cache_flush(
  *     git_attr_add_macro(repo, "binary", "-diff -crlf");
  */
 GIT_EXTERN(int) git_attr_add_macro(
-	git_repository *repo,
-	const char *name,
-	const char *values);
+    git_repository *repo,
+    const char *name,
+    const char *values);
 
 /** @} */
 GIT_END_DECL

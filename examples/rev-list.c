@@ -22,13 +22,11 @@ int main (int argc, char **argv)
 	git_repository *repo;
 	git_revwalk *walk;
 	git_oid oid;
-	char buf[GIT_OID_HEXSZ+1];
-
+	char buf[GIT_OID_HEXSZ + 1];
 	git_libgit2_init();
-
 	check_lg2(git_repository_open_ext(&repo, ".", 0, NULL), "opening repository", NULL);
 	check_lg2(git_revwalk_new(&walk, repo), "allocating revwalk", NULL);
-	check_lg2(revwalk_parseopts(repo, walk, argc-1, argv+1), "parsing options", NULL);
+	check_lg2(revwalk_parseopts(repo, walk, argc - 1, argv + 1), "parsing options", NULL);
 
 	while (!git_revwalk_next(&oid, walk)) {
 		git_oid_fmt(buf, &oid);
@@ -78,7 +76,6 @@ static int push_range(git_repository *repo, git_revwalk *walk, const char *range
 		goto out;
 
 	error = push_commit(walk, git_object_id(revspec.to), hide);
-
 out:
 	git_object_free(revspec.from);
 	git_object_free(revspec.to);
@@ -89,8 +86,8 @@ static int revwalk_parseopts(git_repository *repo, git_revwalk *walk, int nopts,
 {
 	int hide, i, error;
 	unsigned int sorting = GIT_SORT_NONE;
-
 	hide = 0;
+
 	for (i = 0; i < nopts; i++) {
 		if (!strcmp(opts[i], "--topo-order")) {
 			sorting = GIT_SORT_TOPOLOGICAL | (sorting & GIT_SORT_REVERSE);
@@ -100,11 +97,11 @@ static int revwalk_parseopts(git_repository *repo, git_revwalk *walk, int nopts,
 			git_revwalk_sorting(walk, sorting);
 		} else if (!strcmp(opts[i], "--reverse")) {
 			sorting = (sorting & ~GIT_SORT_REVERSE)
-			    | ((sorting & GIT_SORT_REVERSE) ? 0 : GIT_SORT_REVERSE);
+			          | ((sorting & GIT_SORT_REVERSE) ? 0 : GIT_SORT_REVERSE);
 			git_revwalk_sorting(walk, sorting);
-		} else if (!strcmp(opts[i], "--not")) {
+		} else if (!strcmp(opts[i], "--not"))
 			hide = !hide;
-		} else if (opts[i][0] == '^') {
+		else if (opts[i][0] == '^') {
 			if ((error = push_spec(repo, walk, opts[i] + 1, !hide)))
 				return error;
 		} else if (strstr(opts[i], "..")) {

@@ -24,11 +24,11 @@
  * - GIT_ERROR if the delta is corrupt or doesn't match the base.
  */
 extern int git__delta_apply(
-	git_rawobj *out,
-	const unsigned char *base,
-	size_t base_len,
-	const unsigned char *delta,
-	size_t delta_len);
+    git_rawobj *out,
+    const unsigned char *base,
+    size_t base_len,
+    const unsigned char *delta,
+    size_t delta_len);
 
 /**
  * Read the header of a git binary delta.
@@ -42,9 +42,9 @@ extern int git__delta_apply(
  * - GIT_ERROR if the delta is corrupt.
  */
 extern int git__delta_read_header(
-	const unsigned char *delta,
-	size_t delta_len,
-	size_t *base_sz,
-	size_t *res_sz);
+    const unsigned char *delta,
+    size_t delta_len,
+    size_t *base_sz,
+    size_t *res_sz);
 
 #endif

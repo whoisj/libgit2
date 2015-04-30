@@ -21,11 +21,11 @@
  */
 extern int git_futils_readbuffer(git_buf *obj, const char *path);
 extern int git_futils_readbuffer_updated(
-	git_buf *obj, const char *path, time_t *mtime, size_t *size, int *updated);
+    git_buf *obj, const char *path, time_t *mtime, size_t *size, int *updated);
 extern int git_futils_readbuffer_fd(git_buf *obj, git_file fd, size_t len);
 
 extern int git_futils_writebuffer(
-	const git_buf *buf, const char *path, int open_flags, mode_t mode);
+    const git_buf *buf, const char *path, int open_flags, mode_t mode);
 
 /**
  * File utils
@@ -90,15 +90,13 @@ typedef enum {
 	GIT_MKDIR_REMOVE_SYMLINKS = 256,
 } git_futils_mkdir_flags;
 
-struct git_futils_mkdir_perfdata
-{
+struct git_futils_mkdir_perfdata {
 	size_t stat_calls;
 	size_t mkdir_calls;
 	size_t chmod_calls;
 };
 
-struct git_futils_mkdir_options
-{
+struct git_futils_mkdir_options {
 	git_strmap *dir_map;
 	git_pool *pool;
 	struct git_futils_mkdir_perfdata perfdata;
@@ -182,9 +180,9 @@ extern int git_futils_mv_withpath(const char *from, const char *to, const mode_t
  * The filemode will be used for the newly created file.
  */
 extern int git_futils_cp(
-	const char *from,
-	const char *to,
-	mode_t filemode);
+    const char *from,
+    const char *to,
+    mode_t filemode);
 
 /**
  * Flags that can be passed to `git_futils_cp_r`.
@@ -225,10 +223,10 @@ typedef enum {
  * will be ignored.
  */
 extern int git_futils_cp_r(
-	const char *from,
-	const char *to,
-	uint32_t flags,
-	mode_t dirmode);
+    const char *from,
+    const char *to,
+    uint32_t flags,
+    mode_t dirmode);
 
 /**
  * Open a file readonly and set error if needed.
@@ -271,10 +269,10 @@ extern mode_t git_futils_canonical_mode(mode_t raw_mode);
  * - -1 on error.
  */
 extern int git_futils_mmap_ro(
-	git_map *out,
-	git_file fd,
-	git_off_t begin,
-	size_t len);
+    git_map *out,
+    git_file fd,
+    git_off_t begin,
+    size_t len);
 
 /**
  * Read-only map an entire file.
@@ -287,8 +285,8 @@ extern int git_futils_mmap_ro(
  * - -1 on an unspecified OS related error.
  */
 extern int git_futils_mmap_ro_file(
-	git_map *out,
-	const char *path);
+    git_map *out,
+    const char *path);
 
 /**
  * Release the memory associated with a previous memory mapping.
@@ -331,7 +329,7 @@ typedef struct {
  * @return 0 if up-to-date, 1 if out-of-date, GIT_ENOTFOUND if cannot stat
  */
 extern int git_futils_filestamp_check(
-	git_futils_filestamp *stamp, const char *path);
+    git_futils_filestamp *stamp, const char *path);
 
 /**
  * Set or reset file stamp data
@@ -344,12 +342,12 @@ extern int git_futils_filestamp_check(
  * @param src File stamp to copy from or NULL to clear the target
  */
 extern void git_futils_filestamp_set(
-	git_futils_filestamp *tgt, const git_futils_filestamp *src);
+    git_futils_filestamp *tgt, const git_futils_filestamp *src);
 
 /**
  * Set file stamp data from stat structure
  */
 extern void git_futils_filestamp_set_from_stat(
-	git_futils_filestamp *stamp, struct stat *st);
+    git_futils_filestamp *stamp, struct stat *st);
 
 #endif /* INCLUDE_fileops_h__ */

@@ -21,10 +21,10 @@ int gitno_recv(gitno_buffer *buf)
 }
 
 void gitno_buffer_setup_callback(
-	gitno_buffer *buf,
-	char *data,
-	size_t len,
-	int (*recv)(gitno_buffer *buf), void *cb_data)
+    gitno_buffer *buf,
+    char *data,
+    size_t len,
+    int (*recv)(gitno_buffer *buf), void *cb_data)
 {
 	memset(data, 0x0, len);
 	buf->data = data;
@@ -38,8 +38,8 @@ static int recv_stream(gitno_buffer *buf)
 {
 	git_stream *io = (git_stream *) buf->cb_data;
 	int ret;
-
 	ret = git_stream_read(io, buf->data + buf->offset, buf->len - buf->offset);
+
 	if (ret < 0)
 		return -1;
 
@@ -61,12 +61,9 @@ void gitno_buffer_setup_fromstream(git_stream *st, gitno_buffer *buf, char *data
 void gitno_consume(gitno_buffer *buf, const char *ptr)
 {
 	size_t consumed;
-
 	assert(ptr - buf->data >= 0);
 	assert(ptr - buf->data <= (int) buf->len);
-
 	consumed = ptr - buf->data;
-
 	memmove(buf->data, ptr, buf->offset - consumed);
 	memset(buf->data + buf->offset, 0x0, buf->len - buf->offset);
 	buf->offset -= consumed;
@@ -91,24 +88,29 @@ int gitno__match_host(const char *pattern, const char *host)
 
 		if (c == '*') {
 			c = *pattern;
+
 			/* '*' at the end matches everything left */
 			if (c == '\0')
 				return 0;
 
-	/*
-	 * We've found a pattern, so move towards the next matching
-	 * char. The '.' is handled specially because wildcards aren't
-	 * allowed to cross subdomains.
-	 */
+			/*
+			 * We've found a pattern, so move towards the next matching
+			 * char. The '.' is handled specially because wildcards aren't
+			 * allowed to cross subdomains.
+			 */
 
-			while(*host) {
+			while (*host) {
 				char h = tolower(*host);
+
 				if (c == h)
 					return gitno__match_host(pattern, host++);
+
 				if (h == '.')
 					return gitno__match_host(pattern, host);
+
 				host++;
 			}
+
 			return -1;
 		}
 
@@ -123,17 +125,15 @@ static const char *prefix_http = "http://";
 static const char *prefix_https = "https://";
 
 int gitno_connection_data_from_url(
-		gitno_connection_data *data,
-		const char *url,
-		const char *service_suffix)
+    gitno_connection_data *data,
+    const char *url,
+    const char *service_suffix)
 {
 	int error = -1;
 	const char *default_port = NULL, *path_search_start = NULL;
 	char *original_host = NULL;
-
 	/* service_suffix is optional */
 	assert(data && url);
-
 	/* Save these for comparison later */
 	original_host = data->host;
 	data->host = NULL;
@@ -160,8 +160,8 @@ int gitno_connection_data_from_url(
 	}
 
 	error = gitno_extract_url_parts(
-		&data->host, &data->port, &data->path, &data->user, &data->pass,
-		url, default_port);
+	            &data->host, &data->port, &data->path, &data->user, &data->pass,
+	            url, default_port);
 
 	if (url[0] == '/') {
 		/* Relative redirect; reuse original host name and port */
@@ -193,45 +193,53 @@ int gitno_connection_data_from_url(
 	}
 
 cleanup:
+
 	if (original_host) git__free(original_host);
+
 	return error;
 }
 
 void gitno_connection_data_free_ptrs(gitno_connection_data *d)
 {
-	git__free(d->host); d->host = NULL;
-	git__free(d->port); d->port = NULL;
-	git__free(d->path); d->path = NULL;
-	git__free(d->user); d->user = NULL;
-	git__free(d->pass); d->pass = NULL;
+	git__free(d->host);
+	d->host = NULL;
+	git__free(d->port);
+	d->port = NULL;
+	git__free(d->path);
+	d->path = NULL;
+	git__free(d->user);
+	d->user = NULL;
+	git__free(d->pass);
+	d->pass = NULL;
 }
 
 #define hex2c(c) ((c | 32) % 39 - 9)
-static char* unescape(char *str)
+static char *unescape(char *str)
 {
 	int x, y;
 	int len = (int)strlen(str);
 
-	for (x=y=0; str[y]; ++x, ++y) {
+	for (x = y = 0; str[y]; ++x, ++y) {
 		if ((str[x] = str[y]) == '%') {
-			if (y < len-2 && isxdigit(str[y+1]) && isxdigit(str[y+2])) {
-				str[x] = (hex2c(str[y+1]) << 4) + hex2c(str[y+2]);
+			if (y < len - 2 && isxdigit(str[y + 1]) && isxdigit(str[y + 2])) {
+				str[x] = (hex2c(str[y + 1]) << 4) + hex2c(str[y + 2]);
 				y += 2;
 			}
 		}
 	}
+
 	str[x] = '\0';
 	return str;
 }
 
 int gitno_extract_url_parts(
-		char **host,
-		char **port,
-		char **path,
-		char **username,
-		char **password,
-		const char *url,
-		const char *default_port)
+    char **host,
+    char **port,
+    char **path,
+    char **username,
+    char **password,
+    const char *url,
+    const char *default_port)
 {
 	struct http_parser_url u = {0};
 	const char *_host, *_port, *_path, *_userinfo;
@@ -241,10 +249,10 @@ int gitno_extract_url_parts(
 		return GIT_EINVALIDSPEC;
 	}
 
-	_host = url+u.field_data[UF_HOST].off;
-	_port = url+u.field_data[UF_PORT].off;
-	_path = url+u.field_data[UF_PATH].off;
-	_userinfo = url+u.field_data[UF_USERINFO].off;
+	_host = url + u.field_data[UF_HOST].off;
+	_port = url + u.field_data[UF_PORT].off;
+	_path = url + u.field_data[UF_PATH].off;
+	_userinfo = url + u.field_data[UF_USERINFO].off;
 
 	if (u.field_set & (1 << UF_HOST)) {
 		*host = git__substrdup(_host, u.field_data[UF_HOST].len);
@@ -255,6 +263,7 @@ int gitno_extract_url_parts(
 		*port = git__substrdup(_port, u.field_data[UF_PORT].len);
 	else
 		*port = git__strdup(default_port);
+
 	GITERR_CHECK_ALLOC(*port);
 
 	if (u.field_set & (1 << UF_PATH)) {
@@ -267,15 +276,15 @@ int gitno_extract_url_parts(
 
 	if (u.field_set & (1 << UF_USERINFO)) {
 		const char *colon = memchr(_userinfo, ':', u.field_data[UF_USERINFO].len);
+
 		if (colon) {
 			*username = unescape(git__substrdup(_userinfo, colon - _userinfo));
-			*password = unescape(git__substrdup(colon+1, u.field_data[UF_USERINFO].len - (colon+1-_userinfo)));
+			*password = unescape(git__substrdup(colon + 1, u.field_data[UF_USERINFO].len - (colon + 1 - _userinfo)));
 			GITERR_CHECK_ALLOC(*password);
-		} else {
+		} else
 			*username = git__substrdup(_userinfo, u.field_data[UF_USERINFO].len);
-		}
-		GITERR_CHECK_ALLOC(*username);
 
+		GITERR_CHECK_ALLOC(*username);
 	}
 
 	return 0;

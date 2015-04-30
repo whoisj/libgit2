@@ -49,7 +49,7 @@ typedef struct git_patch git_patch;
  * @return 0 on success, other value < 0 on error
  */
 GIT_EXTERN(int) git_patch_from_diff(
-	git_patch **out, git_diff *diff, size_t idx);
+    git_patch **out, git_diff *diff, size_t idx);
 
 /**
  * Directly generate a patch from the difference between two blobs.
@@ -68,12 +68,12 @@ GIT_EXTERN(int) git_patch_from_diff(
  * @return 0 on success or error code < 0
  */
 GIT_EXTERN(int) git_patch_from_blobs(
-	git_patch **out,
-	const git_blob *old_blob,
-	const char *old_as_path,
-	const git_blob *new_blob,
-	const char *new_as_path,
-	const git_diff_options *opts);
+    git_patch **out,
+    const git_blob *old_blob,
+    const char *old_as_path,
+    const git_blob *new_blob,
+    const char *new_as_path,
+    const git_diff_options *opts);
 
 /**
  * Directly generate a patch from the difference between a blob and a buffer.
@@ -93,13 +93,13 @@ GIT_EXTERN(int) git_patch_from_blobs(
  * @return 0 on success or error code < 0
  */
 GIT_EXTERN(int) git_patch_from_blob_and_buffer(
-	git_patch **out,
-	const git_blob *old_blob,
-	const char *old_as_path,
-	const char *buffer,
-	size_t buffer_len,
-	const char *buffer_as_path,
-	const git_diff_options *opts);
+    git_patch **out,
+    const git_blob *old_blob,
+    const char *old_as_path,
+    const char *buffer,
+    size_t buffer_len,
+    const char *buffer_as_path,
+    const git_diff_options *opts);
 
 /**
  * Directly generate a patch from the difference between two buffers.
@@ -120,14 +120,14 @@ GIT_EXTERN(int) git_patch_from_blob_and_buffer(
  * @return 0 on success or error code < 0
  */
 GIT_EXTERN(int) git_patch_from_buffers(
-	git_patch **out,
-	const void *old_buffer,
-	size_t old_len,
-	const char *old_as_path,
-	const char *new_buffer,
-	size_t new_len,
-	const char *new_as_path,
-	const git_diff_options *opts);
+    git_patch **out,
+    const void *old_buffer,
+    size_t old_len,
+    const char *old_as_path,
+    const char *new_buffer,
+    size_t new_len,
+    const char *new_as_path,
+    const git_diff_options *opts);
 
 /**
  * Free a git_patch object.
@@ -162,10 +162,10 @@ GIT_EXTERN(size_t) git_patch_num_hunks(const git_patch *patch);
  * @return 0 on success, <0 on error
  */
 GIT_EXTERN(int) git_patch_line_stats(
-	size_t *total_context,
-	size_t *total_additions,
-	size_t *total_deletions,
-	const git_patch *patch);
+    size_t *total_context,
+    size_t *total_additions,
+    size_t *total_deletions,
+    const git_patch *patch);
 
 /**
  * Get the information about a hunk in a patch
@@ -181,10 +181,10 @@ GIT_EXTERN(int) git_patch_line_stats(
  * @return 0 on success, GIT_ENOTFOUND if hunk_idx out of range, <0 on error
  */
 GIT_EXTERN(int) git_patch_get_hunk(
-	const git_diff_hunk **out,
-	size_t *lines_in_hunk,
-	git_patch *patch,
-	size_t hunk_idx);
+    const git_diff_hunk **out,
+    size_t *lines_in_hunk,
+    git_patch *patch,
+    size_t hunk_idx);
 
 /**
  * Get the number of lines in a hunk.
@@ -194,8 +194,8 @@ GIT_EXTERN(int) git_patch_get_hunk(
  * @return Number of lines in hunk or -1 if invalid hunk index
  */
 GIT_EXTERN(int) git_patch_num_lines_in_hunk(
-	const git_patch *patch,
-	size_t hunk_idx);
+    const git_patch *patch,
+    size_t hunk_idx);
 
 /**
  * Get data about a line in a hunk of a patch.
@@ -212,10 +212,10 @@ GIT_EXTERN(int) git_patch_num_lines_in_hunk(
  * @return 0 on success, <0 on failure
  */
 GIT_EXTERN(int) git_patch_get_line_in_hunk(
-	const git_diff_line **out,
-	git_patch *patch,
-	size_t hunk_idx,
-	size_t line_of_hunk);
+    const git_diff_line **out,
+    git_patch *patch,
+    size_t hunk_idx,
+    size_t line_of_hunk);
 
 /**
  * Look up size of patch diff data in bytes
@@ -234,10 +234,10 @@ GIT_EXTERN(int) git_patch_get_line_in_hunk(
  * @return The number of bytes of data
  */
 GIT_EXTERN(size_t) git_patch_size(
-	git_patch *patch,
-	int include_context,
-	int include_hunk_headers,
-	int include_file_headers);
+    git_patch *patch,
+    int include_context,
+    int include_hunk_headers,
+    int include_file_headers);
 
 /**
  * Serialize the patch to text via callback.
@@ -252,9 +252,9 @@ GIT_EXTERN(size_t) git_patch_size(
  * @return 0 on success, non-zero callback return value, or error code
  */
 GIT_EXTERN(int) git_patch_print(
-	git_patch *patch,
-	git_diff_line_cb print_cb,
-	void *payload);
+    git_patch *patch,
+    git_diff_line_cb print_cb,
+    void *payload);
 
 /**
  * Get the content of a patch as a single diff text.
@@ -264,8 +264,8 @@ GIT_EXTERN(int) git_patch_print(
  * @return 0 on success, <0 on failure.
  */
 GIT_EXTERN(int) git_patch_to_buf(
-	git_buf *out,
-	git_patch *patch);
+    git_buf *out,
+    git_patch *patch);
 
 GIT_END_DECL
 

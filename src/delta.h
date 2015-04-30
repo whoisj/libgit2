@@ -47,11 +47,11 @@ extern unsigned long git_delta_sizeof_index(struct git_delta_index *index);
  * must be freed by the caller.
  */
 extern void *git_delta_create(
-	const struct git_delta_index *index,
-	const void *buf,
-	unsigned long bufsize,
-	unsigned long *delta_size,
-	unsigned long max_delta_size);
+    const struct git_delta_index *index,
+    const void *buf,
+    unsigned long bufsize,
+    unsigned long *delta_size,
+    unsigned long max_delta_size);
 
 /*
  * diff_delta: create a delta from source buffer to target buffer
@@ -62,18 +62,20 @@ extern void *git_delta_create(
  * updated with its size.  The returned buffer must be freed by the caller.
  */
 GIT_INLINE(void *) git_delta(
-	const void *src_buf, unsigned long src_bufsize,
-	const void *trg_buf, unsigned long trg_bufsize,
-	unsigned long *delta_size,
-	unsigned long max_delta_size)
+    const void *src_buf, unsigned long src_bufsize,
+    const void *trg_buf, unsigned long trg_bufsize,
+    unsigned long *delta_size,
+    unsigned long max_delta_size)
 {
 	struct git_delta_index *index = git_delta_create_index(src_buf, src_bufsize);
+
 	if (index) {
 		void *delta = git_delta_create(
-			index, trg_buf, trg_bufsize, delta_size, max_delta_size);
+		                  index, trg_buf, trg_bufsize, delta_size, max_delta_size);
 		git_delta_free_index(index);
 		return delta;
 	}
+
 	return NULL;
 }
 
@@ -85,9 +87,9 @@ GIT_INLINE(void *) git_delta(
  * returned.  The returned buffer must be freed by the caller.
  */
 extern void *git_delta_patch(
-	const void *src_buf, unsigned long src_size,
-	const void *delta_buf, unsigned long delta_size,
-	unsigned long *dst_size);
+    const void *src_buf, unsigned long src_size,
+    const void *delta_buf, unsigned long delta_size,
+    unsigned long *dst_size);
 
 /* the smallest possible delta size is 4 bytes */
 #define GIT_DELTA_SIZE_MIN	4
@@ -97,16 +99,18 @@ extern void *git_delta_patch(
  * expected source buffer size, and again to get the target buffer size.
  */
 GIT_INLINE(unsigned long) git_delta_get_hdr_size(
-	const unsigned char **datap, const unsigned char *top)
+    const unsigned char **datap, const unsigned char *top)
 {
 	const unsigned char *data = *datap;
 	unsigned long cmd, size = 0;
 	int i = 0;
+
 	do {
 		cmd = *data++;
 		size |= (cmd & 0x7f) << i;
 		i += 7;
 	} while (cmd & 0x80 && data < top);
+
 	*datap = data;
 	return size;
 }

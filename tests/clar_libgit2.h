@@ -47,8 +47,8 @@ void cl_git_report_failure(int, const char *, int, const char *);
 	clar__assert((expr) != 0, file, line, "Expression is not true: " #expr, NULL, 1)
 
 GIT_INLINE(void) clar__assert_in_range(
-	int lo, int val, int hi,
-	const char *file, int line, const char *err, int should_abort)
+    int lo, int val, int hi,
+    const char *file, int line, const char *err, int should_abort)
 {
 	if (lo > val || hi < val) {
 		char buf[128];
@@ -72,23 +72,21 @@ GIT_INLINE(void) clar__assert_in_range(
 	clar__assert_equal_file(DATA,SIZE,1,PATH,__FILE__,(int)__LINE__)
 
 void clar__assert_equal_file(
-	const char *expected_data,
-	size_t expected_size,
-	int ignore_cr,
-	const char *path,
-	const char *file,
-	int line);
+    const char *expected_data,
+    size_t expected_size,
+    int ignore_cr,
+    const char *path,
+    const char *file,
+    int line);
 
 GIT_INLINE(void) clar__assert_equal_oid(
-	const char *file, int line, const char *desc,
-	const git_oid *one, const git_oid *two)
+    const char *file, int line, const char *desc,
+    const git_oid *one, const git_oid *two)
 {
 	if (git_oid_cmp(one, two)) {
 		char err[] = "\"........................................\" != \"........................................\"";
-
 		git_oid_fmt(&err[1], one);
 		git_oid_fmt(&err[47], two);
-
 		clar__fail(file, line, desc, err, 1);
 	}
 }
@@ -111,7 +109,7 @@ void cl_git_mkfile(const char *filename, const char *content);
 void cl_git_append2file(const char *filename, const char *new_content);
 void cl_git_rewritefile(const char *filename, const char *new_content);
 void cl_git_write2file(const char *path, const char *data,
-	size_t datalen, int flags, unsigned int mode);
+                       size_t datalen, int flags, unsigned int mode);
 void cl_git_rmfile(const char *filename);
 
 bool cl_toggle_filemode(const char *filename);
@@ -131,19 +129,19 @@ void cl_git_sandbox_cleanup(void);
 git_repository *cl_git_sandbox_reopen(void);
 
 /* Local-repo url helpers */
-const char* cl_git_fixture_url(const char *fixturename);
-const char* cl_git_path_url(const char *path);
+const char *cl_git_fixture_url(const char *fixturename);
+const char *cl_git_path_url(const char *path);
 
 /* Test repository cleaner */
 int cl_git_remove_placeholders(const char *directory_path, const char *filename);
 
 /* commit creation helpers */
 void cl_repo_commit_from_index(
-	git_oid *out,
-	git_repository *repo,
-	git_signature *sig,
-	git_time_t time,
-	const char *msg);
+    git_oid *out,
+    git_repository *repo,
+    git_signature *sig,
+    git_time_t time,
+    const char *msg);
 
 /* config setting helpers */
 void cl_repo_set_bool(git_repository *repo, const char *cfg, int value);

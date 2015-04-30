@@ -34,7 +34,7 @@ typedef struct {
 } git_ignores;
 
 extern int git_ignore__for_path(
-	git_repository *repo, const char *path, git_ignores *ign);
+    git_repository *repo, const char *path, git_ignores *ign);
 
 extern int git_ignore__push_dir(git_ignores *ign, const char *dir);
 
@@ -58,6 +58,6 @@ extern int git_ignore__lookup(int *out, git_ignores *ign, const char *path);
  * exact matches (that are not already present in the index).
  */
 extern int git_ignore__check_pathspec_for_exact_ignores(
-	git_repository *repo, git_vector *pathspec, bool no_fnmatch);
+    git_repository *repo, git_vector *pathspec, bool no_fnmatch);
 
 #endif

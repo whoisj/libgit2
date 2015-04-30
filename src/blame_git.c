@@ -18,6 +18,7 @@ static git_blame__origin *origin_incref(git_blame__origin *o)
 {
 	if (o)
 		o->refcnt++;
+
 	return o;
 }
 
@@ -26,6 +27,7 @@ static void origin_decref(git_blame__origin *o)
 	if (o && --o->refcnt <= 0) {
 		if (o->previous)
 			origin_decref(o->previous);
+
 		git_blob_free(o->blob);
 		git_commit_free(o->commit);
 		git__free(o);
@@ -38,39 +40,37 @@ static int make_origin(git_blame__origin **out, git_commit *commit, const char *
 	git_blame__origin *o;
 	size_t path_len = strlen(path), alloc_len;
 	int error = 0;
-
 	GITERR_CHECK_ALLOC_ADD(&alloc_len, sizeof(*o), path_len);
 	GITERR_CHECK_ALLOC_ADD(&alloc_len, alloc_len, 1);
 	o = git__calloc(1, alloc_len);
 	GITERR_CHECK_ALLOC(o);
-
 	o->commit = commit;
 	o->refcnt = 1;
 	strcpy(o->path, path);
 
-	if (!(error = git_object_lookup_bypath((git_object**)&o->blob, (git_object*)commit,
-			path, GIT_OBJ_BLOB))) {
-		*out = o;
-	} else {
+	if (!(error = git_object_lookup_bypath((git_object **)&o->blob, (git_object *)commit,
+	                                       path, GIT_OBJ_BLOB)))
+		* out = o;
+	else
 		origin_decref(o);
-	}
+
 	return error;
 }
 
 /* Locate an existing origin or create a new one. */
 int git_blame__get_origin(
-		git_blame__origin **out,
-		git_blame *blame,
-		git_commit *commit,
-		const char *path)
+    git_blame__origin **out,
+    git_blame *blame,
+    git_commit *commit,
+    const char *path)
 {
 	git_blame__entry *e;
 
 	for (e = blame->ent; e; e = e->next) {
-		if (e->suspect->commit == commit && !strcmp(e->suspect->path, path)) {
+		if (e->suspect->commit == commit && !strcmp(e->suspect->path, path))
 			*out = origin_incref(e->suspect);
-		}
 	}
+
 	return make_origin(out, commit, path);
 }
 
@@ -80,14 +80,16 @@ typedef struct blame_chunk_cb_data {
 	git_blame__origin *parent;
 	long tlno;
 	long plno;
-}blame_chunk_cb_data;
+} blame_chunk_cb_data;
 
 static bool same_suspect(git_blame__origin *a, git_blame__origin *b)
 {
 	if (a == b)
 		return true;
+
 	if (git_oid_cmp(git_commit_id(a->commit), git_commit_id(b->commit)))
 		return false;
+
 	return 0 == strcmp(a->path, b->path);
 }
 
@@ -97,12 +99,14 @@ static int find_last_in_target(git_blame *blame, git_blame__origin *target)
 	git_blame__entry *e;
 	int last_in_target = -1;
 
-	for (e=blame->ent; e; e=e->next) {
+	for (e = blame->ent; e; e = e->next) {
 		if (e->guilty || !same_suspect(e->suspect, target))
 			continue;
+
 		if (last_in_target < e->s_lno + e->num_lines)
 			last_in_target = e->s_lno + e->num_lines;
 	}
+
 	return last_in_target;
 }
 
@@ -121,7 +125,7 @@ static int find_last_in_target(git_blame *blame, git_blame__origin *target)
  * to be blamed for the parent, and after that portion.
  */
 static void split_overlap(git_blame__entry *split, git_blame__entry *e,
-		int tlno, int plno, int same, git_blame__origin *parent)
+                          int tlno, int plno, int same, git_blame__origin *parent)
 {
 	int chunk_end_lno;
 
@@ -145,9 +149,9 @@ static void split_overlap(git_blame__entry *split, git_blame__entry *e,
 		split[2].s_lno = e->s_lno + (same - e->s_lno);
 		split[2].num_lines = e->s_lno + e->num_lines - same;
 		chunk_end_lno = split[2].lno;
-	} else {
+	} else
 		chunk_end_lno = e->lno + e->num_lines;
-	}
+
 	split[1].num_lines = chunk_end_lno - split[1].lno;
 
 	/*
@@ -156,6 +160,7 @@ static void split_overlap(git_blame__entry *split, git_blame__entry *e,
 	 */
 	if (split[1].num_lines < 1)
 		return;
+
 	split[1].suspect = origin_incref(parent);
 }
 
@@ -166,7 +171,6 @@ static void split_overlap(git_blame__entry *split, git_blame__entry *e,
 static void add_blame_entry(git_blame *blame, git_blame__entry *e)
 {
 	git_blame__entry *ent, *prev = NULL;
-
 	origin_incref(e->suspect);
 
 	for (ent = blame->ent; ent && ent->lno < e->lno; ent = ent->next)
@@ -174,6 +178,7 @@ static void add_blame_entry(git_blame *blame, git_blame__entry *e)
 
 	/* prev, if not NULL, is the last one that is below e */
 	e->prev = prev;
+
 	if (prev) {
 		e->next = prev->next;
 		prev->next = e;
@@ -181,6 +186,7 @@ static void add_blame_entry(git_blame *blame, git_blame__entry *e)
 		e->next = blame->ent;
 		blame->ent = e;
 	}
+
 	if (e->next)
 		e->next->prev = e;
 }
@@ -193,7 +199,6 @@ static void add_blame_entry(git_blame *blame, git_blame__entry *e)
 static void dup_entry(git_blame__entry *dst, git_blame__entry *src)
 {
 	git_blame__entry *p, *n;
-
 	p = dst->prev;
 	n = dst->next;
 	origin_incref(src->suspect);
@@ -215,12 +220,10 @@ static void split_blame(git_blame *blame, git_blame__entry *split, git_blame__en
 	if (split[0].suspect && split[2].suspect) {
 		/* The first part (reuse storage for the existing entry e */
 		dup_entry(e, &split[0]);
-
 		/* The last part -- me */
 		new_entry = git__malloc(sizeof(*new_entry));
 		memcpy(new_entry, &(split[2]), sizeof(git_blame__entry));
 		add_blame_entry(blame, new_entry);
-
 		/* ... and the middle part -- parent */
 		new_entry = git__malloc(sizeof(*new_entry));
 		memcpy(new_entry, &(split[1]), sizeof(git_blame__entry));
@@ -246,14 +249,15 @@ static void split_blame(git_blame *blame, git_blame__entry *split, git_blame__en
 	}
 }
 
-/* 
+/*
  * After splitting the blame, the origins used by the on-stack blame_entry
  * should lose one refcnt each.
  */
 static void decref_split(git_blame__entry *split)
 {
 	int i;
-	for (i=0; i<3; i++)
+
+	for (i = 0; i < 3; i++)
 		origin_decref(split[i].suspect);
 }
 
@@ -262,18 +266,19 @@ static void decref_split(git_blame__entry *split)
  * hunk; split it and pass blame to the parent.
  */
 static void blame_overlap(
-		git_blame *blame,
-		git_blame__entry *e,
-		int tlno,
-		int plno,
-		int same,
-		git_blame__origin *parent)
+    git_blame *blame,
+    git_blame__entry *e,
+    int tlno,
+    int plno,
+    int same,
+    git_blame__origin *parent)
 {
 	git_blame__entry split[3] = {{0}};
-
 	split_overlap(split, e, tlno, plno, same, parent);
+
 	if (split[1].suspect)
 		split_blame(blame, split, e);
+
 	decref_split(split);
 }
 
@@ -283,35 +288,37 @@ static void blame_overlap(
  * overlapping part to the parent.
  */
 static void blame_chunk(
-		git_blame *blame,
-		int tlno,
-		int plno,
-		int same,
-		git_blame__origin *target,
-		git_blame__origin *parent)
+    git_blame *blame,
+    int tlno,
+    int plno,
+    int same,
+    git_blame__origin *target,
+    git_blame__origin *parent)
 {
 	git_blame__entry *e;
 
 	for (e = blame->ent; e; e = e->next) {
 		if (e->guilty || !same_suspect(e->suspect, target))
 			continue;
+
 		if (same <= e->s_lno)
 			continue;
-		if (tlno < e->s_lno + e->num_lines) {
+
+		if (tlno < e->s_lno + e->num_lines)
 			blame_overlap(blame, e, tlno, plno, same, parent);
-		}
 	}
 }
 
 static int my_emit(
-		xdfenv_t *xe,
-		xdchange_t *xscr,
-		xdemitcb_t *ecb,
-		xdemitconf_t const *xecfg)
+    xdfenv_t *xe,
+    xdchange_t *xscr,
+    xdemitcb_t *ecb,
+    xdemitconf_t const *xecfg)
 {
 	xdchange_t *xch = xscr;
 	GIT_UNUSED(xe);
 	GIT_UNUSED(xecfg);
+
 	while (xch) {
 		blame_chunk_cb_data *d = ecb->priv;
 		blame_chunk(d->blame, d->tlno, d->plno, xch->i2, d->target, d->parent);
@@ -319,6 +326,7 @@ static int my_emit(
 		d->tlno = xch->i2 + xch->chg2;
 		xch = xch->next;
 	}
+
 	return 0;
 }
 
@@ -342,6 +350,7 @@ static void trim_common_tail(mmfile_t *a, mmfile_t *b, long ctx)
 	while (recovered < trimmed)
 		if (ap[recovered++] == '\n')
 			break;
+
 	a->size -= trimmed - recovered;
 	b->size -= trimmed - recovered;
 }
@@ -351,10 +360,8 @@ static int diff_hunks(mmfile_t file_a, mmfile_t file_b, void *cb_data)
 	xpparam_t xpp = {0};
 	xdemitconf_t xecfg = {0};
 	xdemitcb_t ecb = {0};
-
 	xecfg.emit_func = (void(*)(void))my_emit;
 	ecb.priv = cb_data;
-
 	trim_common_tail(&file_a, &file_b, 0);
 	return xdl_diff(&file_a, &file_b, &xpp, &xecfg, &ecb);
 }
@@ -362,32 +369,31 @@ static int diff_hunks(mmfile_t file_a, mmfile_t file_b, void *cb_data)
 static void fill_origin_blob(git_blame__origin *o, mmfile_t *file)
 {
 	memset(file, 0, sizeof(*file));
+
 	if (o->blob) {
-		file->ptr = (char*)git_blob_rawcontent(o->blob);
+		file->ptr = (char *)git_blob_rawcontent(o->blob);
 		file->size = (size_t)git_blob_rawsize(o->blob);
 	}
 }
 
 static int pass_blame_to_parent(
-		git_blame *blame,
-		git_blame__origin *target,
-		git_blame__origin *parent)
+    git_blame *blame,
+    git_blame__origin *target,
+    git_blame__origin *parent)
 {
 	int last_in_target;
 	mmfile_t file_p, file_o;
 	blame_chunk_cb_data d = { blame, target, parent, 0, 0 };
-
 	last_in_target = find_last_in_target(blame, target);
+
 	if (last_in_target < 0)
 		return 1; /* nothing remains for this target */
 
 	fill_origin_blob(parent, &file_p);
 	fill_origin_blob(target, &file_o);
-
 	diff_hunks(file_p, file_o, &d);
 	/* The reset (i.e. anything after tlno) are the same as the parent */
 	blame_chunk(blame, d.tlno, d.plno, last_in_target, target, parent);
-
 	return 0;
 }
 
@@ -398,15 +404,15 @@ static int paths_on_dup(void **old, void *new)
 	return -1;
 }
 
-static git_blame__origin* find_origin(
-		git_blame *blame,
-		git_commit *parent,
-		git_blame__origin *origin)
+static git_blame__origin *find_origin(
+    git_blame *blame,
+    git_commit *parent,
+    git_blame__origin *origin)
 {
 	git_blame__origin *porigin = NULL;
 	git_diff *difflist = NULL;
 	git_diff_options diffopts = GIT_DIFF_OPTIONS_INIT;
-	git_tree *otree=NULL, *ptree=NULL;
+	git_tree *otree = NULL, *ptree = NULL;
 
 	/* Get the trees from this commit and its parent */
 	if (0 != git_commit_tree(&otree, origin->commit) ||
@@ -416,12 +422,12 @@ static git_blame__origin* find_origin(
 	/* Configure the diff */
 	diffopts.context_lines = 0;
 	diffopts.flags = GIT_DIFF_SKIP_BINARY_CHECK;
-
 	/* Check to see if files we're interested have changed */
 	diffopts.pathspec.count = blame->paths.length;
-	diffopts.pathspec.strings = (char**)blame->paths.contents;
+	diffopts.pathspec.strings = (char **)blame->paths.contents;
+
 	if (0 != git_diff_tree_to_tree(&difflist, blame->repository, ptree, otree, &diffopts))
-			goto cleanup;
+		goto cleanup;
 
 	if (!git_diff_num_deltas(difflist)) {
 		/* No changes; copy data */
@@ -429,26 +435,26 @@ static git_blame__origin* find_origin(
 	} else {
 		git_diff_find_options findopts = GIT_DIFF_FIND_OPTIONS_INIT;
 		int i;
-
 		/* Generate a full diff between the two trees */
 		git_diff_free(difflist);
 		diffopts.pathspec.count = 0;
+
 		if (0 != git_diff_tree_to_tree(&difflist, blame->repository, ptree, otree, &diffopts))
 			goto cleanup;
 
 		/* Let diff find renames */
 		findopts.flags = GIT_DIFF_FIND_RENAMES;
+
 		if (0 != git_diff_find_similar(difflist, &findopts))
 			goto cleanup;
 
 		/* Find one that matches */
-		for (i=0; i<(int)git_diff_num_deltas(difflist); i++) {
+		for (i = 0; i < (int)git_diff_num_deltas(difflist); i++) {
 			const git_diff_delta *delta = git_diff_get_delta(difflist, i);
 
-			if (!git_vector_bsearch(NULL, &blame->paths, delta->new_file.path))
-			{
-				git_vector_insert_sorted(&blame->paths, (void*)git__strdup(delta->old_file.path),
-						paths_on_dup);
+			if (!git_vector_bsearch(NULL, &blame->paths, delta->new_file.path)) {
+				git_vector_insert_sorted(&blame->paths, (void *)git__strdup(delta->old_file.path),
+				                         paths_on_dup);
 				make_origin(&porigin, parent, delta->old_file.path);
 			}
 		}
@@ -466,16 +472,18 @@ cleanup:
  * suspected for can be blamed on the parent.
  */
 static void pass_whole_blame(git_blame *blame,
-		git_blame__origin *origin, git_blame__origin *porigin)
+                             git_blame__origin *origin, git_blame__origin *porigin)
 {
 	git_blame__entry *e;
 
 	if (!porigin->blob)
-		git_object_lookup((git_object**)&porigin->blob, blame->repository,
-				git_blob_id(origin->blob), GIT_OBJ_BLOB);
-	for (e=blame->ent; e; e=e->next) {
+		git_object_lookup((git_object **)&porigin->blob, blame->repository,
+		                  git_blob_id(origin->blob), GIT_OBJ_BLOB);
+
+	for (e = blame->ent; e; e = e->next) {
 		if (!same_suspect(e->suspect, origin))
 			continue;
+
 		origin_incref(porigin);
 		origin_decref(e->suspect);
 		e->suspect = porigin;
@@ -488,8 +496,8 @@ static void pass_blame(git_blame *blame, git_blame__origin *origin, uint32_t opt
 	int i, num_parents;
 	git_blame__origin *sg_buf[16];
 	git_blame__origin *porigin, **sg_origin = sg_buf;
-
 	num_parents = git_commit_parentcount(commit);
+
 	if (!git_oid_cmp(git_commit_id(commit), &blame->options.oldest_commit))
 		/* Stop at oldest specified commit */
 		num_parents = 0;
@@ -500,13 +508,12 @@ static void pass_blame(git_blame *blame, git_blame__origin *origin, uint32_t opt
 	if (!num_parents) {
 		git_oid_cpy(&blame->options.oldest_commit, git_commit_id(commit));
 		goto finish;
-	}
-	else if (num_parents < (int)ARRAY_SIZE(sg_buf))
+	} else if (num_parents < (int)ARRAY_SIZE(sg_buf))
 		memset(sg_buf, 0, sizeof(sg_buf));
 	else
 		sg_origin = git__calloc(num_parents, sizeof(*sg_origin));
 
-	for (i=0; i<num_parents; i++) {
+	for (i = 0; i < num_parents; i++) {
 		git_commit *p;
 		int j, same;
 
@@ -518,18 +525,21 @@ static void pass_blame(git_blame *blame, git_blame__origin *origin, uint32_t opt
 
 		if (!porigin)
 			continue;
+
 		if (porigin->blob && origin->blob &&
 		    !git_oid_cmp(git_blob_id(porigin->blob), git_blob_id(origin->blob))) {
 			pass_whole_blame(blame, origin, porigin);
 			origin_decref(porigin);
 			goto finish;
 		}
-		for (j = same = 0; j<i; j++)
+
+		for (j = same = 0; j < i; j++)
 			if (sg_origin[j] &&
-				 !git_oid_cmp(git_blob_id(sg_origin[j]->blob), git_blob_id(porigin->blob))) {
+			    !git_oid_cmp(git_blob_id(sg_origin[j]->blob), git_blob_id(porigin->blob))) {
 				same = 1;
 				break;
 			}
+
 		if (!same)
 			sg_origin[i] = porigin;
 		else
@@ -537,28 +547,32 @@ static void pass_blame(git_blame *blame, git_blame__origin *origin, uint32_t opt
 	}
 
 	/* Standard blame */
-	for (i=0; i<num_parents; i++) {
+	for (i = 0; i < num_parents; i++) {
 		git_blame__origin *porigin = sg_origin[i];
+
 		if (!porigin)
 			continue;
+
 		if (!origin->previous) {
 			origin_incref(porigin);
 			origin->previous = porigin;
 		}
+
 		if (pass_blame_to_parent(blame, origin, porigin))
 			goto finish;
 	}
 
 	/* TODO: optionally find moves in parents' files */
-
 	/* TODO: optionally find copies in parents' files */
-
 finish:
-	for (i=0; i<num_parents; i++)
+
+	for (i = 0; i < num_parents; i++)
 		if (sg_origin[i])
 			origin_decref(sg_origin[i]);
+
 	if (sg_origin != sg_buf)
 		git__free(sg_origin);
+
 	return;
 }
 
@@ -571,15 +585,16 @@ static void coalesce(git_blame *blame)
 {
 	git_blame__entry *ent, *next;
 
-	for (ent=blame->ent; ent && (next = ent->next); ent = next) {
+	for (ent = blame->ent; ent && (next = ent->next); ent = next) {
 		if (same_suspect(ent->suspect, next->suspect) &&
 		    ent->guilty == next->guilty &&
-		    ent->s_lno + ent->num_lines == next->s_lno)
-		{
+		    ent->s_lno + ent->num_lines == next->s_lno) {
 			ent->num_lines += next->num_lines;
 			ent->next = next->next;
+
 			if (ent->next)
 				ent->next->prev = ent;
+
 			origin_decref(next->suspect);
 			git__free(next);
 			ent->score = 0;
@@ -598,6 +613,7 @@ void git_blame__like_git(git_blame *blame, uint32_t opt)
 		for (ent = blame->ent; !suspect && ent; ent = ent->next)
 			if (!ent->guilty)
 				suspect = ent->suspect;
+
 		if (!suspect)
 			return; /* all done */
 
@@ -610,10 +626,11 @@ void git_blame__like_git(git_blame *blame, uint32_t opt)
 			if (same_suspect(ent->suspect, suspect)) {
 				ent->guilty = true;
 				ent->is_boundary = !git_oid_cmp(
-						git_commit_id(suspect->commit),
-						&blame->options.oldest_commit);
+				                       git_commit_id(suspect->commit),
+				                       &blame->options.oldest_commit);
 			}
 		}
+
 		origin_decref(suspect);
 	}
 
@@ -623,6 +640,7 @@ void git_blame__like_git(git_blame *blame, uint32_t opt)
 void git_blame__free_entry(git_blame__entry *ent)
 {
 	if (!ent) return;
+
 	origin_decref(ent->suspect);
 	git__free(ent);
 }

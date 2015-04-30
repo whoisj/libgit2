@@ -26,11 +26,9 @@ void test_threads_basic__cache(void)
 void test_threads_basic__multiple_init(void)
 {
 	git_repository *nested_repo;
-
 	git_libgit2_init();
 	cl_git_pass(git_repository_open(&nested_repo, cl_fixture("testrepo.git")));
 	git_repository_free(nested_repo);
-
 	git_libgit2_shutdown();
 	cl_git_pass(git_repository_open(&nested_repo, cl_fixture("testrepo.git")));
 	git_repository_free(nested_repo);
@@ -39,7 +37,6 @@ void test_threads_basic__multiple_init(void)
 static void *set_error(void *dummy)
 {
 	giterr_set(GITERR_INVALID, "oh no, something happened!\n");
-
 	return dummy;
 }
 

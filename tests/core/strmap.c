@@ -28,8 +28,10 @@ static void insert_strings(git_strmap *table, int count)
 
 	for (i = 0; i < count; ++i) {
 		str = malloc(10);
+
 		for (j = 0; j < 10; ++j)
 			str[j] = 'a' + (i % 26);
+
 		str[9] = '\0';
 
 		/* if > 26, then encode larger value in first letters */
@@ -47,14 +49,11 @@ void test_core_strmap__1(void)
 {
 	int i;
 	char *str;
-
 	insert_strings(g_table, 20);
-
 	cl_assert(git_strmap_exists(g_table, "aaaaaaaaa"));
 	cl_assert(git_strmap_exists(g_table, "ggggggggg"));
 	cl_assert(!git_strmap_exists(g_table, "aaaaaaaab"));
 	cl_assert(!git_strmap_exists(g_table, "abcdefghi"));
-
 	i = 0;
 	git_strmap_foreach_value(g_table, str, { i++; free(str); });
 	cl_assert(i == 20);
@@ -65,23 +64,18 @@ void test_core_strmap__2(void)
 	khiter_t pos;
 	int i;
 	char *str;
-
 	insert_strings(g_table, 20);
-
 	cl_assert(git_strmap_exists(g_table, "aaaaaaaaa"));
 	cl_assert(git_strmap_exists(g_table, "ggggggggg"));
 	cl_assert(!git_strmap_exists(g_table, "aaaaaaaab"));
 	cl_assert(!git_strmap_exists(g_table, "abcdefghi"));
-
 	cl_assert(git_strmap_exists(g_table, "bbbbbbbbb"));
 	pos = git_strmap_lookup_index(g_table, "bbbbbbbbb");
 	cl_assert(git_strmap_valid_index(g_table, pos));
 	cl_assert_equal_s(git_strmap_value_at(g_table, pos), "bbbbbbbbb");
 	free(git_strmap_value_at(g_table, pos));
 	git_strmap_delete_at(g_table, pos);
-
 	cl_assert(!git_strmap_exists(g_table, "bbbbbbbbb"));
-
 	i = 0;
 	git_strmap_foreach_value(g_table, str, { i++; free(str); });
 	cl_assert(i == 19);
@@ -91,9 +85,7 @@ void test_core_strmap__3(void)
 {
 	int i;
 	char *str;
-
 	insert_strings(g_table, 10000);
-
 	i = 0;
 	git_strmap_foreach_value(g_table, str, { i++; free(str); });
 	cl_assert(i == 10000);

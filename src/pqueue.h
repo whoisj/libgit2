@@ -26,10 +26,10 @@ enum {
  * @return 0 on success, <0 on error
  */
 extern int git_pqueue_init(
-	git_pqueue *pq,
-	uint32_t flags,
-	size_t init_size,
-	git_vector_cmp cmp);
+    git_pqueue *pq,
+    uint32_t flags,
+    size_t init_size,
+    git_vector_cmp cmp);
 
 #define git_pqueue_free  git_vector_free
 #define git_pqueue_clear git_vector_clear

@@ -42,9 +42,8 @@ static int maybe_want(git_remote *remote, git_remote_head *head, git_odb *odb, g
 		return 0;
 
 	/* If we have the object, mark it so we don't ask for it */
-	if (git_odb_exists(odb, &head->oid)) {
+	if (git_odb_exists(odb, &head->oid))
 		head->local = 1;
-	}
 	else
 		remote->need_pack = 1;
 
@@ -58,8 +57,8 @@ static int filter_wants(git_remote *remote)
 	int error = 0;
 	git_odb *odb;
 	size_t i, heads_len;
-
 	git_vector_clear(&remote->refs);
+
 	if ((error = git_refspec__parse(&tagspec, GIT_REFSPEC_TAGS, true)) < 0)
 		return error;
 
@@ -83,7 +82,7 @@ static int filter_wants(git_remote *remote)
 	if (git_repository_odb__weakptr(&odb, remote->repo) < 0)
 		goto cleanup;
 
-	if (git_remote_ls((const git_remote_head ***)&heads, &heads_len, remote) < 0)
+	if (git_remote_ls((const git_remote_head ** *)&heads, &heads_len, remote) < 0)
 		goto cleanup;
 
 	for (i = 0; i < heads_len; i++) {
@@ -93,7 +92,6 @@ static int filter_wants(git_remote *remote)
 
 cleanup:
 	git_refspec__free(&tagspec);
-
 	return error;
 }
 
@@ -105,8 +103,7 @@ cleanup:
 int git_fetch_negotiate(git_remote *remote)
 {
 	git_transport *t = remote->transport;
-
-    remote->need_pack = 0;
+	remote->need_pack = 0;
 
 	if (filter_wants(remote) < 0) {
 		giterr_set(GITERR_NET, "Failed to filter the reference list for wants");
@@ -122,9 +119,9 @@ int git_fetch_negotiate(git_remote *remote)
 	 * server what we want and what we have.
 	 */
 	return t->negotiate_fetch(t,
-		remote->repo,
-		(const git_remote_head * const *)remote->refs.contents,
-		remote->refs.length);
+	                          remote->repo,
+	                          (const git_remote_head * const *)remote->refs.contents,
+	                          remote->refs.length);
 }
 
 int git_fetch_download_pack(git_remote *remote)
@@ -135,5 +132,5 @@ int git_fetch_download_pack(git_remote *remote)
 		return 0;
 
 	return t->download_pack(t, remote->repo, &remote->stats,
-			remote->callbacks.transfer_progress, remote->callbacks.payload);
+	                        remote->callbacks.transfer_progress, remote->callbacks.payload);
 }

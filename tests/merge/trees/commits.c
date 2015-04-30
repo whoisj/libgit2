@@ -24,7 +24,6 @@ void test_merge_trees_commits__automerge(void)
 	const git_index_entry *entry;
 	git_merge_options opts = GIT_MERGE_OPTIONS_INIT;
 	git_blob *blob;
-
 	struct merge_index_entry merge_index_entries[] = {
 		{ 0100644, "233c0919c998ed110a4b6ff36f353aec8b713487", 0,  "added-in-master.txt" },
 		{ 0100644, "f2e1550a0c9e53d5811175864a29536642ae3821", 0,  "automergeable.txt" },
@@ -37,33 +36,33 @@ void test_merge_trees_commits__automerge(void)
 
 		{ 0100644, "c8f06f2e3bb2964174677e91f0abead0e43c9e5d", 0,  "unchanged.txt" },
 	};
-
 	struct merge_reuc_entry merge_reuc_entries[] = {
-		{ "automergeable.txt", 0100644, 0100644, 0100644, \
+		{
+			"automergeable.txt", 0100644, 0100644, 0100644, \
 			"6212c31dab5e482247d7977e4f0dd3601decf13b", \
 			"ee3fa1b8c00aff7fe02065fdb50864bb0d932ccf", \
-			"058541fc37114bfc1dddf6bd6bffc7fae5c2e6fe" },
-		{ "removed-in-branch.txt", 0100644, 0100644, 0, \
+			"058541fc37114bfc1dddf6bd6bffc7fae5c2e6fe"
+		},
+		{
+			"removed-in-branch.txt", 0100644, 0100644, 0, \
 			"dfe3f22baa1f6fce5447901c3086bae368de6bdd", \
 			"dfe3f22baa1f6fce5447901c3086bae368de6bdd", \
-			"" },
-		{ "removed-in-master.txt", 0100644, 0, 0100644, \
+			""
+		},
+		{
+			"removed-in-master.txt", 0100644, 0, 0100644, \
 			"5c3b68a71fc4fa5d362fd3875e53137c6a5ab7a5", \
 			"", \
-			"5c3b68a71fc4fa5d362fd3875e53137c6a5ab7a5" },
+			"5c3b68a71fc4fa5d362fd3875e53137c6a5ab7a5"
+		},
 	};
-
 	cl_git_pass(merge_commits_from_branches(&index, repo, "master", "branch", &opts));
-
 	cl_assert(merge_test_index(index, merge_index_entries, 8));
 	cl_assert(merge_test_reuc(index, merge_reuc_entries, 3));
-
 	cl_assert((entry = git_index_get_bypath(index, "automergeable.txt", 0)) != NULL);
 	cl_assert(entry->file_size == strlen(AUTOMERGEABLE_MERGED_FILE));
-
 	cl_git_pass(git_object_lookup((git_object **)&blob, repo, &entry->id, GIT_OBJ_BLOB));
 	cl_assert(memcmp(git_blob_rawcontent(blob), AUTOMERGEABLE_MERGED_FILE, (size_t)entry->file_size) == 0);
-
 	git_index_free(index);
 	git_blob_free(blob);
 }
@@ -72,7 +71,6 @@ void test_merge_trees_commits__no_ancestor(void)
 {
 	git_index *index;
 	git_merge_options opts = GIT_MERGE_OPTIONS_INIT;
-
 	struct merge_index_entry merge_index_entries[] = {
 		{ 0100644, "233c0919c998ed110a4b6ff36f353aec8b713487", 0, "added-in-master.txt" },
 		{ 0100644, "ee3fa1b8c00aff7fe02065fdb50864bb0d932ccf", 2, "automergeable.txt" },
@@ -86,11 +84,8 @@ void test_merge_trees_commits__no_ancestor(void)
 		{ 0100644, "dfe3f22baa1f6fce5447901c3086bae368de6bdd", 0, "removed-in-branch.txt" },
 		{ 0100644, "c8f06f2e3bb2964174677e91f0abead0e43c9e5d", 0, "unchanged.txt" },
 	};
-
 	cl_git_pass(merge_commits_from_branches(&index, repo, "master", "unrelated", &opts));
-
 	cl_assert(merge_test_index(index, merge_index_entries, 11));
-
 	git_index_free(index);
 }
 
@@ -99,7 +94,6 @@ void test_merge_trees_commits__df_conflict(void)
 {
 	git_index *index;
 	git_merge_options opts = GIT_MERGE_OPTIONS_INIT;
-
 	struct merge_index_entry merge_index_entries[] = {
 		{ 0100644, "49130a28ef567af9a6a6104c38773fedfa5f9742", 2, "dir-10" },
 		{ 0100644, "6c06dcd163587c2cc18be44857e0b71116382aeb", 3, "dir-10" },
@@ -122,10 +116,7 @@ void test_merge_trees_commits__df_conflict(void)
 		{ 0100644, "cab2cf23998b40f1af2d9d9a756dc9e285a8df4b", 2, "file-5/new" },
 		{ 0100644, "f5504f36e6f4eb797a56fc5bac6c6c7f32969bf2", 3, "file-5/new" },
 	};
-
 	cl_git_pass(merge_trees_from_branches(&index, repo, "df_side1", "df_side2", &opts));
-
 	cl_assert(merge_test_index(index, merge_index_entries, 20));
-
 	git_index_free(index);
 }

@@ -15,18 +15,18 @@ struct git_refspec {
 	char *string;
 	char *src;
 	char *dst;
-	unsigned int force :1,
-		push : 1,
-		pattern :1,
-		matching :1;
+	unsigned int force : 1,
+	         push : 1,
+	         pattern : 1,
+	         matching : 1;
 };
 
 #define GIT_REFSPEC_TAGS "refs/tags/*:refs/tags/*"
 
 int git_refspec__parse(
-	struct git_refspec *refspec,
-	const char *str,
-	bool is_fetch);
+    struct git_refspec *refspec,
+    const char *str,
+    bool is_fetch);
 
 void git_refspec__free(git_refspec *refspec);
 

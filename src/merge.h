@@ -110,10 +110,10 @@ typedef struct {
 } git_merge_diff;
 
 int git_merge__bases_many(
-	git_commit_list **out,
-	git_revwalk *walk,
-	git_commit_list_node *one,
-	git_vector *twos);
+    git_commit_list **out,
+    git_revwalk *walk,
+    git_commit_list_node *one,
+    git_vector *twos);
 
 /*
  * Three-way tree differencing
@@ -122,9 +122,9 @@ int git_merge__bases_many(
 git_merge_diff_list *git_merge_diff_list__alloc(git_repository *repo);
 
 int git_merge_diff_list__find_differences(git_merge_diff_list *merge_diff_list,
-	const git_tree *ancestor_tree,
-	const git_tree *ours_tree,
-	const git_tree *theirs_tree);
+        const git_tree *ancestor_tree,
+        const git_tree *ours_tree,
+        const git_tree *theirs_tree);
 
 int git_merge_diff_list__find_renames(git_repository *repo, git_merge_diff_list *merge_diff_list, const git_merge_options *opts);
 
@@ -133,10 +133,10 @@ void git_merge_diff_list__free(git_merge_diff_list *diff_list);
 /* Merge metadata setup */
 
 int git_merge__setup(
-	git_repository *repo,
-	const git_annotated_commit *our_head,
-	const git_annotated_commit *heads[],
-	size_t heads_len);
+    git_repository *repo,
+    const git_annotated_commit *our_head,
+    const git_annotated_commit *heads[],
+    size_t heads_len);
 
 int git_merge__check_result(git_repository *repo, git_index *index_new);
 

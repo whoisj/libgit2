@@ -15,14 +15,13 @@
 #ifdef NO_ADDRINFO
 
 int p_getaddrinfo(
-	const char *host,
-	const char *port,
-	struct addrinfo *hints,
-	struct addrinfo **info)
+    const char *host,
+    const char *port,
+    struct addrinfo *hints,
+    struct addrinfo **info)
 {
 	struct addrinfo *ainfo, *ai;
 	int p = 0;
-
 	GIT_UNUSED(hints);
 
 	if ((ainfo = malloc(sizeof(struct addrinfo))) == NULL)
@@ -41,9 +40,8 @@ int p_getaddrinfo(
 		ainfo->ai_port = atol(port);
 
 	memcpy(&ainfo->ai_addr_in.sin_addr,
-			ainfo->ai_hostent->h_addr_list[0],
-			ainfo->ai_hostent->h_length);
-
+	       ainfo->ai_hostent->h_addr_list[0],
+	       ainfo->ai_hostent->h_length);
 	ainfo->ai_protocol = 0;
 	ainfo->ai_socktype = hints->ai_socktype;
 	ainfo->ai_family = ainfo->ai_hostent->h_addrtype;
@@ -51,7 +49,6 @@ int p_getaddrinfo(
 	ainfo->ai_addr_in.sin_port = ainfo->ai_port;
 	ainfo->ai_addr = (struct addrinfo *)&ainfo->ai_addr_in;
 	ainfo->ai_addrlen = sizeof(struct sockaddr_in);
-
 	*info = ainfo;
 
 	if (ainfo->ai_hostent->h_addr_list[1] == NULL) {
@@ -65,8 +62,8 @@ int p_getaddrinfo(
 		ai->ai_next = malloc(sizeof(struct addrinfo));
 		memcpy(&ai->ai_next, ainfo, sizeof(struct addrinfo));
 		memcpy(&ai->ai_next->ai_addr_in.sin_addr,
-			ainfo->ai_hostent->h_addr_list[p],
-			ainfo->ai_hostent->h_length);
+		       ainfo->ai_hostent->h_addr_list[p],
+		       ainfo->ai_hostent->h_length);
 		ai->ai_next->ai_addr = (struct addrinfo *)&ai->ai_next->ai_addr_in;
 		ai = ai->ai_next;
 	}
@@ -78,10 +75,9 @@ int p_getaddrinfo(
 void p_freeaddrinfo(struct addrinfo *info)
 {
 	struct addrinfo *p, *next;
-
 	p = info;
 
-	while(p != NULL) {
+	while (p != NULL) {
 		next = p->ai_next;
 		free(p);
 		p = next;
@@ -90,10 +86,18 @@ void p_freeaddrinfo(struct addrinfo *info)
 
 const char *p_gai_strerror(int ret)
 {
-	switch(ret) {
-	case -1: return "Out of memory"; break;
-	case -2: return "Address lookup failed"; break;
-	default: return "Unknown error"; break;
+	switch (ret) {
+	case -1:
+		return "Out of memory";
+		break;
+
+	case -2:
+		return "Address lookup failed";
+		break;
+
+	default:
+		return "Unknown error";
+		break;
 	}
 }
 
@@ -105,7 +109,6 @@ int p_open(const char *path, volatile int flags, ...)
 
 	if (flags & O_CREAT) {
 		va_list arg_list;
-
 		va_start(arg_list, flags);
 		mode = (mode_t)va_arg(arg_list, int);
 		va_end(arg_list);
@@ -122,9 +125,7 @@ int p_creat(const char *path, mode_t mode)
 int p_getcwd(char *buffer_out, size_t size)
 {
 	char *cwd_buffer;
-
 	assert(buffer_out && size > 0);
-
 	cwd_buffer = getcwd(buffer_out, size);
 
 	if (cwd_buffer == NULL)
@@ -132,7 +133,6 @@ int p_getcwd(char *buffer_out, size_t size)
 
 	git_path_mkposix(buffer_out);
 	git_path_string_to_dir(buffer_out, size); /* append trailing slash */
-
 	return 0;
 }
 
@@ -170,16 +170,21 @@ ssize_t p_read(git_file fd, void *buf, size_t cnt)
 #else
 		r = read(fd, b, cnt);
 #endif
+
 		if (r < 0) {
 			if (errno == EINTR || errno == EAGAIN)
 				continue;
+
 			return -1;
 		}
+
 		if (!r)
 			break;
+
 		cnt -= r;
 		b += r;
 	}
+
 	return (b - (char *)buf);
 }
 
@@ -195,18 +200,23 @@ int p_write(git_file fd, const void *buf, size_t cnt)
 #else
 		r = write(fd, b, cnt);
 #endif
+
 		if (r < 0) {
 			if (errno == EINTR || GIT_ISBLOCKED(errno))
 				continue;
+
 			return -1;
 		}
+
 		if (!r) {
 			errno = EPIPE;
 			return -1;
 		}
+
 		cnt -= r;
 		b += r;
 	}
+
 	return 0;
 }
 
@@ -225,7 +235,6 @@ int git__page_size(size_t *page_size)
 int p_mmap(git_map *out, size_t len, int prot, int flags, int fd, git_off_t offset)
 {
 	GIT_MMAP_VALIDATE(out, len, prot, flags);
-
 	out->data = NULL;
 	out->len = 0;
 
@@ -238,8 +247,8 @@ int p_mmap(git_map *out, size_t len, int prot, int flags, int fd, git_off_t offs
 	GITERR_CHECK_ALLOC(out->data);
 
 	if (!git__is_ssizet(len) ||
-		(p_lseek(fd, offset, SEEK_SET) < 0) ||
-		(p_read(fd, out->data, len) != (ssize_t)len)) {
+	    (p_lseek(fd, offset, SEEK_SET) < 0) ||
+	    (p_read(fd, out->data, len) != (ssize_t)len)) {
 		giterr_set(GITERR_OS, "mmap emulation failed");
 		return -1;
 	}
@@ -252,7 +261,6 @@ int p_munmap(git_map *map)
 {
 	assert(map != NULL);
 	free(map->data);
-
 	return 0;
 }
 

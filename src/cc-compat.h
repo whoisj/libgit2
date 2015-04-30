@@ -65,7 +65,7 @@
 #endif
 
 #if defined (_MSC_VER)
-	typedef unsigned char bool;
+typedef unsigned char bool;
 #	ifndef true
 #		define true 1
 #	endif

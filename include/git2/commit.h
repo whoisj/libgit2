@@ -34,7 +34,7 @@ GIT_BEGIN_DECL
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_commit_lookup(
-	git_commit **commit, git_repository *repo, const git_oid *id);
+    git_commit **commit, git_repository *repo, const git_oid *id);
 
 /**
  * Lookup a commit object from a repository, given a prefix of its
@@ -53,7 +53,7 @@ GIT_EXTERN(int) git_commit_lookup(
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_commit_lookup_prefix(
-	git_commit **commit, git_repository *repo, const git_oid *id, size_t len);
+    git_commit **commit, git_repository *repo, const git_oid *id, size_t len);
 
 /**
  * Close an open commit
@@ -203,9 +203,9 @@ GIT_EXTERN(unsigned int) git_commit_parentcount(const git_commit *commit);
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_commit_parent(
-	git_commit **out,
-	const git_commit *commit,
-	unsigned int n);
+    git_commit **out,
+    const git_commit *commit,
+    unsigned int n);
 
 /**
  * Get the oid of a specified parent for a commit. This is different from
@@ -217,8 +217,8 @@ GIT_EXTERN(int) git_commit_parent(
  * @return the id of the parent, NULL on error.
  */
 GIT_EXTERN(const git_oid *) git_commit_parent_id(
-	const git_commit *commit,
-	unsigned int n);
+    const git_commit *commit,
+    unsigned int n);
 
 /**
  * Get the commit object that is the <n>th generation ancestor
@@ -235,9 +235,9 @@ GIT_EXTERN(const git_oid *) git_commit_parent_id(
  * or an error code
  */
 GIT_EXTERN(int) git_commit_nth_gen_ancestor(
-	git_commit **ancestor,
-	const git_commit *commit,
-	unsigned int n);
+    git_commit **ancestor,
+    const git_commit *commit,
+    unsigned int n);
 
 /**
  * Create new commit in the repository from a list of `git_object` pointers
@@ -284,16 +284,16 @@ GIT_EXTERN(int) git_commit_nth_gen_ancestor(
  *	the given reference will be updated to point to it
  */
 GIT_EXTERN(int) git_commit_create(
-	git_oid *id,
-	git_repository *repo,
-	const char *update_ref,
-	const git_signature *author,
-	const git_signature *committer,
-	const char *message_encoding,
-	const char *message,
-	const git_tree *tree,
-	size_t parent_count,
-	const git_commit *parents[]);
+    git_oid *id,
+    git_repository *repo,
+    const char *update_ref,
+    const git_signature *author,
+    const git_signature *committer,
+    const char *message_encoding,
+    const char *message,
+    const git_tree *tree,
+    size_t parent_count,
+    const git_commit *parents[]);
 
 /**
  * Create new commit in the repository using a variable argument list.
@@ -310,16 +310,16 @@ GIT_EXTERN(int) git_commit_create(
  * @see git_commit_create
  */
 GIT_EXTERN(int) git_commit_create_v(
-	git_oid *id,
-	git_repository *repo,
-	const char *update_ref,
-	const git_signature *author,
-	const git_signature *committer,
-	const char *message_encoding,
-	const char *message,
-	const git_tree *tree,
-	size_t parent_count,
-	...);
+    git_oid *id,
+    git_repository *repo,
+    const char *update_ref,
+    const git_signature *author,
+    const git_signature *committer,
+    const char *message_encoding,
+    const char *message,
+    const git_tree *tree,
+    size_t parent_count,
+    ...);
 
 /**
  * Amend an existing commit by replacing only non-NULL values.
@@ -343,14 +343,14 @@ GIT_EXTERN(int) git_commit_create_v(
  * @see git_commit_create
  */
 GIT_EXTERN(int) git_commit_amend(
-	git_oid *id,
-	const git_commit *commit_to_amend,
-	const char *update_ref,
-	const git_signature *author,
-	const git_signature *committer,
-	const char *message_encoding,
-	const char *message,
-	const git_tree *tree);
+    git_oid *id,
+    const git_commit *commit_to_amend,
+    const char *update_ref,
+    const git_signature *author,
+    const git_signature *committer,
+    const char *message_encoding,
+    const char *message,
+    const git_tree *tree);
 
 /** @} */
 GIT_END_DECL

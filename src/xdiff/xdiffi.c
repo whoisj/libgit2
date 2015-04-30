@@ -41,9 +41,9 @@ typedef struct s_xdpsplit {
 
 
 static long xdl_split(unsigned long const *ha1, long off1, long lim1,
-		      unsigned long const *ha2, long off2, long lim2,
-		      long *kvdf, long *kvdb, int need_min, xdpsplit_t *spl,
-		      xdalgoenv_t *xenv);
+                      unsigned long const *ha2, long off2, long lim2,
+                      long *kvdf, long *kvdb, int need_min, xdpsplit_t *spl,
+                      xdalgoenv_t *xenv);
 static xdchange_t *xdl_add_change(xdchange_t *xscr, long i1, long i2, long chg1, long chg2);
 
 
@@ -60,16 +60,16 @@ static xdchange_t *xdl_add_change(xdchange_t *xscr, long i1, long i2, long chg1,
  * to cut the search and to return a suboptimal point.
  */
 static long xdl_split(unsigned long const *ha1, long off1, long lim1,
-		      unsigned long const *ha2, long off2, long lim2,
-		      long *kvdf, long *kvdb, int need_min, xdpsplit_t *spl,
-		      xdalgoenv_t *xenv) {
+                      unsigned long const *ha2, long off2, long lim2,
+                      long *kvdf, long *kvdb, int need_min, xdpsplit_t *spl,
+                      xdalgoenv_t *xenv)
+{
 	long dmin = off1 - lim2, dmax = lim1 - off2;
 	long fmid = off1 - off2, bmid = lim1 - lim2;
 	long odd = (fmid - bmid) & 1;
 	long fmin = fmid, fmax = fmid;
 	long bmin = bmid, bmax = bmid;
 	long ec, d, i1, i2, prev1, best, dd, v, k;
-
 	/*
 	 * Set initial diagonal values for both forward and backward path.
 	 */
@@ -90,6 +90,7 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 			kvdf[--fmin - 1] = -1;
 		else
 			++fmin;
+
 		if (fmax < dmax)
 			kvdf[++fmax + 1] = -1;
 		else
@@ -100,12 +101,17 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 				i1 = kvdf[d - 1] + 1;
 			else
 				i1 = kvdf[d + 1];
+
 			prev1 = i1;
 			i2 = i1 - d;
+
 			for (; i1 < lim1 && i2 < lim2 && ha1[i1] == ha2[i2]; i1++, i2++);
+
 			if (i1 - prev1 > xenv->snake_cnt)
 				got_snake = 1;
+
 			kvdf[d] = i1;
+
 			if (odd && bmin <= d && d <= bmax && kvdb[d] <= i1) {
 				spl->i1 = i1;
 				spl->i2 = i2;
@@ -125,6 +131,7 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 			kvdb[--bmin - 1] = XDL_LINE_MAX;
 		else
 			++bmin;
+
 		if (bmax < dmax)
 			kvdb[++bmax + 1] = XDL_LINE_MAX;
 		else
@@ -135,12 +142,17 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 				i1 = kvdb[d - 1];
 			else
 				i1 = kvdb[d + 1] - 1;
+
 			prev1 = i1;
 			i2 = i1 - d;
+
 			for (; i1 > off1 && i2 > off2 && ha1[i1 - 1] == ha2[i2 - 1]; i1--, i2--);
+
 			if (prev1 - i1 > xenv->snake_cnt)
 				got_snake = 1;
+
 			kvdb[d] = i1;
+
 			if (!odd && fmin <= d && d <= fmax && i1 <= kvdf[d]) {
 				spl->i1 = i1;
 				spl->i2 = i2;
@@ -164,7 +176,7 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 		 */
 		if (got_snake && ec > xenv->heur_min) {
 			for (best = 0, d = fmax; d >= fmin; d -= 2) {
-				dd = d > fmid ? d - fmid: fmid - d;
+				dd = d > fmid ? d - fmid : fmid - d;
 				i1 = kvdf[d];
 				i2 = i1 - d;
 				v = (i1 - off1) + (i2 - off2) - dd;
@@ -181,6 +193,7 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 						}
 				}
 			}
+
 			if (best > 0) {
 				spl->min_lo = 1;
 				spl->min_hi = 0;
@@ -188,7 +201,7 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 			}
 
 			for (best = 0, d = bmax; d >= bmin; d -= 2) {
-				dd = d > bmid ? d - bmid: bmid - d;
+				dd = d > bmid ? d - bmid : bmid - d;
 				i1 = kvdb[d];
 				i2 = i1 - d;
 				v = (lim1 - i1) + (lim2 - i2) - dd;
@@ -205,6 +218,7 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 						}
 				}
 			}
+
 			if (best > 0) {
 				spl->min_lo = 0;
 				spl->min_hi = 1;
@@ -218,13 +232,15 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 		 */
 		if (ec >= xenv->mxcost) {
 			long fbest, fbest1, bbest, bbest1;
-
 			fbest = fbest1 = -1;
+
 			for (d = fmax; d >= fmin; d -= 2) {
 				i1 = XDL_MIN(kvdf[d], lim1);
 				i2 = i1 - d;
+
 				if (lim2 < i2)
 					i1 = lim2 + d, i2 = lim2;
+
 				if (fbest < i1 + i2) {
 					fbest = i1 + i2;
 					fbest1 = i1;
@@ -232,11 +248,14 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 			}
 
 			bbest = bbest1 = XDL_LINE_MAX;
+
 			for (d = bmax; d >= bmin; d -= 2) {
 				i1 = XDL_MAX(off1, kvdb[d]);
 				i2 = i1 - d;
+
 				if (i2 < off2)
 					i1 = off2 + d, i2 = off2;
+
 				if (i1 + i2 < bbest) {
 					bbest = i1 + i2;
 					bbest1 = i1;
@@ -254,6 +273,7 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 				spl->min_lo = 0;
 				spl->min_hi = 1;
 			}
+
 			return ec;
 		}
 	}
@@ -266,14 +286,16 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
  * is done in the two boundary reaching checks.
  */
 int xdl_recs_cmp(diffdata_t *dd1, long off1, long lim1,
-		 diffdata_t *dd2, long off2, long lim2,
-		 long *kvdf, long *kvdb, int need_min, xdalgoenv_t *xenv) {
+                 diffdata_t *dd2, long off2, long lim2,
+                 long *kvdf, long *kvdb, int need_min, xdalgoenv_t *xenv)
+{
 	unsigned long const *ha1 = dd1->ha, *ha2 = dd2->ha;
 
 	/*
 	 * Shrink the box by walking through each diagonal snake (SW and NE).
 	 */
 	for (; off1 < lim1 && off2 < lim2 && ha1[off1] == ha2[off2]; off1++, off2++);
+
 	for (; off1 < lim1 && off2 < lim2 && ha1[lim1 - 1] == ha2[lim2 - 1]; lim1--, lim2--);
 
 	/*
@@ -300,21 +322,17 @@ int xdl_recs_cmp(diffdata_t *dd1, long off1, long lim1,
 		 * Divide ...
 		 */
 		if (xdl_split(ha1, off1, lim1, ha2, off2, lim2, kvdf, kvdb,
-			      need_min, &spl, xenv) < 0) {
-
+		              need_min, &spl, xenv) < 0)
 			return -1;
-		}
 
 		/*
 		 * ... et Impera.
 		 */
 		if (xdl_recs_cmp(dd1, off1, spl.i1, dd2, off2, spl.i2,
-				 kvdf, kvdb, spl.min_lo, xenv) < 0 ||
+		                 kvdf, kvdb, spl.min_lo, xenv) < 0 ||
 		    xdl_recs_cmp(dd1, spl.i1, lim1, dd2, spl.i2, lim2,
-				 kvdf, kvdb, spl.min_hi, xenv) < 0) {
-
+		                 kvdf, kvdb, spl.min_hi, xenv) < 0)
 			return -1;
-		}
 	}
 
 	return 0;
@@ -322,7 +340,8 @@ int xdl_recs_cmp(diffdata_t *dd1, long off1, long lim1,
 
 
 int xdl_do_diff(mmfile_t *mf1, mmfile_t *mf2, xpparam_t const *xpp,
-		xdfenv_t *xe) {
+                xdfenv_t *xe)
+{
 	long ndiags;
 	long *kvd, *kvdf, *kvdb;
 	xdalgoenv_t xenv;
@@ -334,32 +353,31 @@ int xdl_do_diff(mmfile_t *mf1, mmfile_t *mf2, xpparam_t const *xpp,
 	if (xpp->flags & XDF_HISTOGRAM_DIFF)
 		return xdl_do_histogram_diff(mf1, mf2, xpp, xe);
 
-	if (xdl_prepare_env(mf1, mf2, xpp, xe) < 0) {
-
+	if (xdl_prepare_env(mf1, mf2, xpp, xe) < 0)
 		return -1;
-	}
 
 	/*
 	 * Allocate and setup K vectors to be used by the differential algorithm.
 	 * One is to store the forward path and one to store the backward path.
 	 */
 	ndiags = xe->xdf1.nreff + xe->xdf2.nreff + 3;
-	if (!(kvd = (long *) xdl_malloc((2 * ndiags + 2) * sizeof(long)))) {
 
+	if (!(kvd = (long *) xdl_malloc((2 * ndiags + 2) * sizeof(long)))) {
 		xdl_free_env(xe);
 		return -1;
 	}
+
 	kvdf = kvd;
 	kvdb = kvdf + ndiags;
 	kvdf += xe->xdf2.nreff + 1;
 	kvdb += xe->xdf2.nreff + 1;
-
 	xenv.mxcost = xdl_bogosqrt(ndiags);
+
 	if (xenv.mxcost < XDL_MAX_COST_MIN)
 		xenv.mxcost = XDL_MAX_COST_MIN;
+
 	xenv.snake_cnt = XDL_SNAKE_CNT;
 	xenv.heur_min = XDL_HEUR_MIN_COST;
-
 	dd1.nrec = xe->xdf1.nreff;
 	dd1.ha = xe->xdf1.ha;
 	dd1.rchg = xe->xdf1.rchg;
@@ -370,20 +388,19 @@ int xdl_do_diff(mmfile_t *mf1, mmfile_t *mf2, xpparam_t const *xpp,
 	dd2.rindex = xe->xdf2.rindex;
 
 	if (xdl_recs_cmp(&dd1, 0, dd1.nrec, &dd2, 0, dd2.nrec,
-			 kvdf, kvdb, (xpp->flags & XDF_NEED_MINIMAL) != 0, &xenv) < 0) {
-
+	                 kvdf, kvdb, (xpp->flags & XDF_NEED_MINIMAL) != 0, &xenv) < 0) {
 		xdl_free(kvd);
 		xdl_free_env(xe);
 		return -1;
 	}
 
 	xdl_free(kvd);
-
 	return 0;
 }
 
 
-static xdchange_t *xdl_add_change(xdchange_t *xscr, long i1, long i2, long chg1, long chg2) {
+static xdchange_t *xdl_add_change(xdchange_t *xscr, long i1, long i2, long chg1, long chg2)
+{
 	xdchange_t *xch;
 
 	if (!(xch = (xdchange_t *) xdl_malloc(sizeof(xdchange_t))))
@@ -394,12 +411,12 @@ static xdchange_t *xdl_add_change(xdchange_t *xscr, long i1, long i2, long chg1,
 	xch->i2 = i2;
 	xch->chg1 = chg1;
 	xch->chg2 = chg2;
-
 	return xch;
 }
 
 
-int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags) {
+int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags)
+{
 	long ix, ixo, ixs, ixref, grpsiz, nrec = xdf->nrec;
 	char *rchg = xdf->rchg, *rchgo = xdfo->rchg;
 	xrecord_t **recs = xdf->recs;
@@ -421,6 +438,7 @@ int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags) {
 		 */
 		for (; ix < nrec && !rchg[ix]; ix++)
 			while (rchgo[ixo++]);
+
 		if (ix == nrec)
 			break;
 
@@ -430,7 +448,9 @@ int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags) {
 		 * indexes (ix and ixo).
 		 */
 		ixs = ix;
+
 		for (ix++; rchg[ix]; ix++);
+
 		for (; rchgo[ixo]; ixo++);
 
 		do {
@@ -453,6 +473,7 @@ int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags) {
 				 * end-of-group index).
 				 */
 				for (; rchg[ixs - 1]; ixs--);
+
 				while (rchgo[--ixo]);
 			}
 
@@ -462,7 +483,7 @@ int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags) {
 			 * change record before the end-of-group index in the other
 			 * file is set).
 			 */
-			ixref = rchgo[ixo - 1] ? ix: nrec;
+			ixref = rchgo[ixo - 1] ? ix : nrec;
 
 			/*
 			 * If the first line of the current change group, is equal to
@@ -483,6 +504,7 @@ int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags) {
 				 * corresponding group of changes in the other file.
 				 */
 				for (; rchg[ix]; ix++);
+
 				while (rchgo[++ixo])
 					ixref = ix;
 			}
@@ -495,6 +517,7 @@ int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags) {
 		while (ixref < ix) {
 			rchg[--ixs] = 1;
 			rchg[--ix] = 0;
+
 			while (rchgo[--ixo]);
 		}
 	}
@@ -503,7 +526,8 @@ int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags) {
 }
 
 
-int xdl_build_script(xdfenv_t *xe, xdchange_t **xscr) {
+int xdl_build_script(xdfenv_t *xe, xdchange_t **xscr)
+{
 	xdchange_t *cscr = NULL, *xch;
 	char *rchg1 = xe->xdf1.rchg, *rchg2 = xe->xdf2.rchg;
 	long i1, i2, l1, l2;
@@ -514,22 +538,24 @@ int xdl_build_script(xdfenv_t *xe, xdchange_t **xscr) {
 	for (i1 = xe->xdf1.nrec, i2 = xe->xdf2.nrec; i1 >= 0 || i2 >= 0; i1--, i2--)
 		if (rchg1[i1 - 1] || rchg2[i2 - 1]) {
 			for (l1 = i1; rchg1[i1 - 1]; i1--);
+
 			for (l2 = i2; rchg2[i2 - 1]; i2--);
 
 			if (!(xch = xdl_add_change(cscr, i1, i2, l1 - i1, l2 - i2))) {
 				xdl_free_script(cscr);
 				return -1;
 			}
+
 			cscr = xch;
 		}
 
 	*xscr = cscr;
-
 	return 0;
 }
 
 
-void xdl_free_script(xdchange_t *xscr) {
+void xdl_free_script(xdchange_t *xscr)
+{
 	xdchange_t *xch;
 
 	while ((xch = xscr) != NULL) {
@@ -540,33 +566,33 @@ void xdl_free_script(xdchange_t *xscr) {
 
 
 int xdl_diff(mmfile_t *mf1, mmfile_t *mf2, xpparam_t const *xpp,
-	     xdemitconf_t const *xecfg, xdemitcb_t *ecb) {
+             xdemitconf_t const *xecfg, xdemitcb_t *ecb)
+{
 	xdchange_t *xscr;
 	xdfenv_t xe;
 	emit_func_t ef = xecfg->emit_func ?
-		(emit_func_t)xecfg->emit_func : xdl_emit_diff;
+	                 (emit_func_t)xecfg->emit_func : xdl_emit_diff;
 
-	if (xdl_do_diff(mf1, mf2, xpp, &xe) < 0) {
-
+	if (xdl_do_diff(mf1, mf2, xpp, &xe) < 0)
 		return -1;
-	}
+
 	if (xdl_change_compact(&xe.xdf1, &xe.xdf2, xpp->flags) < 0 ||
 	    xdl_change_compact(&xe.xdf2, &xe.xdf1, xpp->flags) < 0 ||
 	    xdl_build_script(&xe, &xscr) < 0) {
-
 		xdl_free_env(&xe);
 		return -1;
 	}
+
 	if (xscr) {
 		if (ef(&xe, xscr, ecb, xecfg) < 0) {
-
 			xdl_free_script(xscr);
 			xdl_free_env(&xe);
 			return -1;
 		}
+
 		xdl_free_script(xscr);
 	}
-	xdl_free_env(&xe);
 
+	xdl_free_env(&xe);
 	return 0;
 }

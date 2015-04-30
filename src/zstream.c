@@ -77,25 +77,25 @@ int git_zstream_get_output(void *out, size_t *out_len, git_zstream *zstream)
 
 	while (out_remain > 0 && zstream->zerr != Z_STREAM_END) {
 		size_t out_queued, in_queued, out_used, in_used;
-
 		/* set up in data */
 		zstream->z.next_in  = (Bytef *)zstream->in;
 		zstream->z.avail_in = (uInt)zstream->in_len;
+
 		if ((size_t)zstream->z.avail_in != zstream->in_len) {
 			zstream->z.avail_in = INT_MAX;
 			zflush = Z_NO_FLUSH;
-		} else {
+		} else
 			zflush = Z_FINISH;
-		}
-		in_queued = (size_t)zstream->z.avail_in;
 
+		in_queued = (size_t)zstream->z.avail_in;
 		/* set up out data */
 		zstream->z.next_out = out;
 		zstream->z.avail_out = (uInt)out_remain;
+
 		if ((size_t)zstream->z.avail_out != out_remain)
 			zstream->z.avail_out = INT_MAX;
-		out_queued = (size_t)zstream->z.avail_out;
 
+		out_queued = (size_t)zstream->z.avail_out;
 		/* compress next chunk */
 		zstream->zerr = deflate(&zstream->z, zflush);
 
@@ -105,7 +105,6 @@ int git_zstream_get_output(void *out, size_t *out_len, git_zstream *zstream)
 		out_used = (out_queued - zstream->z.avail_out);
 		out_remain -= out_used;
 		out = ((char *)out) + out_used;
-
 		in_used = (in_queued - zstream->z.avail_in);
 		zstream->in_len -= in_used;
 		zstream->in += in_used;
@@ -113,10 +112,8 @@ int git_zstream_get_output(void *out, size_t *out_len, git_zstream *zstream)
 
 	/* either we finished the input or we did not flush the data */
 	assert(zstream->in_len > 0 || zflush == Z_FINISH);
-
 	/* set out_size to number of bytes actually written to output */
 	*out_len = *out_len - out_remain;
-
 	return 0;
 }
 
@@ -140,7 +137,7 @@ int git_zstream_deflatebuf(git_buf *out, const void *in, size_t in_len)
 		written = out->asize - out->size;
 
 		if ((error = git_zstream_get_output(
-				out->ptr + out->size, &written, &zs)) < 0)
+		                 out->ptr + out->size, &written, &zs)) < 0)
 			goto done;
 
 		out->size += written;

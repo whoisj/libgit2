@@ -84,7 +84,7 @@ typedef struct {
 	git_attr_file_source source;
 	git_vector rules;			/* vector of <rule*> or <fnmatch*> */
 	git_pool pool;
-	unsigned int nonexistent:1;
+	unsigned int nonexistent: 1;
 	int session_key;
 	union {
 		git_oid oid;
@@ -111,8 +111,8 @@ typedef struct {
 
 typedef struct {
 	int key;
-	unsigned int init_setup:1,
-		init_sysdir:1;
+	unsigned int init_setup: 1,
+	         init_sysdir: 1;
 	git_buf sysdir;
 	git_buf tmp;
 } git_attr_session;
@@ -121,55 +121,55 @@ extern int git_attr_session__init(git_attr_session *attr_session, git_repository
 extern void git_attr_session__free(git_attr_session *session);
 
 extern int git_attr_get_many_with_session(
-	const char **values_out,
-	git_repository *repo,
-	git_attr_session *attr_session,
-	uint32_t flags,
-	const char *path,
-	size_t num_attr,
-	const char **names);
+    const char **values_out,
+    git_repository *repo,
+    git_attr_session *attr_session,
+    uint32_t flags,
+    const char *path,
+    size_t num_attr,
+    const char **names);
 
 typedef int (*git_attr_file_parser)(
-	git_repository *repo,
-	git_attr_file *file,
-	const char *data);
+    git_repository *repo,
+    git_attr_file *file,
+    const char *data);
 
 /*
  * git_attr_file API
  */
 
 int git_attr_file__new(
-	git_attr_file **out,
-	git_attr_file_entry *entry,
-	git_attr_file_source source);
+    git_attr_file **out,
+    git_attr_file_entry *entry,
+    git_attr_file_source source);
 
 void git_attr_file__free(git_attr_file *file);
 
 int git_attr_file__load(
-	git_attr_file **out,
-	git_repository *repo,
-	git_attr_session *attr_session,
-	git_attr_file_entry *ce,
-	git_attr_file_source source,
-	git_attr_file_parser parser);
+    git_attr_file **out,
+    git_repository *repo,
+    git_attr_session *attr_session,
+    git_attr_file_entry *ce,
+    git_attr_file_source source,
+    git_attr_file_parser parser);
 
 int git_attr_file__load_standalone(
-	git_attr_file **out, const char *path);
+    git_attr_file **out, const char *path);
 
 int git_attr_file__out_of_date(
-	git_repository *repo, git_attr_session *session, git_attr_file *file);
+    git_repository *repo, git_attr_session *session, git_attr_file *file);
 
 int git_attr_file__parse_buffer(
-	git_repository *repo, git_attr_file *attrs, const char *data);
+    git_repository *repo, git_attr_file *attrs, const char *data);
 
 int git_attr_file__clear_rules(
-	git_attr_file *file, bool need_lock);
+    git_attr_file *file, bool need_lock);
 
 int git_attr_file__lookup_one(
-	git_attr_file *file,
-	git_attr_path *path,
-	const char *attr,
-	const char **value);
+    git_attr_file *file,
+    git_attr_path *path,
+    const char *attr,
+    const char **value);
 
 /* loop over rules in file from bottom to top */
 #define git_attr_file__foreach_matching_rule(file, path, iter, rule)	\
@@ -184,33 +184,33 @@ uint32_t git_attr_file__name_hash(const char *name);
  */
 
 extern int git_attr_fnmatch__parse(
-	git_attr_fnmatch *spec,
-	git_pool *pool,
-	const char *source,
-	const char **base);
+    git_attr_fnmatch *spec,
+    git_pool *pool,
+    const char *source,
+    const char **base);
 
 extern bool git_attr_fnmatch__match(
-	git_attr_fnmatch *rule,
-	git_attr_path *path);
+    git_attr_fnmatch *rule,
+    git_attr_path *path);
 
 extern void git_attr_rule__free(git_attr_rule *rule);
 
 extern bool git_attr_rule__match(
-	git_attr_rule *rule,
-	git_attr_path *path);
+    git_attr_rule *rule,
+    git_attr_path *path);
 
 extern git_attr_assignment *git_attr_rule__lookup_assignment(
-	git_attr_rule *rule, const char *name);
+    git_attr_rule *rule, const char *name);
 
 extern int git_attr_path__init(
-	git_attr_path *info, const char *path, const char *base);
+    git_attr_path *info, const char *path, const char *base);
 
 extern void git_attr_path__free(git_attr_path *info);
 
 extern int git_attr_assignment__parse(
-	git_repository *repo, /* needed to expand macros */
-	git_pool *pool,
-	git_vector *assigns,
-	const char **scan);
+    git_repository *repo, /* needed to expand macros */
+    git_pool *pool,
+    git_vector *assigns,
+    const char **scan);
 
 #endif

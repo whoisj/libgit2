@@ -59,7 +59,7 @@ extern int git_buf_grow_by(git_buf *buffer, size_t additional_size);
  * into the newly allocated buffer.
  */
 extern int git_buf_try_grow(
-	git_buf *buf, size_t target_size, bool mark_oom, bool preserve_external);
+    git_buf *buf, size_t target_size, bool mark_oom, bool preserve_external);
 
 /**
  * Sanitizes git_buf structures provided from user input.  Users of the
@@ -78,7 +78,7 @@ extern void git_buf_attach(git_buf *buf, char *ptr, size_t asize);
  * buffer, and calls to `git_buf_free` will not free the given buf.
  */
 extern void git_buf_attach_notowned(
-	git_buf *buf, const char *ptr, size_t size);
+    git_buf *buf, const char *ptr, size_t size);
 
 /**
  * Test if there have been any reallocation failures with this git_buf.
@@ -150,15 +150,20 @@ void git_buf_copy_cstr(char *data, size_t datasize, const git_buf *buf);
 GIT_INLINE(ssize_t) git_buf_rfind_next(const git_buf *buf, char ch)
 {
 	ssize_t idx = (ssize_t)buf->size - 1;
+
 	while (idx >= 0 && buf->ptr[idx] == ch) idx--;
+
 	while (idx >= 0 && buf->ptr[idx] != ch) idx--;
+
 	return idx;
 }
 
 GIT_INLINE(ssize_t) git_buf_rfind(const git_buf *buf, char ch)
 {
 	ssize_t idx = (ssize_t)buf->size - 1;
+
 	while (idx >= 0 && buf->ptr[idx] != ch) idx--;
+
 	return idx;
 }
 
@@ -200,10 +205,10 @@ int git_buf_encode_base85(git_buf *buf, const char *data, size_t len);
  * @return 0 or an error code.
  */
 int git_buf_splice(
-	git_buf *buf,
-	size_t where,
-	size_t nb_to_remove,
-	const char *data,
-	size_t nb_to_insert);
+    git_buf *buf,
+    size_t where,
+    size_t nb_to_remove,
+    const char *data,
+    size_t nb_to_insert);
 
 #endif

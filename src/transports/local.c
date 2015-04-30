@@ -40,7 +40,7 @@ typedef struct {
 	void *message_cb_payload;
 	git_vector refs;
 	unsigned connected : 1,
-		have_refs : 1;
+	         have_refs : 1;
 } transport_local;
 
 static void free_head(git_remote_head *head)
@@ -54,10 +54,8 @@ static void free_heads(git_vector *heads)
 {
 	git_remote_head *head;
 	size_t i;
-
 	git_vector_foreach(heads, i, head)
-		free_head(head);
-
+	free_head(head);
 	git_vector_free(heads);
 }
 
@@ -75,32 +73,33 @@ static int add_ref(transport_local *t, const char *name)
 		return error;
 
 	error = git_reference_resolve(&resolved, ref);
+
 	if (error < 0) {
 		git_reference_free(ref);
+
 		if (!strcmp(name, GIT_HEAD_FILE) && error == GIT_ENOTFOUND) {
 			/* This is actually okay.  Empty repos often have a HEAD that
 			 * points to a nonexistent "refs/heads/master". */
 			giterr_clear();
 			return 0;
 		}
+
 		return error;
 	}
 
 	git_oid_cpy(&obj_id, git_reference_target(resolved));
 	git_reference_free(resolved);
-
 	head = git__calloc(1, sizeof(git_remote_head));
 	GITERR_CHECK_ALLOC(head);
-
 	head->name = git__strdup(name);
 	GITERR_CHECK_ALLOC(head->name);
-
 	git_oid_cpy(&head->oid, &obj_id);
 
 	if (git_reference_type(ref) == GIT_REF_SYMBOLIC) {
 		head->symref_target = git__strdup(git_reference_symbolic_target(ref));
 		GITERR_CHECK_ALLOC(head->symref_target);
 	}
+
 	git_reference_free(ref);
 
 	if ((error = git_vector_insert(&t->refs, head)) < 0) {
@@ -120,7 +119,7 @@ static int add_ref(transport_local *t, const char *name)
 	/* If it's not an annotated tag, or if we're mocking
 	 * git-receive-pack, just get out */
 	if (git_object_type(obj) != GIT_OBJ_TAG ||
-		t->direction != GIT_DIRECTION_FETCH) {
+	    t->direction != GIT_DIRECTION_FETCH) {
 		git_object_free(obj);
 		return 0;
 	}
@@ -133,19 +132,18 @@ static int add_ref(transport_local *t, const char *name)
 		free_head(head);
 		return -1;
 	}
+
 	head->name = git_buf_detach(&buf);
 
 	if (!(error = git_tag_peel(&target, (git_tag *)obj))) {
 		git_oid_cpy(&head->oid, git_object_id(target));
 
-		if ((error = git_vector_insert(&t->refs, head)) < 0) {
+		if ((error = git_vector_insert(&t->refs, head)) < 0)
 			free_head(head);
-		}
 	}
 
 	git_object_free(obj);
 	git_object_free(target);
-
 	return error;
 }
 
@@ -154,7 +152,6 @@ static int store_refs(transport_local *t)
 	size_t i;
 	git_remote_head *head;
 	git_strarray ref_names = {0};
-
 	assert(t);
 
 	if (git_reference_list(&ref_names, t->repo) < 0)
@@ -165,10 +162,8 @@ static int store_refs(transport_local *t)
 		git__free(head->name);
 		git__free(head);
 	}
-
 	/* Clear the vector so we can reuse it */
 	git_vector_clear(&t->refs);
-
 	/* Sort the references first */
 	git__tsort((void **)ref_names.strings, ref_names.count, &git__strcmp_cb);
 
@@ -184,7 +179,6 @@ static int store_refs(transport_local *t)
 	t->have_refs = 1;
 	git_strarray_free(&ref_names);
 	return 0;
-
 on_error:
 	git_vector_free(&t->refs);
 	git_strarray_free(&ref_names);
@@ -196,18 +190,17 @@ on_error:
  * matter in this case because we're calculating the heads ourselves.
  */
 static int local_connect(
-	git_transport *transport,
-	const char *url,
-	git_cred_acquire_cb cred_acquire_cb,
-	void *cred_acquire_payload,
-	int direction, int flags)
+    git_transport *transport,
+    const char *url,
+    git_cred_acquire_cb cred_acquire_cb,
+    void *cred_acquire_payload,
+    int direction, int flags)
 {
 	git_repository *repo;
 	int error;
 	transport_local *t = (transport_local *) transport;
 	const char *path;
 	git_buf buf = GIT_BUF_INIT;
-
 	GIT_UNUSED(cred_acquire_cb);
 	GIT_UNUSED(cred_acquire_payload);
 
@@ -215,7 +208,6 @@ static int local_connect(
 		return 0;
 
 	free_heads(&t->refs);
-
 	t->url = git__strdup(url);
 	GITERR_CHECK_ALLOC(t->url);
 	t->direction = direction;
@@ -226,10 +218,9 @@ static int local_connect(
 		git_buf_free(&buf);
 		return error;
 	}
+
 	path = git_buf_cstr(&buf);
-
 	error = git_repository_open(&repo, path);
-
 	git_buf_free(&buf);
 
 	if (error < 0)
@@ -241,7 +232,6 @@ static int local_connect(
 		return -1;
 
 	t->connected = 1;
-
 	return 0;
 }
 
@@ -256,44 +246,41 @@ static int local_ls(const git_remote_head ***out, size_t *size, git_transport *t
 
 	*out = (const git_remote_head **)t->refs.contents;
 	*size = t->refs.length;
-
 	return 0;
 }
 
 static int local_negotiate_fetch(
-	git_transport *transport,
-	git_repository *repo,
-	const git_remote_head * const *refs,
-	size_t count)
+    git_transport *transport,
+    git_repository *repo,
+    const git_remote_head *const *refs,
+    size_t count)
 {
-	transport_local *t = (transport_local*)transport;
+	transport_local *t = (transport_local *)transport;
 	git_remote_head *rhead;
 	unsigned int i;
-
 	GIT_UNUSED(refs);
 	GIT_UNUSED(count);
-
 	/* Fill in the loids */
 	git_vector_foreach(&t->refs, i, rhead) {
 		git_object *obj;
-
 		int error = git_revparse_single(&obj, repo, rhead->name);
+
 		if (!error)
 			git_oid_cpy(&rhead->loid, git_object_id(obj));
 		else if (error != GIT_ENOTFOUND)
 			return error;
 		else
 			giterr_clear();
+
 		git_object_free(obj);
 	}
-
 	return 0;
 }
 
 static int local_push_copy_object(
-	git_odb *local_odb,
-	git_odb *remote_odb,
-	git_pobject *obj)
+    git_odb *local_odb,
+    git_odb *remote_odb,
+    git_pobject *obj)
 {
 	int error = 0;
 	git_odb_object *odb_obj = NULL;
@@ -313,33 +300,32 @@ static int local_push_copy_object(
 	odb_obj_type = git_odb_object_type(odb_obj);
 
 	if ((error = git_odb_open_wstream(&odb_stream, remote_odb,
-		odb_obj_size, odb_obj_type)) < 0)
+	                                  odb_obj_size, odb_obj_type)) < 0)
 		goto on_error;
 
 	if (git_odb_stream_write(odb_stream, (char *)git_odb_object_data(odb_obj),
-		odb_obj_size) < 0 ||
-		git_odb_stream_finalize_write(&remote_odb_obj_oid, odb_stream) < 0) {
+	                         odb_obj_size) < 0 ||
+	    git_odb_stream_finalize_write(&remote_odb_obj_oid, odb_stream) < 0)
 		error = -1;
-	} else if (git_oid__cmp(&obj->id, &remote_odb_obj_oid) != 0) {
+	else if (git_oid__cmp(&obj->id, &remote_odb_obj_oid) != 0) {
 		giterr_set(GITERR_ODB, "Error when writing object to remote odb "
-			"during local push operation. Remote odb object oid does not "
-			"match local oid.");
+		           "during local push operation. Remote odb object oid does not "
+		           "match local oid.");
 		error = -1;
 	}
 
 	git_odb_stream_free(odb_stream);
-
 on_error:
 	git_odb_object_free(odb_obj);
 	return error;
 }
 
 static int local_push_update_remote_ref(
-	git_repository *remote_repo,
-	const char *lref,
-	const char *rref,
-	git_oid *loid,
-	git_oid *roid)
+    git_repository *remote_repo,
+    const char *lref,
+    const char *rref,
+    git_oid *loid,
+    git_oid *roid)
 {
 	int error;
 	git_reference *remote_ref = NULL;
@@ -348,12 +334,13 @@ static int local_push_update_remote_ref(
 	if (lref[0] != '\0') {
 		/* Create or update a ref */
 		error = git_reference_create(NULL, remote_repo, rref, loid,
-					     !git_oid_iszero(roid), NULL);
+		                             !git_oid_iszero(roid), NULL);
 	} else {
 		/* Delete a ref */
 		if ((error = git_reference_lookup(&remote_ref, remote_repo, rref)) < 0) {
 			if (error == GIT_ENOTFOUND)
 				error = 0;
+
 			return error;
 		}
 
@@ -365,8 +352,8 @@ static int local_push_update_remote_ref(
 }
 
 static int local_push(
-	git_transport *transport,
-	git_push *push)
+    git_transport *transport,
+    git_push *push)
 {
 	transport_local *t = (transport_local *)transport;
 	git_odb *remote_odb = NULL;
@@ -385,10 +372,9 @@ static int local_push(
 		git_buf_free(&buf);
 		return error;
 	}
+
 	path = git_buf_cstr(&buf);
-
 	error = git_repository_open(&remote_repo, path);
-
 	git_buf_free(&buf);
 
 	if (error < 0)
@@ -404,52 +390,56 @@ static int local_push(
 	}
 
 	if ((error = git_repository_odb__weakptr(&remote_odb, remote_repo)) < 0 ||
-		(error = git_repository_odb__weakptr(&local_odb, push->repo)) < 0)
+	    (error = git_repository_odb__weakptr(&local_odb, push->repo)) < 0)
 		goto on_error;
 
 	for (i = 0; i < push->pb->nr_objects; i++) {
 		if ((error = local_push_copy_object(local_odb, remote_odb,
-			&push->pb->object_list[i])) < 0)
+		                                    &push->pb->object_list[i])) < 0)
 			goto on_error;
 	}
 
 	push->unpack_ok = 1;
-
 	git_vector_foreach(&push->specs, j, spec) {
 		push_status *status;
 		const git_error *last;
 		char *ref = spec->refspec.dst;
-
 		status = git__calloc(1, sizeof(push_status));
+
 		if (!status)
 			goto on_error;
 
 		status->ref = git__strdup(ref);
+
 		if (!status->ref) {
 			git_push_status_free(status);
 			goto on_error;
 		}
 
 		error = local_push_update_remote_ref(remote_repo, spec->refspec.src, spec->refspec.dst,
-			&spec->loid, &spec->roid);
+		                                     &spec->loid, &spec->roid);
 
 		switch (error) {
-			case GIT_OK:
-				break;
-			case GIT_EINVALIDSPEC:
-				status->msg = git__strdup("funny refname");
-				break;
-			case GIT_ENOTFOUND:
-				status->msg = git__strdup("Remote branch not found to delete");
-				break;
-			default:
-				last = giterr_last();
+		case GIT_OK:
+			break;
 
-				if (last && last->message)
-					status->msg = git__strdup(last->message);
-				else
-					status->msg = git__strdup("Unspecified error encountered");
-				break;
+		case GIT_EINVALIDSPEC:
+			status->msg = git__strdup("funny refname");
+			break;
+
+		case GIT_ENOTFOUND:
+			status->msg = git__strdup("Remote branch not found to delete");
+			break;
+
+		default:
+			last = giterr_last();
+
+			if (last && last->message)
+				status->msg = git__strdup(last->message);
+			else
+				status->msg = git__strdup("Unspecified error encountered");
+
+			break;
 		}
 
 		/* failed to allocate memory for a status message */
@@ -470,17 +460,15 @@ static int local_push(
 		url = git__strdup(t->url);
 
 		if (!url || t->parent.close(&t->parent) < 0 ||
-			t->parent.connect(&t->parent, url,
-			push->remote->callbacks.credentials, NULL, GIT_DIRECTION_PUSH, flags))
+		    t->parent.connect(&t->parent, url,
+		                      push->remote->callbacks.credentials, NULL, GIT_DIRECTION_PUSH, flags))
 			goto on_error;
 	}
 
 	error = 0;
-
 on_error:
 	git_repository_free(remote_repo);
 	git__free(url);
-
 	return error;
 }
 
@@ -493,8 +481,7 @@ typedef struct foreach_data {
 
 static int foreach_cb(void *buf, size_t len, void *payload)
 {
-	foreach_data *data = (foreach_data*)payload;
-
+	foreach_data *data = (foreach_data *)payload;
 	data->stats->received_bytes += len;
 	return data->writepack->append(data->writepack, buf, len, data->stats);
 }
@@ -502,13 +489,13 @@ static int foreach_cb(void *buf, size_t len, void *payload)
 static const char *counting_objects_fmt = "Counting objects %d\r";
 
 static int local_download_pack(
-		git_transport *transport,
-		git_repository *repo,
-		git_transfer_progress *stats,
-		git_transfer_progress_cb progress_cb,
-		void *progress_payload)
+    git_transport *transport,
+    git_repository *repo,
+    git_transfer_progress *stats,
+    git_transfer_progress_cb progress_cb,
+    void *progress_payload)
 {
-	transport_local *t = (transport_local*)transport;
+	transport_local *t = (transport_local *)transport;
 	git_revwalk *walk = NULL;
 	git_remote_head *rhead;
 	unsigned int i;
@@ -520,6 +507,7 @@ static int local_download_pack(
 
 	if ((error = git_revwalk_new(&walk, t->repo)) < 0)
 		goto cleanup;
+
 	git_revwalk_sorting(walk, GIT_SORT_TIME);
 
 	if ((error = git_packbuilder_new(&pack, t->repo)) < 0)
@@ -529,17 +517,19 @@ static int local_download_pack(
 	stats->indexed_objects = 0;
 	stats->received_objects = 0;
 	stats->received_bytes = 0;
-
 	git_vector_foreach(&t->refs, i, rhead) {
 		git_object *obj;
+
 		if ((error = git_object_lookup(&obj, t->repo, &rhead->oid, GIT_OBJ_ANY)) < 0)
 			goto cleanup;
 
 		if (git_object_type(obj) == GIT_OBJ_COMMIT) {
 			/* Revwalker includes only wanted commits */
 			error = git_revwalk_push(walk, &rhead->oid);
+
 			if (!error && !git_oid_iszero(&rhead->loid)) {
 				error = git_revwalk_hide(walk, &rhead->loid);
+
 				if (error == GIT_ENOTFOUND)
 					error = 0;
 			}
@@ -547,7 +537,9 @@ static int local_download_pack(
 			/* Tag or some other wanted object. Add it on its own */
 			error = git_packbuilder_insert_recur(pack, &rhead->oid, rhead->name);
 		}
+
 		git_object_free(obj);
+
 		if (error < 0)
 			goto cleanup;
 	}
@@ -569,6 +561,7 @@ static int local_download_pack(
 	/* One last one with the newline */
 	git_buf_clear(&progress_info);
 	git_buf_printf(&progress_info, counting_objects_fmt, git_packbuilder_object_count(pack));
+
 	if ((error = git_buf_putc(&progress_info, '\n')) < 0)
 		goto cleanup;
 
@@ -586,18 +579,17 @@ static int local_download_pack(
 		data.progress_cb = progress_cb;
 		data.progress_payload = progress_payload;
 		data.writepack = writepack;
-
 		/* autodetect */
 		git_packbuilder_set_threads(pack, 0);
 
 		if ((error = git_packbuilder_foreach(pack, foreach_cb, &data)) != 0)
 			goto cleanup;
 	}
-
 	error = writepack->commit(writepack, stats);
-
 cleanup:
+
 	if (writepack) writepack->free(writepack);
+
 	git_buf_free(&progress_info);
 	git_packbuilder_free(pack);
 	git_revwalk_free(walk);
@@ -605,50 +597,42 @@ cleanup:
 }
 
 static int local_set_callbacks(
-	git_transport *transport,
-	git_transport_message_cb progress_cb,
-	git_transport_message_cb error_cb,
-	git_transport_certificate_check_cb certificate_check_cb,
-	void *message_cb_payload)
+    git_transport *transport,
+    git_transport_message_cb progress_cb,
+    git_transport_message_cb error_cb,
+    git_transport_certificate_check_cb certificate_check_cb,
+    void *message_cb_payload)
 {
 	transport_local *t = (transport_local *)transport;
-
 	GIT_UNUSED(certificate_check_cb);
-
 	t->progress_cb = progress_cb;
 	t->error_cb = error_cb;
 	t->message_cb_payload = message_cb_payload;
-
 	return 0;
 }
 
 static int local_is_connected(git_transport *transport)
 {
 	transport_local *t = (transport_local *)transport;
-
 	return t->connected;
 }
 
 static int local_read_flags(git_transport *transport, int *flags)
 {
 	transport_local *t = (transport_local *)transport;
-
 	*flags = t->flags;
-
 	return 0;
 }
 
 static void local_cancel(git_transport *transport)
 {
 	transport_local *t = (transport_local *)transport;
-
 	git_atomic_set(&t->cancelled, 1);
 }
 
 static int local_close(git_transport *transport)
 {
 	transport_local *t = (transport_local *)transport;
-
 	t->connected = 0;
 
 	if (t->repo) {
@@ -667,12 +651,9 @@ static int local_close(git_transport *transport)
 static void local_free(git_transport *transport)
 {
 	transport_local *t = (transport_local *)transport;
-
 	free_heads(&t->refs);
-
 	/* Close the transport, if it's still open. */
 	local_close(transport);
-
 	/* Free the transport */
 	git__free(t);
 }
@@ -685,12 +666,9 @@ int git_transport_local(git_transport **out, git_remote *owner, void *param)
 {
 	int error;
 	transport_local *t;
-
 	GIT_UNUSED(param);
-
 	t = git__calloc(1, sizeof(transport_local));
 	GITERR_CHECK_ALLOC(t);
-
 	t->parent.version = GIT_TRANSPORT_VERSION;
 	t->parent.set_callbacks = local_set_callbacks;
 	t->parent.connect = local_connect;
@@ -710,8 +688,6 @@ int git_transport_local(git_transport **out, git_remote *owner, void *param)
 	}
 
 	t->owner = owner;
-
 	*out = (git_transport *) t;
-
 	return 0;
 }

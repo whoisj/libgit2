@@ -18,9 +18,7 @@ static git_repository *repo;
 void test_merge_workdir_renames__initialize(void)
 {
 	git_config *cfg;
-
 	repo = cl_git_sandbox_init(TEST_REPO_PATH);
-
 	/* Ensure that the user's merge.conflictstyle doesn't interfere */
 	cl_git_pass(git_repository_config(&cfg, repo));
 	cl_git_pass(git_config_set_string(cfg, "merge.conflictstyle", "merge"));
@@ -35,7 +33,6 @@ void test_merge_workdir_renames__cleanup(void)
 void test_merge_workdir_renames__renames(void)
 {
 	git_merge_options merge_opts = GIT_MERGE_OPTIONS_INIT;
-
 	struct merge_index_entry merge_index_entries[] = {
 		{ 0100644, "68c6c84b091926c7d90aa6a79b2bc3bb6adccd8e", 0, "0a-no-change.txt" },
 		{ 0100644, "f0ce2b8e4986084d9b308fb72709e414c23eb5e6", 0, "0b-duplicated-in-ours.txt" },
@@ -62,10 +59,8 @@ void test_merge_workdir_renames__renames(void)
 		{ 0100644, "b42712cfe99a1a500b2a51fe984e0b8a7702ba11", 0, "7-both-renamed.txt~HEAD" },
 		{ 0100644, "b69fe837e4cecfd4c9a40cdca7c138468687df07", 0, "7-both-renamed.txt~rename_conflict_theirs" },
 	};
-
 	merge_opts.tree_flags |= GIT_MERGE_TREE_FIND_RENAMES;
 	merge_opts.rename_threshold = 50;
-
 	cl_git_pass(merge_branches(repo, GIT_REFS_HEADS_DIR BRANCH_RENAME_OURS, GIT_REFS_HEADS_DIR BRANCH_RENAME_THEIRS, &merge_opts, NULL));
 	cl_assert(merge_test_workdir(repo, merge_index_entries, 24));
 }
@@ -75,7 +70,6 @@ void test_merge_workdir_renames__ours(void)
 	git_index *index;
 	git_merge_options merge_opts = GIT_MERGE_OPTIONS_INIT;
 	git_checkout_options checkout_opts = GIT_CHECKOUT_OPTIONS_INIT;
-
 	struct merge_index_entry merge_index_entries[] = {
 		{ 0100644, "68c6c84b091926c7d90aa6a79b2bc3bb6adccd8e", 0, "0a-no-change.txt" },
 		{ 0100644, "f0ce2b8e4986084d9b308fb72709e414c23eb5e6", 0, "0b-duplicated-in-ours.txt" },
@@ -98,23 +92,19 @@ void test_merge_workdir_renames__ours(void)
 		{ 0100644, "b69fe837e4cecfd4c9a40cdca7c138468687df07", 0, "7-both-renamed-side-2.txt" },
 		{ 0100644, "b42712cfe99a1a500b2a51fe984e0b8a7702ba11", 0, "7-both-renamed.txt" },
 	};
-
 	merge_opts.tree_flags |= GIT_MERGE_TREE_FIND_RENAMES;
 	merge_opts.rename_threshold = 50;
 	checkout_opts.checkout_strategy = GIT_CHECKOUT_SAFE | GIT_CHECKOUT_USE_OURS;
-
 	cl_git_pass(merge_branches(repo, GIT_REFS_HEADS_DIR BRANCH_RENAME_OURS, GIT_REFS_HEADS_DIR BRANCH_RENAME_THEIRS, &merge_opts, &checkout_opts));
 	cl_git_pass(git_repository_index(&index, repo));
 	cl_git_pass(git_index_write(index));
 	cl_assert(merge_test_workdir(repo, merge_index_entries, 20));
-
 	git_index_free(index);
 }
 
 void test_merge_workdir_renames__similar(void)
 {
 	git_merge_options merge_opts = GIT_MERGE_OPTIONS_INIT;
-
 	/*
 	 * Note: this differs slightly from the core git merge result - there, 4a is
 	 * tracked as a rename/delete instead of a rename/add and the theirs side
@@ -146,10 +136,8 @@ void test_merge_workdir_renames__similar(void)
 		{ 0100644, "b42712cfe99a1a500b2a51fe984e0b8a7702ba11", 0, "7-both-renamed.txt~HEAD" },
 		{ 0100644, "b69fe837e4cecfd4c9a40cdca7c138468687df07", 0, "7-both-renamed.txt~rename_conflict_theirs" },
 	};
-
 	merge_opts.tree_flags |= GIT_MERGE_TREE_FIND_RENAMES;
 	merge_opts.rename_threshold = 50;
-
 	cl_git_pass(merge_branches(repo, GIT_REFS_HEADS_DIR BRANCH_RENAME_OURS, GIT_REFS_HEADS_DIR BRANCH_RENAME_THEIRS, &merge_opts, NULL));
 	cl_assert(merge_test_workdir(repo, merge_index_entries, 24));
 }

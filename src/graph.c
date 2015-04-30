@@ -15,13 +15,15 @@ static int interesting(git_pqueue *list, git_commit_list *roots)
 
 	for (i = 0; i < git_pqueue_size(list); i++) {
 		git_commit_list_node *commit = git_pqueue_get(list, i);
+
 		if ((commit->flags & STALE) == 0)
 			return 1;
 	}
 
-	while(roots) {
+	while (roots) {
 		if ((roots->item->flags & STALE) == 0)
 			return 1;
+
 		roots = roots->next;
 	}
 
@@ -29,7 +31,7 @@ static int interesting(git_pqueue *list, git_commit_list *roots)
 }
 
 static int mark_parents(git_revwalk *walk, git_commit_list_node *one,
-	git_commit_list_node *two)
+                        git_commit_list_node *two)
 {
 	unsigned int i;
 	git_commit_list *roots = NULL;
@@ -46,13 +48,17 @@ static int mark_parents(git_revwalk *walk, git_commit_list_node *one,
 
 	if (git_commit_list_parse(walk, one) < 0)
 		goto on_error;
+
 	one->flags |= PARENT1;
+
 	if (git_pqueue_insert(&list, one) < 0)
 		goto on_error;
 
 	if (git_commit_list_parse(walk, two) < 0)
 		goto on_error;
+
 	two->flags |= PARENT2;
+
 	if (git_pqueue_insert(&list, two) < 0)
 		goto on_error;
 
@@ -65,15 +71,18 @@ static int mark_parents(git_revwalk *walk, git_commit_list_node *one,
 			break;
 
 		flags = commit->flags & (PARENT1 | PARENT2 | STALE);
+
 		if (flags == (PARENT1 | PARENT2)) {
 			if (!(commit->flags & RESULT))
 				commit->flags |= RESULT;
+
 			/* we mark the parents of a merge stale */
 			flags |= STALE;
 		}
 
 		for (i = 0; i < commit->out_degree; i++) {
 			git_commit_list_node *p = commit->parents[i];
+
 			if ((p->flags & flags) == flags)
 				continue;
 
@@ -81,6 +90,7 @@ static int mark_parents(git_revwalk *walk, git_commit_list_node *one,
 				goto on_error;
 
 			p->flags |= flags;
+
 			if (git_pqueue_insert(&list, p) < 0)
 				goto on_error;
 		}
@@ -95,7 +105,6 @@ static int mark_parents(git_revwalk *walk, git_commit_list_node *one,
 	git_commit_list_free(&roots);
 	git_pqueue_free(&list);
 	return 0;
-
 on_error:
 	git_commit_list_free(&roots);
 	git_pqueue_free(&list);
@@ -104,7 +113,7 @@ on_error:
 
 
 static int ahead_behind(git_commit_list_node *one, git_commit_list_node *two,
-	size_t *ahead, size_t *behind)
+                        size_t *ahead, size_t *behind)
 {
 	git_commit_list_node *commit;
 	git_pqueue pq;
@@ -116,12 +125,12 @@ static int ahead_behind(git_commit_list_node *one, git_commit_list_node *two,
 		return -1;
 
 	if ((error = git_pqueue_insert(&pq, one)) < 0 ||
-		(error = git_pqueue_insert(&pq, two)) < 0)
+	    (error = git_pqueue_insert(&pq, two)) < 0)
 		goto done;
 
 	while ((commit = git_pqueue_pop(&pq)) != NULL) {
 		if (commit->flags & RESULT ||
-			(commit->flags & (PARENT1 | PARENT2)) == (PARENT1 | PARENT2))
+		    (commit->flags & (PARENT1 | PARENT2)) == (PARENT1 | PARENT2))
 			continue;
 		else if (commit->flags & PARENT1)
 			(*ahead)++;
@@ -130,9 +139,11 @@ static int ahead_behind(git_commit_list_node *one, git_commit_list_node *two,
 
 		for (i = 0; i < commit->out_degree; i++) {
 			git_commit_list_node *p = commit->parents[i];
+
 			if ((error = git_pqueue_insert(&pq, p)) < 0)
 				goto done;
 		}
+
 		commit->flags |= RESULT;
 	}
 
@@ -142,7 +153,7 @@ done:
 }
 
 int git_graph_ahead_behind(size_t *ahead, size_t *behind, git_repository *repo,
-	const git_oid *local, const git_oid *upstream)
+                           const git_oid *local, const git_oid *upstream)
 {
 	git_revwalk *walk;
 	git_commit_list_node *commit_u, *commit_l;
@@ -151,22 +162,23 @@ int git_graph_ahead_behind(size_t *ahead, size_t *behind, git_repository *repo,
 		return -1;
 
 	commit_u = git_revwalk__commit_lookup(walk, upstream);
+
 	if (commit_u == NULL)
 		goto on_error;
 
 	commit_l = git_revwalk__commit_lookup(walk, local);
+
 	if (commit_l == NULL)
 		goto on_error;
 
 	if (mark_parents(walk, commit_l, commit_u) < 0)
 		goto on_error;
+
 	if (ahead_behind(commit_l, commit_u, ahead, behind) < 0)
 		goto on_error;
 
 	git_revwalk_free(walk);
-
 	return 0;
-
 on_error:
 	git_revwalk_free(walk);
 	return -1;
@@ -181,6 +193,7 @@ int git_graph_descendant_of(git_repository *repo, const git_oid *commit, const g
 		return 0;
 
 	error = git_merge_base(&merge_base, repo, commit, ancestor);
+
 	/* No merge-base found, it's not a descendant */
 	if (error == GIT_ENOTFOUND)
 		return 0;

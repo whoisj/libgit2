@@ -35,10 +35,10 @@ typedef struct {
  * @return 0 on success, <0 on failure (probably allocation problem)
  */
 extern int git_buf_text_puts_escaped(
-	git_buf *buf,
-	const char *string,
-	const char *esc_chars,
-	const char *esc_with);
+    git_buf *buf,
+    const char *string,
+    const char *esc_chars,
+    const char *esc_with);
 
 /**
  * Append string escaping characters that are regex special
@@ -102,7 +102,7 @@ extern bool git_buf_text_contains_nul(const git_buf *buf);
  * @return Number of bytes of BOM data (or 0 if no BOM found)
  */
 extern int git_buf_text_detect_bom(
-	git_bom_t *bom, const git_buf *buf, size_t offset);
+    git_bom_t *bom, const git_buf *buf, size_t offset);
 
 /**
  * Gather stats for a piece of text
@@ -118,6 +118,6 @@ extern int git_buf_text_detect_bom(
  * @return Does the buffer heuristically look like binary data
  */
 extern bool git_buf_text_gather_stats(
-	git_buf_text_stats *stats, const git_buf *buf, bool skip_bom);
+    git_buf_text_stats *stats, const git_buf *buf, bool skip_bom);
 
 #endif

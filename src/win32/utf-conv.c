@@ -88,9 +88,7 @@ int git__utf16_to_8(char *dest, size_t dest_size, const wchar_t *src)
 int git__utf8_to_16_alloc(wchar_t **dest, const char *src)
 {
 	int utf16_size;
-
 	*dest = NULL;
-
 	/* Length of -1 indicates NULL termination of the input string */
 	utf16_size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, src, -1, NULL, 0);
 
@@ -108,7 +106,6 @@ int git__utf8_to_16_alloc(wchar_t **dest, const char *src)
 
 	if (!utf16_size) {
 		git__set_errno();
-
 		git__free(*dest);
 		*dest = NULL;
 	}
@@ -132,9 +129,7 @@ int git__utf16_to_8_alloc(char **dest, const wchar_t *src)
 {
 	int utf8_size;
 	DWORD dwFlags = get_wc_flags();
-
 	*dest = NULL;
-
 	/* Length of -1 indicates NULL termination of the input string */
 	utf8_size = WideCharToMultiByte(CP_UTF8, dwFlags, src, -1, NULL, 0, NULL, NULL);
 
@@ -154,7 +149,6 @@ int git__utf16_to_8_alloc(char **dest, const wchar_t *src)
 
 	if (!utf8_size) {
 		git__set_errno();
-
 		git__free(*dest);
 		*dest = NULL;
 	}

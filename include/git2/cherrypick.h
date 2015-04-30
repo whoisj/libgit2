@@ -45,8 +45,8 @@ typedef struct {
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_cherrypick_init_options(
-	git_cherrypick_options *opts,
-	unsigned int version);
+    git_cherrypick_options *opts,
+    unsigned int version);
 
 /**
  * Cherry-picks the given commit against the given "our" commit, producing an
@@ -63,12 +63,12 @@ GIT_EXTERN(int) git_cherrypick_init_options(
  * @return zero on success, -1 on failure.
  */
 GIT_EXTERN(int) git_cherrypick_commit(
-	git_index **out,
-	git_repository *repo,
-	git_commit *cherrypick_commit,
-	git_commit *our_commit,
-	unsigned int mainline,
-	const git_merge_options *merge_options);
+    git_index **out,
+    git_repository *repo,
+    git_commit *cherrypick_commit,
+    git_commit *our_commit,
+    unsigned int mainline,
+    const git_merge_options *merge_options);
 
 /**
  * Cherry-pick the given commit, producing changes in the index and working directory.
@@ -79,9 +79,9 @@ GIT_EXTERN(int) git_cherrypick_commit(
  * @return zero on success, -1 on failure.
  */
 GIT_EXTERN(int) git_cherrypick(
-	git_repository *repo,
-	git_commit *commit,
-	const git_cherrypick_options *cherrypick_options);
+    git_repository *repo,
+    git_commit *commit,
+    const git_cherrypick_options *cherrypick_options);
 
 /** @} */
 GIT_END_DECL

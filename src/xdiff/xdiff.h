@@ -110,7 +110,7 @@ void *xdl_mmfile_first(mmfile_t *mmf, long *size);
 long xdl_mmfile_size(mmfile_t *mmf);
 
 int xdl_diff(mmfile_t *mf1, mmfile_t *mf2, xpparam_t const *xpp,
-	     xdemitconf_t const *xecfg, xdemitcb_t *ecb);
+             xdemitconf_t const *xecfg, xdemitcb_t *ecb);
 
 typedef struct s_xmparam {
 	xpparam_t xpp;
@@ -126,7 +126,7 @@ typedef struct s_xmparam {
 #define DEFAULT_CONFLICT_MARKER_SIZE 7
 
 int xdl_merge(mmfile_t *orig, mmfile_t *mf1, mmfile_t *mf2,
-		xmparam_t const *xmp, mmbuffer_t *result);
+              xmparam_t const *xmp, mmbuffer_t *result);
 
 #ifdef __cplusplus
 }

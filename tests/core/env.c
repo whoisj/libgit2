@@ -30,6 +30,7 @@ static char *home_values[] = {
 void test_core_env__initialize(void)
 {
 	int i;
+
 	for (i = 0; i < NUM_VARS; ++i) {
 		const char *original = cl_getenv(env_vars[i]);
 #ifdef GIT_WIN32
@@ -75,9 +76,7 @@ void test_core_env__cleanup(void)
 static void setenv_and_check(const char *name, const char *value)
 {
 	char *check;
-
 	cl_git_pass(cl_setenv(name, value));
-
 	check = cl_getenv(name);
 	cl_assert_equal_s(value, check);
 #ifdef GIT_WIN32
@@ -92,12 +91,10 @@ void test_core_env__0(void)
 	char **val;
 	const char *testname = "testfile";
 	size_t testlen = strlen(testname);
-
 	strncpy(testfile, testname, sizeof(testfile));
 	cl_assert_equal_s(testname, testfile);
 
 	for (val = home_values; *val != NULL; val++) {
-
 		/* if we can't make the directory, let's just assume
 		 * we are on a filesystem that doesn't support the
 		 * characters in question and skip this test...
@@ -108,7 +105,6 @@ void test_core_env__0(void)
 		}
 
 		cl_git_pass(git_path_prettify(&path, *val, NULL));
-
 		/* vary testfile name in each directory so accidentally leaving
 		 * an environment variable set from a previous iteration won't
 		 * accidentally make this test pass...
@@ -117,29 +113,21 @@ void test_core_env__0(void)
 		cl_git_pass(git_buf_joinpath(&path, path.ptr, testfile));
 		cl_git_mkfile(path.ptr, "find me");
 		git_buf_rtruncate_at_char(&path, '/');
-
 		cl_assert_equal_i(
-			GIT_ENOTFOUND, git_sysdir_find_global_file(&found, testfile));
-
+		    GIT_ENOTFOUND, git_sysdir_find_global_file(&found, testfile));
 		setenv_and_check("HOME", path.ptr);
 		set_global_search_path_from_env();
-
 		cl_git_pass(git_sysdir_find_global_file(&found, testfile));
-
 		cl_setenv("HOME", env_save[0]);
 		set_global_search_path_from_env();
-
 		cl_assert_equal_i(
-			GIT_ENOTFOUND, git_sysdir_find_global_file(&found, testfile));
-
+		    GIT_ENOTFOUND, git_sysdir_find_global_file(&found, testfile));
 #ifdef GIT_WIN32
 		setenv_and_check("HOMEDRIVE", NULL);
 		setenv_and_check("HOMEPATH", NULL);
 		setenv_and_check("USERPROFILE", path.ptr);
 		set_global_search_path_from_env();
-
 		cl_git_pass(git_sysdir_find_global_file(&found, testfile));
-
 		{
 			int root = git_path_root(path.ptr);
 			char old;
@@ -147,22 +135,18 @@ void test_core_env__0(void)
 			if (root >= 0) {
 				setenv_and_check("USERPROFILE", NULL);
 				set_global_search_path_from_env();
-
 				cl_assert_equal_i(
-					GIT_ENOTFOUND, git_sysdir_find_global_file(&found, testfile));
-
+				    GIT_ENOTFOUND, git_sysdir_find_global_file(&found, testfile));
 				old = path.ptr[root];
 				path.ptr[root] = '\0';
 				setenv_and_check("HOMEDRIVE", path.ptr);
 				path.ptr[root] = old;
 				setenv_and_check("HOMEPATH", &path.ptr[root]);
 				set_global_search_path_from_env();
-
 				cl_git_pass(git_sysdir_find_global_file(&found, testfile));
 			}
 		}
 #endif
-
 		(void)p_rmdir(*val);
 	}
 
@@ -174,20 +158,16 @@ void test_core_env__0(void)
 void test_core_env__1(void)
 {
 	git_buf path = GIT_BUF_INIT;
-
 	cl_assert_equal_i(
-		GIT_ENOTFOUND, git_sysdir_find_global_file(&path, "nonexistentfile"));
-
+	    GIT_ENOTFOUND, git_sysdir_find_global_file(&path, "nonexistentfile"));
 	cl_git_pass(cl_setenv("HOME", "doesnotexist"));
 #ifdef GIT_WIN32
 	cl_git_pass(cl_setenv("HOMEPATH", "doesnotexist"));
 	cl_git_pass(cl_setenv("USERPROFILE", "doesnotexist"));
 #endif
 	set_global_search_path_from_env();
-
 	cl_assert_equal_i(
-		GIT_ENOTFOUND, git_sysdir_find_global_file(&path, "nonexistentfile"));
-
+	    GIT_ENOTFOUND, git_sysdir_find_global_file(&path, "nonexistentfile"));
 	cl_git_pass(cl_setenv("HOME", NULL));
 #ifdef GIT_WIN32
 	cl_git_pass(cl_setenv("HOMEPATH", NULL));
@@ -195,26 +175,21 @@ void test_core_env__1(void)
 #endif
 	set_global_search_path_from_env();
 	set_system_search_path_from_env();
-
 	cl_assert_equal_i(
-		GIT_ENOTFOUND, git_sysdir_find_global_file(&path, "nonexistentfile"));
-
+	    GIT_ENOTFOUND, git_sysdir_find_global_file(&path, "nonexistentfile"));
 	cl_assert_equal_i(
-		GIT_ENOTFOUND, git_sysdir_find_system_file(&path, "nonexistentfile"));
-
+	    GIT_ENOTFOUND, git_sysdir_find_system_file(&path, "nonexistentfile"));
 #ifdef GIT_WIN32
 	cl_git_pass(cl_setenv("PROGRAMFILES", NULL));
 	set_system_search_path_from_env();
-
 	cl_assert_equal_i(
-		GIT_ENOTFOUND, git_sysdir_find_system_file(&path, "nonexistentfile"));
+	    GIT_ENOTFOUND, git_sysdir_find_system_file(&path, "nonexistentfile"));
 #endif
-
 	git_buf_free(&path);
 }
 
 static void check_global_searchpath(
-	const char *path, int position, const char *file, git_buf *temp)
+    const char *path, int position, const char *file, git_buf *temp)
 {
 	git_buf out = GIT_BUF_INIT;
 
@@ -227,11 +202,10 @@ static void check_global_searchpath(
 		cl_git_pass(git_buf_sets(temp, path));
 
 	cl_git_pass(git_libgit2_opts(
-		GIT_OPT_SET_SEARCH_PATH, GIT_CONFIG_LEVEL_GLOBAL, temp->ptr));
-
+	                GIT_OPT_SET_SEARCH_PATH, GIT_CONFIG_LEVEL_GLOBAL, temp->ptr));
 	/* get path and make sure $PATH expansion worked */
 	cl_git_pass(git_libgit2_opts(
-		GIT_OPT_GET_SEARCH_PATH, GIT_CONFIG_LEVEL_GLOBAL, &out));
+	                GIT_OPT_GET_SEARCH_PATH, GIT_CONFIG_LEVEL_GLOBAL, &out));
 
 	if (position < 0)
 		cl_assert(git__prefixcmp(out.ptr, path) == 0);
@@ -242,13 +216,11 @@ static void check_global_searchpath(
 
 	/* find file using new path */
 	cl_git_pass(git_sysdir_find_global_file(temp, file));
-
 	/* reset path and confirm file not found */
 	cl_git_pass(git_libgit2_opts(
-		GIT_OPT_SET_SEARCH_PATH, GIT_CONFIG_LEVEL_GLOBAL, NULL));
+	                GIT_OPT_SET_SEARCH_PATH, GIT_CONFIG_LEVEL_GLOBAL, NULL));
 	cl_assert_equal_i(
-		GIT_ENOTFOUND, git_sysdir_find_global_file(temp, file));
-
+	    GIT_ENOTFOUND, git_sysdir_find_global_file(temp, file));
 	git_buf_free(&out);
 }
 
@@ -259,12 +231,10 @@ void test_core_env__2(void)
 	char **val;
 	const char *testname = "alternate";
 	size_t testlen = strlen(testname);
-
 	strncpy(testfile, testname, sizeof(testfile));
 	cl_assert_equal_s(testname, testfile);
 
 	for (val = home_values; *val != NULL; val++) {
-
 		/* if we can't make the directory, let's just assume
 		 * we are on a filesystem that doesn't support the
 		 * characters in question and skip this test...
@@ -275,7 +245,6 @@ void test_core_env__2(void)
 		}
 
 		cl_git_pass(git_path_prettify(&path, *val, NULL));
-
 		/* vary testfile name so any sloppiness is resetting variables or
 		 * deleting files won't accidentally make a test pass.
 		 */
@@ -283,16 +252,13 @@ void test_core_env__2(void)
 		cl_git_pass(git_buf_joinpath(&path, path.ptr, testfile));
 		cl_git_mkfile(path.ptr, "find me");
 		git_buf_rtruncate_at_char(&path, '/');
-
 		/* default should be NOTFOUND */
 		cl_assert_equal_i(
-			GIT_ENOTFOUND, git_sysdir_find_global_file(&found, testfile));
-
+		    GIT_ENOTFOUND, git_sysdir_find_global_file(&found, testfile));
 		/* try plain, append $PATH, and prepend $PATH */
 		check_global_searchpath(path.ptr,  0, testfile, &found);
 		check_global_searchpath(path.ptr, -1, testfile, &found);
 		check_global_searchpath(path.ptr,  1, testfile, &found);
-
 		/* cleanup */
 		cl_git_pass(git_buf_joinpath(&path, path.ptr, testfile));
 		(void)p_unlink(path.ptr);

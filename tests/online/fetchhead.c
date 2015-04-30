@@ -14,7 +14,6 @@ void test_online_fetchhead__initialize(void)
 {
 	git_remote_callbacks dummy_callbacks = GIT_REMOTE_CALLBACKS_INIT;
 	g_repo = NULL;
-
 	memset(&g_options, 0, sizeof(git_clone_options));
 	g_options.version = GIT_CLONE_OPTIONS_VERSION;
 	g_options.remote_callbacks = dummy_callbacks;
@@ -41,11 +40,10 @@ static void fetchhead_test_fetch(const char *fetchspec, const char *expected_fet
 	git_buf fetchhead_buf = GIT_BUF_INIT;
 	int equals = 0;
 	git_strarray array, *active_refs = NULL;
-
 	cl_git_pass(git_remote_lookup(&remote, g_repo, "origin"));
 	git_remote_set_autotag(remote, GIT_REMOTE_DOWNLOAD_TAGS_AUTO);
 
-	if(fetchspec != NULL) {
+	if (fetchspec != NULL) {
 		array.count = 1;
 		array.strings = (char **) &fetchspec;
 		active_refs = &array;
@@ -56,13 +54,9 @@ static void fetchhead_test_fetch(const char *fetchspec, const char *expected_fet
 	cl_git_pass(git_remote_update_tips(remote, NULL));
 	git_remote_disconnect(remote);
 	git_remote_free(remote);
-
 	cl_git_pass(git_futils_readbuffer(&fetchhead_buf, "./foo/.git/FETCH_HEAD"));
-
 	equals = (strcmp(fetchhead_buf.ptr, expected_fetchhead) == 0);
-
 	git_buf_free(&fetchhead_buf);
-
 	cl_assert(equals);
 }
 
@@ -86,14 +80,11 @@ void test_online_fetchhead__explicit_spec(void)
 void test_online_fetchhead__no_merges(void)
 {
 	git_config *config;
-
 	fetchhead_test_clone();
-
 	cl_git_pass(git_repository_config(&config, g_repo));
 	cl_git_pass(git_config_delete_entry(config, "branch.master.remote"));
 	cl_git_pass(git_config_delete_entry(config, "branch.master.merge"));
 	git_config_free(config);
-
 	fetchhead_test_fetch(NULL, FETCH_HEAD_NO_MERGE_DATA2);
 	cl_git_pass(git_tag_delete(g_repo, "annotated_tag"));
 	cl_git_pass(git_tag_delete(g_repo, "blob"));

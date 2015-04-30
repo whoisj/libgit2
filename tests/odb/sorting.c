@@ -9,8 +9,8 @@ typedef struct {
 static git_odb_backend *new_backend(size_t position)
 {
 	fake_backend *b;
-
 	b = git__calloc(1, sizeof(fake_backend));
+
 	if (b == NULL)
 		return NULL;
 
@@ -50,7 +50,6 @@ void test_odb_sorting__basic_backends_sorting(void)
 	cl_git_pass(git_odb_add_backend(_odb, new_backend(2), 3));
 	cl_git_pass(git_odb_add_backend(_odb, new_backend(1), 4));
 	cl_git_pass(git_odb_add_backend(_odb, new_backend(3), 1));
-
 	check_backend_sorting(_odb);
 }
 
@@ -64,6 +63,5 @@ void test_odb_sorting__alternate_backends_sorting(void)
 	cl_git_pass(git_odb_add_alternate(_odb, new_backend(6), 3));
 	cl_git_pass(git_odb_add_alternate(_odb, new_backend(5), 4));
 	cl_git_pass(git_odb_add_alternate(_odb, new_backend(7), 1));
-
 	check_backend_sorting(_odb);
 }

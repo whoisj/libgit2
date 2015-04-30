@@ -12,10 +12,8 @@ void test_repo_reservedname__includes_shortname_on_win32(void)
 	git_repository *repo;
 	git_buf *reserved;
 	size_t reserved_len;
-
 	repo = cl_git_sandbox_init("nasty");
 	cl_assert(git_repository__reserved_names(&reserved, &reserved_len, repo, false));
-
 #ifdef GIT_WIN32
 	cl_assert_equal_i(2, reserved_len);
 	cl_assert_equal_s(".git", reserved[0].ptr);
@@ -31,10 +29,8 @@ void test_repo_reservedname__includes_shortname_when_requested(void)
 	git_repository *repo;
 	git_buf *reserved;
 	size_t reserved_len;
-
 	repo = cl_git_sandbox_init("nasty");
 	cl_assert(git_repository__reserved_names(&reserved, &reserved_len, repo, true));
-
 	cl_assert_equal_i(2, reserved_len);
 	cl_assert_equal_s(".git", reserved[0].ptr);
 	cl_assert_equal_s("GIT~1", reserved[1].ptr);
@@ -54,13 +50,10 @@ void test_repo_reservedname__custom_shortname_recognized(void)
 		clar__skip();
 
 	repo = cl_git_sandbox_init("nasty");
-
 	cl_must_pass(p_rename("nasty/.git", "nasty/_temp"));
-	cl_git_write2file("nasty/git~1", "", 0, O_RDWR|O_CREAT, 0666);
+	cl_git_write2file("nasty/git~1", "", 0, O_RDWR | O_CREAT, 0666);
 	cl_must_pass(p_rename("nasty/_temp", "nasty/.git"));
-
 	cl_assert(git_repository__reserved_names(&reserved, &reserved_len, repo, true));
-
 	cl_assert_equal_i(3, reserved_len);
 	cl_assert_equal_s(".git", reserved[0].ptr);
 	cl_assert_equal_s("GIT~1", reserved[1].ptr);
@@ -90,18 +83,13 @@ void test_repo_reservedname__submodule_pointer(void)
 		clar__skip();
 
 	super_repo = setup_fixture_submod2();
-
 	assert_submodule_exists(super_repo, "sm_unchanged");
-
 	cl_git_pass(git_submodule_lookup(&sub, super_repo, "sm_unchanged"));
 	cl_git_pass(git_submodule_open(&sub_repo, sub));
-
 	cl_assert(git_repository__reserved_names(&sub_reserved, &sub_reserved_len, sub_repo, true));
-
 	cl_assert_equal_i(2, sub_reserved_len);
 	cl_assert_equal_s(".git", sub_reserved[0].ptr);
 	cl_assert_equal_s("GIT~1", sub_reserved[1].ptr);
-
 	git_submodule_free(sub);
 	git_repository_free(sub_repo);
 #endif

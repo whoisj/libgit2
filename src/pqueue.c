@@ -13,10 +13,10 @@
 #define PQUEUE_PARENT_OF(I) (((I)-1)>>1)
 
 int git_pqueue_init(
-	git_pqueue *pq,
-	uint32_t flags,
-	size_t init_size,
-	git_vector_cmp cmp)
+    git_pqueue *pq,
+    uint32_t flags,
+    size_t init_size,
+    git_vector_cmp cmp)
 {
 	int error = git_vector_init(pq, init_size, cmp);
 
@@ -44,7 +44,6 @@ static void pqueue_up(git_pqueue *pq, size_t el)
 			break;
 
 		pq->contents[el] = parent;
-
 		el = parent_el;
 		parent_el = PQUEUE_PARENT_OF(el);
 	}
@@ -63,7 +62,7 @@ static void pqueue_down(git_pqueue *pq, size_t el)
 			break;
 
 		if ((rkid = git_vector_get(pq, kid_el + 1)) != NULL &&
-			pq->_cmp(kid, rkid) > 0) {
+		    pq->_cmp(kid, rkid) > 0) {
 			kid    = rkid;
 			kid_el += 1;
 		}
@@ -84,11 +83,11 @@ int git_pqueue_insert(git_pqueue *pq, void *item)
 
 	/* if heap is full, pop the top element if new one should replace it */
 	if ((pq->flags & GIT_PQUEUE_FIXED_SIZE) != 0 &&
-		pq->length >= pq->_alloc_size)
-	{
+	    pq->length >= pq->_alloc_size) {
 		/* skip this item if below min item in heap */
 		if (pq->_cmp(item, git_vector_get(pq, 0)) <= 0)
 			return 0;
+
 		/* otherwise remove the min item before inserting new */
 		(void)git_pqueue_pop(pq);
 	}

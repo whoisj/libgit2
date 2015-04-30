@@ -46,7 +46,6 @@ GIT_INLINE(int) path__cwd(wchar_t *path, int size)
 		return len;
 
 	len -= PATH__NT_NAMESPACE_LEN;
-
 	memmove(path, path + PATH__NT_NAMESPACE_LEN, sizeof(wchar_t) * len);
 	return len;
 }
@@ -72,11 +71,10 @@ static wchar_t *path__skip_prefix(wchar_t *path)
 			path = path__skip_server(path + 4);
 		else if (path__is_absolute(path))
 			path += PATH__ABSOLUTE_LEN;
-	} else if (path__is_absolute(path)) {
+	} else if (path__is_absolute(path))
 		path += PATH__ABSOLUTE_LEN;
-	} else if (path__is_unc(path)) {
+	else if (path__is_unc(path))
 		path = path__skip_server(path + 2);
-	}
 
 	return path;
 }
@@ -85,7 +83,6 @@ int git_win32_path_canonicalize(git_win32_path path)
 {
 	wchar_t *base, *from, *to, *next;
 	size_t len;
-
 	base = to = path__skip_prefix(path);
 
 	/* Unposixify if the prefix */
@@ -109,7 +106,6 @@ int git_win32_path_canonicalize(git_win32_path path)
 
 		if (len == 1 && from[0] == L'.')
 			/* do nothing with singleton dot */;
-
 		else if (len == 2 && from[0] == L'.' && from[1] == L'.') {
 			if (to == base) {
 				/* no more path segments to strip, eat the "../" */
@@ -120,6 +116,7 @@ int git_win32_path_canonicalize(git_win32_path path)
 			} else {
 				/* back up a path segment */
 				while (to > base && to[-1] == L'\\') to--;
+
 				while (to > base && to[-1] != L'\\') to--;
 			}
 		} else {
@@ -141,7 +138,6 @@ int git_win32_path_canonicalize(git_win32_path path)
 	while (to > base && to[-1] == L'\\') to--;
 
 	*to = L'\0';
-
 	return (to - path);
 }
 
@@ -164,14 +160,12 @@ int git_win32_path__cwd(wchar_t *out, size_t len)
 			return -1;
 		}
 
-		memmove(out+2, out, sizeof(wchar_t) * cwd_len);
+		memmove(out + 2, out, sizeof(wchar_t) * cwd_len);
 		out[0] = L'U';
 		out[1] = L'N';
 		out[2] = L'C';
-
 		cwd_len += 2;
 	}
-
 	/* Our buffer must be at least 2 characters larger than the current
 	 * working directory.  (One character for the directory separator,
 	 * one for the null.
@@ -187,7 +181,6 @@ int git_win32_path__cwd(wchar_t *out, size_t len)
 int git_win32_path_from_utf8(git_win32_path out, const char *src)
 {
 	wchar_t *dest = out;
-
 	/* All win32 paths are in NT-prefixed format, beginning with "\\?\". */
 	memcpy(dest, PATH__NT_NAMESPACE, sizeof(wchar_t) * PATH__NT_NAMESPACE_LEN);
 	dest += PATH__NT_NAMESPACE_LEN;
@@ -222,7 +215,7 @@ int git_win32_path_from_utf8(git_win32_path out, const char *src)
 			return -1;
 		}
 
-		/* Skip the drive letter specification ("C:") */	
+		/* Skip the drive letter specification ("C:") */
 		if (git__utf8_to_16(dest + 2, MAX_PATH - 2, src) < 0)
 			return -1;
 	}
@@ -254,7 +247,6 @@ int git_win32_path_to_utf8(git_win32_utf8_path dest, const wchar_t *src)
 		/* "\\?\UNC\server\share" -> "\\server\share" */
 		if (wcsncmp(src, L"UNC\\", 4) == 0) {
 			src += 4;
-
 			memcpy(dest, "\\\\", 2);
 			out = dest + 2;
 		}
@@ -264,7 +256,6 @@ int git_win32_path_to_utf8(git_win32_utf8_path dest, const wchar_t *src)
 		return len;
 
 	git_path_mkposix(dest);
-
 	return len;
 }
 
@@ -280,15 +271,15 @@ char *git_win32_path_8dot3_name(const char *path)
 
 	len = GetShortPathNameW(longpath, shortpath, GIT_WIN_PATH_UTF16);
 
-	while (len && shortpath[len-1] == L'\\')
+	while (len && shortpath[len - 1] == L'\\')
 		shortpath[--len] = L'\0';
 
 	if (len == 0 || len >= GIT_WIN_PATH_UTF16)
 		return NULL;
 
 	for (start = shortpath + (len - 1);
-		start > shortpath && *(start-1) != '/' && *(start-1) != '\\';
-		start--)
+	     start > shortpath && *(start - 1) != '/' && *(start - 1) != '\\';
+	     start--)
 		namelen++;
 
 	/* We may not have actually been given a short name.  But if we have,

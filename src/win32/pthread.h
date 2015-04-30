@@ -31,7 +31,9 @@ typedef int pthread_rwlockattr_t;
 typedef CRITICAL_SECTION pthread_mutex_t;
 typedef HANDLE pthread_cond_t;
 
-typedef struct { void *Ptr; } GIT_SRWLOCK;
+typedef struct {
+	void *Ptr;
+} GIT_SRWLOCK;
 
 typedef struct {
 	union {
@@ -43,14 +45,14 @@ typedef struct {
 #define PTHREAD_MUTEX_INITIALIZER  {(void*)-1}
 
 int git_win32__thread_create(
-	git_win32_thread *GIT_RESTRICT,
-	const pthread_attr_t *GIT_RESTRICT,
-	void *(*) (void *),
-	void *GIT_RESTRICT);
+    git_win32_thread *GIT_RESTRICT,
+    const pthread_attr_t *GIT_RESTRICT,
+    void *(*) (void *),
+    void *GIT_RESTRICT);
 
 int git_win32__thread_join(
-	git_win32_thread *,
-	void **);
+    git_win32_thread *,
+    void **);
 
 #ifdef GIT_THREADS
 
@@ -64,8 +66,8 @@ typedef git_win32_thread git_thread;
 #endif
 
 int pthread_mutex_init(
-	pthread_mutex_t *GIT_RESTRICT mutex,
-	const pthread_mutexattr_t *GIT_RESTRICT mutexattr);
+    pthread_mutex_t *GIT_RESTRICT mutex,
+    const pthread_mutexattr_t *GIT_RESTRICT mutexattr);
 int pthread_mutex_destroy(pthread_mutex_t *);
 int pthread_mutex_lock(pthread_mutex_t *);
 int pthread_mutex_unlock(pthread_mutex_t *);
@@ -79,8 +81,8 @@ int pthread_cond_signal(pthread_cond_t *);
 int pthread_num_processors_np(void);
 
 int pthread_rwlock_init(
-	pthread_rwlock_t *GIT_RESTRICT lock,
-	const pthread_rwlockattr_t *GIT_RESTRICT attr);
+    pthread_rwlock_t *GIT_RESTRICT lock,
+    const pthread_rwlockattr_t *GIT_RESTRICT attr);
 int pthread_rwlock_rdlock(pthread_rwlock_t *);
 int pthread_rwlock_rdunlock(pthread_rwlock_t *);
 int pthread_rwlock_wrlock(pthread_rwlock_t *);

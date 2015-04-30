@@ -27,44 +27,37 @@ void test_status_worktree__whole_repository(void)
 {
 	status_entry_counts counts;
 	git_repository *repo = cl_git_sandbox_init("status");
-
 	memset(&counts, 0x0, sizeof(status_entry_counts));
 	counts.expected_entry_count = entry_count0;
 	counts.expected_paths = entry_paths0;
 	counts.expected_statuses = entry_statuses0;
-
 	cl_git_pass(
-		git_status_foreach(repo, cb_status__normal, &counts)
+	    git_status_foreach(repo, cb_status__normal, &counts)
 	);
-
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
 }
 
 void assert_show(
-	const int entry_counts,
-	const char *entry_paths[],
-	const unsigned int entry_statuses[],
-	git_repository *repo,
-	git_status_show_t show,
-	unsigned int extra_flags)
+    const int entry_counts,
+    const char *entry_paths[],
+    const unsigned int entry_statuses[],
+    git_repository *repo,
+    git_status_show_t show,
+    unsigned int extra_flags)
 {
 	status_entry_counts counts;
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
-
 	memset(&counts, 0x0, sizeof(status_entry_counts));
 	counts.expected_entry_count = entry_counts;
 	counts.expected_paths = entry_paths;
 	counts.expected_statuses = entry_statuses;
-
 	opts.flags = GIT_STATUS_OPT_DEFAULTS | extra_flags;
 	opts.show = show;
-
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__normal, &counts)
+	    git_status_foreach_ext(repo, &opts, cb_status__normal, &counts)
 	);
-
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
@@ -73,19 +66,19 @@ void assert_show(
 void test_status_worktree__show_index_and_workdir(void)
 {
 	assert_show(entry_count0, entry_paths0, entry_statuses0,
-		cl_git_sandbox_init("status"), GIT_STATUS_SHOW_INDEX_AND_WORKDIR, 0);
+	            cl_git_sandbox_init("status"), GIT_STATUS_SHOW_INDEX_AND_WORKDIR, 0);
 }
 
 void test_status_worktree__show_index_only(void)
 {
 	assert_show(entry_count5, entry_paths5, entry_statuses5,
-		cl_git_sandbox_init("status"), GIT_STATUS_SHOW_INDEX_ONLY, 0);
+	            cl_git_sandbox_init("status"), GIT_STATUS_SHOW_INDEX_ONLY, 0);
 }
 
 void test_status_worktree__show_workdir_only(void)
 {
 	assert_show(entry_count6, entry_paths6, entry_statuses6,
-		cl_git_sandbox_init("status"), GIT_STATUS_SHOW_WORKDIR_ONLY, 0);
+	            cl_git_sandbox_init("status"), GIT_STATUS_SHOW_WORKDIR_ONLY, 0);
 }
 
 /* this test is equivalent to t18-status.c:statuscb1 */
@@ -93,16 +86,13 @@ void test_status_worktree__empty_repository(void)
 {
 	int count = 0;
 	git_repository *repo = cl_git_sandbox_init("empty_standard_repo");
-
 	cl_git_pass(git_status_foreach(repo, cb_status__count, &count));
-
 	cl_assert_equal_i(0, count);
 }
 
 static int remove_file_cb(void *data, git_buf *file)
 {
 	const char *filename = git_buf_cstr(file);
-
 	GIT_UNUSED(data);
 
 	if (git__suffixcmp(filename, ".git") == 0)
@@ -122,22 +112,18 @@ void test_status_worktree__purged_worktree(void)
 	status_entry_counts counts;
 	git_repository *repo = cl_git_sandbox_init("status");
 	git_buf workdir = GIT_BUF_INIT;
-
 	/* first purge the contents of the worktree */
 	cl_git_pass(git_buf_sets(&workdir, git_repository_workdir(repo)));
 	cl_git_pass(git_path_direach(&workdir, 0, remove_file_cb, NULL));
 	git_buf_free(&workdir);
-
 	/* now get status */
 	memset(&counts, 0x0, sizeof(status_entry_counts));
 	counts.expected_entry_count = entry_count2;
 	counts.expected_paths = entry_paths2;
 	counts.expected_statuses = entry_statuses2;
-
 	cl_git_pass(
-		git_status_foreach(repo, cb_status__normal, &counts)
+	    git_status_foreach(repo, cb_status__normal, &counts)
 	);
-
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
@@ -151,33 +137,26 @@ void test_status_worktree__swap_subdir_and_file(void)
 	git_index *index;
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
 	bool ignore_case;
-
 	cl_git_pass(git_repository_index(&index, repo));
 	ignore_case = (git_index_caps(index) & GIT_INDEXCAP_IGNORE_CASE) != 0;
 	git_index_free(index);
-
 	/* first alter the contents of the worktree */
 	cl_git_pass(p_rename("status/current_file", "status/swap"));
 	cl_git_pass(p_rename("status/subdir", "status/current_file"));
 	cl_git_pass(p_rename("status/swap", "status/subdir"));
-
 	cl_git_mkfile("status/.HEADER", "dummy");
 	cl_git_mkfile("status/42-is-not-prime.sigh", "dummy");
 	cl_git_mkfile("status/README.md", "dummy");
-
 	/* now get status */
 	memset(&counts, 0x0, sizeof(status_entry_counts));
 	counts.expected_entry_count = entry_count3;
 	counts.expected_paths = ignore_case ? entry_paths3_icase : entry_paths3;
 	counts.expected_statuses = ignore_case ? entry_statuses3_icase : entry_statuses3;
-
 	opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED |
-		GIT_STATUS_OPT_INCLUDE_IGNORED;
-
+	             GIT_STATUS_OPT_INCLUDE_IGNORED;
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__normal, &counts)
+	    git_status_foreach_ext(repo, &opts, cb_status__normal, &counts)
 	);
-
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
@@ -188,7 +167,6 @@ void test_status_worktree__swap_subdir_with_recurse_and_pathspec(void)
 	status_entry_counts counts;
 	git_repository *repo = cl_git_sandbox_init("status");
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
-
 	/* first alter the contents of the worktree */
 	cl_git_pass(p_rename("status/current_file", "status/swap"));
 	cl_git_pass(p_rename("status/subdir", "status/current_file"));
@@ -197,21 +175,17 @@ void test_status_worktree__swap_subdir_with_recurse_and_pathspec(void)
 	cl_git_pass(git_futils_mkdir_r("status/zzz_new_dir", NULL, 0777));
 	cl_git_mkfile("status/zzz_new_dir/new_file", "dummy");
 	cl_git_mkfile("status/zzz_new_file", "dummy");
-
 	/* now get status */
 	memset(&counts, 0x0, sizeof(status_entry_counts));
 	counts.expected_entry_count = entry_count4;
 	counts.expected_paths = entry_paths4;
 	counts.expected_statuses = entry_statuses4;
-
 	opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED |
-		GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS;
+	             GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS;
 	/* TODO: set pathspec to "current_file" eventually */
-
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__normal, &counts)
+	    git_status_foreach_ext(repo, &opts, cb_status__normal, &counts)
 	);
-
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
@@ -226,7 +200,7 @@ void test_status_worktree__single_file(void)
 
 	for (i = 0; i < (int)entry_count0; i++) {
 		cl_git_pass(
-			git_status_file(&status_flags, repo, entry_paths0[i])
+		    git_status_file(&status_flags, repo, entry_paths0[i])
 		);
 		cl_assert(entry_statuses0[i] == status_flags);
 	}
@@ -238,7 +212,6 @@ void test_status_worktree__single_nonexistent_file(void)
 	int error;
 	unsigned int status_flags;
 	git_repository *repo = cl_git_sandbox_init("status");
-
 	error = git_status_file(&status_flags, repo, "nonexistent");
 	cl_git_fail(error);
 	cl_assert(error == GIT_ENOTFOUND);
@@ -250,7 +223,6 @@ void test_status_worktree__single_nonexistent_file_empty_repo(void)
 	int error;
 	unsigned int status_flags;
 	git_repository *repo = cl_git_sandbox_init("empty_standard_repo");
-
 	error = git_status_file(&status_flags, repo, "nonexistent");
 	cl_git_fail(error);
 	cl_assert(error == GIT_ENOTFOUND);
@@ -261,9 +233,7 @@ void test_status_worktree__single_file_empty_repo(void)
 {
 	unsigned int status_flags;
 	git_repository *repo = cl_git_sandbox_init("empty_standard_repo");
-
 	cl_git_mkfile("empty_standard_repo/new_file", "new_file\n");
-
 	cl_git_pass(git_status_file(&status_flags, repo, "new_file"));
 	cl_assert(status_flags == GIT_STATUS_WT_NEW);
 }
@@ -274,7 +244,6 @@ void test_status_worktree__single_folder(void)
 	int error;
 	unsigned int status_flags;
 	git_repository *repo = cl_git_sandbox_init("status");
-
 	error = git_status_file(&status_flags, repo, "subdir");
 	cl_git_fail(error);
 	cl_assert(error != GIT_ENOTFOUND);
@@ -288,18 +257,17 @@ void test_status_worktree__ignores(void)
 
 	for (i = 0; i < (int)entry_count0; i++) {
 		cl_git_pass(
-			git_status_should_ignore(&ignored, repo, entry_paths0[i])
+		    git_status_should_ignore(&ignored, repo, entry_paths0[i])
 		);
 		cl_assert(ignored == (entry_statuses0[i] == GIT_STATUS_IGNORED));
 	}
 
 	cl_git_pass(
-		git_status_should_ignore(&ignored, repo, "nonexistent_file")
+	    git_status_should_ignore(&ignored, repo, "nonexistent_file")
 	);
 	cl_assert(!ignored);
-
 	cl_git_pass(
-		git_status_should_ignore(&ignored, repo, "ignored_nonexistent_file")
+	    git_status_should_ignore(&ignored, repo, "ignored_nonexistent_file")
 	);
 	cl_assert(ignored);
 }
@@ -307,7 +275,7 @@ void test_status_worktree__ignores(void)
 static int cb_status__check_592(const char *p, unsigned int s, void *payload)
 {
 	if (s != GIT_STATUS_WT_DELETED ||
-		(payload != NULL && strcmp(p, (const char *)payload) != 0))
+	    (payload != NULL && strcmp(p, (const char *)payload) != 0))
 		return -1;
 
 	return 0;
@@ -317,14 +285,11 @@ void test_status_worktree__issue_592(void)
 {
 	git_repository *repo;
 	git_buf path = GIT_BUF_INIT;
-
 	repo = cl_git_sandbox_init("issue_592");
 	cl_git_pass(git_buf_joinpath(&path, git_repository_workdir(repo), "l.txt"));
 	cl_git_pass(p_unlink(git_buf_cstr(&path)));
 	cl_assert(!git_path_exists("issue_592/l.txt"));
-
 	cl_git_pass(git_status_foreach(repo, cb_status__check_592, "l.txt"));
-
 	git_buf_free(&path);
 }
 
@@ -332,14 +297,11 @@ void test_status_worktree__issue_592_2(void)
 {
 	git_repository *repo;
 	git_buf path = GIT_BUF_INIT;
-
 	repo = cl_git_sandbox_init("issue_592");
 	cl_git_pass(git_buf_joinpath(&path, git_repository_workdir(repo), "c/a.txt"));
 	cl_git_pass(p_unlink(git_buf_cstr(&path)));
 	cl_assert(!git_path_exists("issue_592/c/a.txt"));
-
 	cl_git_pass(git_status_foreach(repo, cb_status__check_592, "c/a.txt"));
-
 	git_buf_free(&path);
 }
 
@@ -347,15 +309,11 @@ void test_status_worktree__issue_592_3(void)
 {
 	git_repository *repo;
 	git_buf path = GIT_BUF_INIT;
-
 	repo = cl_git_sandbox_init("issue_592");
-
 	cl_git_pass(git_buf_joinpath(&path, git_repository_workdir(repo), "c"));
 	cl_git_pass(git_futils_rmdir_r(git_buf_cstr(&path), NULL, GIT_RMDIR_REMOVE_FILES));
 	cl_assert(!git_path_exists("issue_592/c/a.txt"));
-
 	cl_git_pass(git_status_foreach(repo, cb_status__check_592, "c/a.txt"));
-
 	git_buf_free(&path);
 }
 
@@ -363,14 +321,10 @@ void test_status_worktree__issue_592_4(void)
 {
 	git_repository *repo;
 	git_buf path = GIT_BUF_INIT;
-
 	repo = cl_git_sandbox_init("issue_592");
-
 	cl_git_pass(git_buf_joinpath(&path, git_repository_workdir(repo), "t/b.txt"));
 	cl_git_pass(p_unlink(git_buf_cstr(&path)));
-
 	cl_git_pass(git_status_foreach(repo, cb_status__check_592, "t/b.txt"));
-
 	git_buf_free(&path);
 }
 
@@ -378,15 +332,11 @@ void test_status_worktree__issue_592_5(void)
 {
 	git_repository *repo;
 	git_buf path = GIT_BUF_INIT;
-
 	repo = cl_git_sandbox_init("issue_592");
-
 	cl_git_pass(git_buf_joinpath(&path, git_repository_workdir(repo), "t"));
 	cl_git_pass(git_futils_rmdir_r(git_buf_cstr(&path), NULL, GIT_RMDIR_REMOVE_FILES));
 	cl_git_pass(p_mkdir(git_buf_cstr(&path), 0777));
-
 	cl_git_pass(git_status_foreach(repo, cb_status__check_592, NULL));
-
 	git_buf_free(&path);
 }
 
@@ -395,16 +345,12 @@ void test_status_worktree__issue_592_ignores_0(void)
 	int count = 0;
 	status_entry_single st;
 	git_repository *repo = cl_git_sandbox_init("issue_592");
-
 	cl_git_pass(git_status_foreach(repo, cb_status__count, &count));
 	cl_assert_equal_i(0, count);
-
 	cl_git_rewritefile("issue_592/.gitignore",
-		".gitignore\n*.txt\nc/\n[tT]*/\n");
-
+	                   ".gitignore\n*.txt\nc/\n[tT]*/\n");
 	cl_git_pass(git_status_foreach(repo, cb_status__count, &count));
 	cl_assert_equal_i(1, count);
-
 	/* This is a situation where the behavior of libgit2 is
 	 * different from core git.  Core git will show ignored.txt
 	 * in the list of ignored files, even though the directory
@@ -414,21 +360,16 @@ void test_status_worktree__issue_592_ignores_0(void)
 	 * directories without explicitly listing them.
 	 */
 	cl_git_rewritefile("issue_592/t/ignored.txt", "ping");
-
 	memset(&st, 0, sizeof(st));
 	cl_git_pass(git_status_foreach(repo, cb_status__single, &st));
 	cl_assert_equal_i(1, st.count);
 	cl_assert(st.status == GIT_STATUS_IGNORED);
-
 	cl_git_rewritefile("issue_592/c/ignored_by_dir", "ping");
-
 	memset(&st, 0, sizeof(st));
 	cl_git_pass(git_status_foreach(repo, cb_status__single, &st));
 	cl_assert_equal_i(1, st.count);
 	cl_assert(st.status == GIT_STATUS_IGNORED);
-
 	cl_git_rewritefile("issue_592/t/ignored_by_dir_pattern", "ping");
-
 	memset(&st, 0, sizeof(st));
 	cl_git_pass(git_status_foreach(repo, cb_status__single, &st));
 	cl_assert_equal_i(1, st.count);
@@ -439,10 +380,8 @@ void test_status_worktree__issue_592_ignored_dirs_with_tracked_content(void)
 {
 	int count = 0;
 	git_repository *repo = cl_git_sandbox_init("issue_592b");
-
 	cl_git_pass(git_status_foreach(repo, cb_status__count, &count));
 	cl_assert_equal_i(1, count);
-
 	/* if we are really mimicking core git, then only ignored1.txt
 	 * at the top level will show up in the ignores list here.
 	 * everything else will be unmodified or skipped completely.
@@ -455,35 +394,27 @@ void test_status_worktree__conflict_with_diff3(void)
 	git_index *index;
 	unsigned int status;
 	git_index_entry ancestor_entry, our_entry, their_entry;
-
 	memset(&ancestor_entry, 0x0, sizeof(git_index_entry));
 	memset(&our_entry, 0x0, sizeof(git_index_entry));
 	memset(&their_entry, 0x0, sizeof(git_index_entry));
-
 	ancestor_entry.path = "modified_file";
 	git_oid_fromstr(&ancestor_entry.id,
-		"452e4244b5d083ddf0460acf1ecc74db9dcfa11a");
-
+	                "452e4244b5d083ddf0460acf1ecc74db9dcfa11a");
 	our_entry.path = "modified_file";
 	git_oid_fromstr(&our_entry.id,
-		"452e4244b5d083ddf0460acf1ecc74db9dcfa11a");
-
+	                "452e4244b5d083ddf0460acf1ecc74db9dcfa11a");
 	their_entry.path = "modified_file";
 	git_oid_fromstr(&their_entry.id,
-		"452e4244b5d083ddf0460acf1ecc74db9dcfa11a");
-
+	                "452e4244b5d083ddf0460acf1ecc74db9dcfa11a");
 	cl_git_pass(git_status_file(&status, repo, "modified_file"));
 	cl_assert_equal_i(GIT_STATUS_WT_MODIFIED, status);
-
 	cl_git_pass(git_repository_index(&index, repo));
 	cl_git_pass(git_index_remove(index, "modified_file", 0));
 	cl_git_pass(git_index_conflict_add(
-		index, &ancestor_entry, &our_entry, &their_entry));
+	                index, &ancestor_entry, &our_entry, &their_entry));
 	cl_git_pass(git_index_write(index));
 	git_index_free(index);
-
 	cl_git_pass(git_status_file(&status, repo, "modified_file"));
-
 	cl_assert_equal_i(GIT_STATUS_INDEX_DELETED | GIT_STATUS_WT_NEW, status);
 }
 
@@ -522,7 +453,6 @@ void test_status_worktree__filemode_changes(void)
 		cl_repo_set_bool(repo, "core.filemode", true);
 	else {
 		int i;
-
 		cl_repo_set_bool(repo, "core.filemode", false);
 
 		/* won't trust filesystem mode diffs, so these will appear unchanged */
@@ -532,18 +462,15 @@ void test_status_worktree__filemode_changes(void)
 	}
 
 	opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED |
-		GIT_STATUS_OPT_INCLUDE_IGNORED |
-		GIT_STATUS_OPT_INCLUDE_UNMODIFIED;
-
+	             GIT_STATUS_OPT_INCLUDE_IGNORED |
+	             GIT_STATUS_OPT_INCLUDE_UNMODIFIED;
 	memset(&counts, 0, sizeof(counts));
 	counts.expected_entry_count = filemode_count;
 	counts.expected_paths = filemode_paths;
 	counts.expected_statuses = filemode_statuses;
-
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__normal, &counts)
+	    git_status_foreach_ext(repo, &opts, cb_status__normal, &counts)
 	);
-
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
@@ -552,12 +479,9 @@ void test_status_worktree__filemode_changes(void)
 static int cb_status__interrupt(const char *p, unsigned int s, void *payload)
 {
 	volatile int *count = (int *)payload;
-
 	GIT_UNUSED(p);
 	GIT_UNUSED(s);
-
 	(*count)++;
-
 	return (*count == 8) ? -111 : 0;
 }
 
@@ -565,11 +489,9 @@ void test_status_worktree__interruptable_foreach(void)
 {
 	int count = 0;
 	git_repository *repo = cl_git_sandbox_init("status");
-
 	cl_assert_equal_i(
-		-111, git_status_foreach(repo, cb_status__interrupt, &count)
+	    -111, git_status_foreach(repo, cb_status__interrupt, &count)
 	);
-
 	cl_assert_equal_i(8, count);
 }
 
@@ -577,13 +499,9 @@ void test_status_worktree__line_endings_dont_count_as_changes_with_autocrlf(void
 {
 	git_repository *repo = cl_git_sandbox_init("status");
 	unsigned int status;
-
 	cl_repo_set_bool(repo, "core.autocrlf", true);
-
 	cl_git_rewritefile("status/current_file", "current_file\r\n");
-
 	cl_git_pass(git_status_file(&status, repo, "current_file"));
-
 	/* stat data on file should no longer match stat cache, even though
 	 * file diff will be empty because of line-ending conversion - matches
 	 * the Git command-line behavior here.
@@ -595,11 +513,8 @@ void test_status_worktree__line_endings_dont_count_as_changes_with_autocrlf_issu
 {
 	git_repository *repo = cl_git_sandbox_init("issue_1397");
 	unsigned int status;
-
 	cl_repo_set_bool(repo, "core.autocrlf", true);
-
 	cl_git_pass(git_status_file(&status, repo, "crlf_file.txt"));
-
 	cl_assert_equal_i(GIT_STATUS_CURRENT, status);
 }
 
@@ -609,40 +524,31 @@ void test_status_worktree__conflicted_item(void)
 	git_index *index;
 	unsigned int status;
 	git_index_entry ancestor_entry, our_entry, their_entry;
-
 	memset(&ancestor_entry, 0x0, sizeof(git_index_entry));
 	memset(&our_entry, 0x0, sizeof(git_index_entry));
 	memset(&their_entry, 0x0, sizeof(git_index_entry));
-
 	ancestor_entry.path = "modified_file";
 	git_oid_fromstr(&ancestor_entry.id,
-		"452e4244b5d083ddf0460acf1ecc74db9dcfa11a");
-
+	                "452e4244b5d083ddf0460acf1ecc74db9dcfa11a");
 	our_entry.path = "modified_file";
 	git_oid_fromstr(&our_entry.id,
-		"452e4244b5d083ddf0460acf1ecc74db9dcfa11a");
-
+	                "452e4244b5d083ddf0460acf1ecc74db9dcfa11a");
 	their_entry.path = "modified_file";
 	git_oid_fromstr(&their_entry.id,
-		"452e4244b5d083ddf0460acf1ecc74db9dcfa11a");
-
+	                "452e4244b5d083ddf0460acf1ecc74db9dcfa11a");
 	cl_git_pass(git_status_file(&status, repo, "modified_file"));
 	cl_assert_equal_i(GIT_STATUS_WT_MODIFIED, status);
-
 	cl_git_pass(git_repository_index(&index, repo));
 	cl_git_pass(git_index_conflict_add(index, &ancestor_entry,
-		&our_entry, &their_entry));
-
+	                                   &our_entry, &their_entry));
 	cl_git_pass(git_status_file(&status, repo, "modified_file"));
 	cl_assert_equal_i(GIT_STATUS_WT_MODIFIED, status);
-
 	git_index_free(index);
 }
 
 static void stage_and_commit(git_repository *repo, const char *path)
 {
 	git_index *index;
-
 	cl_git_pass(git_repository_index(&index, repo));
 	cl_git_pass(git_index_add_bypath(index, path));
 	cl_repo_commit_from_index(NULL, repo, NULL, 1323847743, "Initial commit\n");
@@ -650,42 +556,30 @@ static void stage_and_commit(git_repository *repo, const char *path)
 }
 
 static void assert_ignore_case(
-	bool should_ignore_case,
-	int expected_lower_cased_file_status,
-	int expected_camel_cased_file_status)
+    bool should_ignore_case,
+    int expected_lower_cased_file_status,
+    int expected_camel_cased_file_status)
 {
 	unsigned int status;
 	git_buf lower_case_path = GIT_BUF_INIT, camel_case_path = GIT_BUF_INIT;
 	git_repository *repo, *repo2;
-
 	repo = cl_git_sandbox_init("empty_standard_repo");
 	cl_git_remove_placeholders(git_repository_path(repo), "dummy-marker.txt");
-
 	cl_repo_set_bool(repo, "core.ignorecase", should_ignore_case);
-
 	cl_git_pass(git_buf_joinpath(&lower_case_path,
-		git_repository_workdir(repo), "plop"));
-
+	                             git_repository_workdir(repo), "plop"));
 	cl_git_mkfile(git_buf_cstr(&lower_case_path), "");
-
 	stage_and_commit(repo, "plop");
-
 	cl_git_pass(git_repository_open(&repo2, "./empty_standard_repo"));
-
 	cl_git_pass(git_status_file(&status, repo2, "plop"));
 	cl_assert_equal_i(GIT_STATUS_CURRENT, status);
-
 	cl_git_pass(git_buf_joinpath(&camel_case_path,
-		git_repository_workdir(repo), "Plop"));
-
+	                             git_repository_workdir(repo), "Plop"));
 	cl_git_pass(p_rename(git_buf_cstr(&lower_case_path), git_buf_cstr(&camel_case_path)));
-
 	cl_git_pass(git_status_file(&status, repo2, "plop"));
 	cl_assert_equal_i(expected_lower_cased_file_status, status);
-
 	cl_git_pass(git_status_file(&status, repo2, "Plop"));
 	cl_assert_equal_i(expected_camel_cased_file_status, status);
-
 	git_repository_free(repo2);
 	git_buf_free(&lower_case_path);
 	git_buf_free(&camel_case_path);
@@ -703,48 +597,38 @@ void test_status_worktree__file_status_honors_core_ignorecase_false(void)
 
 void test_status_worktree__file_status_honors_case_ignorecase_regarding_untracked_files(void)
 {
-    git_repository *repo = cl_git_sandbox_init("status");
-    unsigned int status;
-    git_index *index;
-
-    cl_repo_set_bool(repo, "core.ignorecase", false);
-
+	git_repository *repo = cl_git_sandbox_init("status");
+	unsigned int status;
+	git_index *index;
+	cl_repo_set_bool(repo, "core.ignorecase", false);
 	repo = cl_git_sandbox_reopen();
-
-    /* Actually returns GIT_STATUS_IGNORED on Windows */
-    cl_git_fail_with(git_status_file(&status, repo, "NEW_FILE"), GIT_ENOTFOUND);
-
-    cl_git_pass(git_repository_index(&index, repo));
-
-    cl_git_pass(git_index_add_bypath(index, "new_file"));
-    cl_git_pass(git_index_write(index));
-    git_index_free(index);
-
-    /* Actually returns GIT_STATUS_IGNORED on Windows */
-    cl_git_fail_with(git_status_file(&status, repo, "NEW_FILE"), GIT_ENOTFOUND);
+	/* Actually returns GIT_STATUS_IGNORED on Windows */
+	cl_git_fail_with(git_status_file(&status, repo, "NEW_FILE"), GIT_ENOTFOUND);
+	cl_git_pass(git_repository_index(&index, repo));
+	cl_git_pass(git_index_add_bypath(index, "new_file"));
+	cl_git_pass(git_index_write(index));
+	git_index_free(index);
+	/* Actually returns GIT_STATUS_IGNORED on Windows */
+	cl_git_fail_with(git_status_file(&status, repo, "NEW_FILE"), GIT_ENOTFOUND);
 }
 
 void test_status_worktree__simple_delete(void)
 {
-    git_repository *repo = cl_git_sandbox_init("renames");
+	git_repository *repo = cl_git_sandbox_init("renames");
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
 	int count;
-
 	opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED |
-		GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH |
-		GIT_STATUS_OPT_EXCLUDE_SUBMODULES |
-		GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS;
-
+	             GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH |
+	             GIT_STATUS_OPT_EXCLUDE_SUBMODULES |
+	             GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS;
 	count = 0;
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__count, &count) );
+	    git_status_foreach_ext(repo, &opts, cb_status__count, &count) );
 	cl_assert_equal_i(0, count);
-
 	cl_must_pass(p_unlink("renames/untimely.txt"));
-
 	count = 0;
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__count, &count) );
+	    git_status_foreach_ext(repo, &opts, cb_status__count, &count) );
 	cl_assert_equal_i(1, count);
 }
 
@@ -753,22 +637,18 @@ void test_status_worktree__simple_delete_indexed(void)
 	git_repository *repo = cl_git_sandbox_init("renames");
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
 	git_status_list *status;
-
 	opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED |
-		GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH |
-		GIT_STATUS_OPT_EXCLUDE_SUBMODULES |
-		GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS;
-
+	             GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH |
+	             GIT_STATUS_OPT_EXCLUDE_SUBMODULES |
+	             GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS;
 	cl_git_pass(git_status_list_new(&status, repo, &opts));
 	cl_assert_equal_sz(0, git_status_list_entrycount(status));
 	git_status_list_free(status);
-
 	cl_must_pass(p_unlink("renames/untimely.txt"));
-
 	cl_git_pass(git_status_list_new(&status, repo, &opts));
 	cl_assert_equal_sz(1, git_status_list_entrycount(status));
 	cl_assert_equal_i(
-		GIT_STATUS_WT_DELETED, git_status_byindex(status, 0)->status);
+	    GIT_STATUS_WT_DELETED, git_status_byindex(status, 0)->status);
 	git_status_list_free(status);
 }
 
@@ -791,29 +671,26 @@ void test_status_worktree__sorting_by_case(void)
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
 	bool native_ignore_case;
 	status_entry_counts counts;
-
 	cl_git_pass(git_repository_index(&index, repo));
 	native_ignore_case =
-		(git_index_caps(index) & GIT_INDEXCAP_IGNORE_CASE) != 0;
+	    (git_index_caps(index) & GIT_INDEXCAP_IGNORE_CASE) != 0;
 	git_index_free(index);
-
 	memset(&counts, 0, sizeof(counts));
 	counts.expected_entry_count = 0;
 	counts.expected_paths = NULL;
 	counts.expected_statuses = NULL;
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__normal, &counts));
+	    git_status_foreach_ext(repo, &opts, cb_status__normal, &counts));
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
-
 	cl_git_rewritefile("icase/B", "new stuff");
 	cl_must_pass(p_unlink("icase/c"));
 	cl_git_rewritefile("icase/g", "new stuff");
 	cl_must_pass(p_unlink("icase/H"));
-
 	memset(&counts, 0, sizeof(counts));
 	counts.expected_entry_count = 4;
+
 	if (native_ignore_case) {
 		counts.expected_paths = icase_paths;
 		counts.expected_statuses = icase_statuses;
@@ -821,32 +698,29 @@ void test_status_worktree__sorting_by_case(void)
 		counts.expected_paths = case_paths;
 		counts.expected_statuses = case_statuses;
 	}
+
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__normal, &counts));
+	    git_status_foreach_ext(repo, &opts, cb_status__normal, &counts));
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
-
 	opts.flags = GIT_STATUS_OPT_SORT_CASE_SENSITIVELY;
-
 	memset(&counts, 0, sizeof(counts));
 	counts.expected_entry_count = 4;
 	counts.expected_paths = case_paths;
 	counts.expected_statuses = case_statuses;
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__normal, &counts));
+	    git_status_foreach_ext(repo, &opts, cb_status__normal, &counts));
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
-
 	opts.flags = GIT_STATUS_OPT_SORT_CASE_INSENSITIVELY;
-
 	memset(&counts, 0, sizeof(counts));
 	counts.expected_entry_count = 4;
 	counts.expected_paths = icase_paths;
 	counts.expected_statuses = icase_statuses;
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__normal, &counts));
+	    git_status_foreach_ext(repo, &opts, cb_status__normal, &counts));
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
@@ -854,30 +728,25 @@ void test_status_worktree__sorting_by_case(void)
 
 void test_status_worktree__long_filenames(void)
 {
-	char path[260*4+1];
+	char path[260 * 4 + 1];
 	const char *expected_paths[] = {path};
 	const unsigned int expected_statuses[] = {GIT_STATUS_WT_NEW};
-
 	git_repository *repo = cl_git_sandbox_init("empty_standard_repo");
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
 	status_entry_counts counts = {0};
-
 	// Create directory with amazingly long filename
 	sprintf(path, "empty_standard_repo/%s", longname);
 	cl_git_pass(git_futils_mkdir_r(path, NULL, 0777));
 	sprintf(path, "empty_standard_repo/%s/foo", longname);
 	cl_git_mkfile(path, "dummy");
-
 	sprintf(path, "%s/foo", longname);
 	counts.expected_entry_count = 1;
 	counts.expected_paths = expected_paths;
 	counts.expected_statuses = expected_statuses;
-
 	opts.show = GIT_STATUS_SHOW_WORKDIR_ONLY;
 	opts.flags = GIT_STATUS_OPT_DEFAULTS;
-
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__normal, &counts) );
+	    git_status_foreach_ext(repo, &opts, cb_status__normal, &counts) );
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
@@ -892,6 +761,7 @@ static void check_status0(git_status_list *status)
 {
 	size_t i, max_i = git_status_list_entrycount(status);
 	cl_assert_equal_sz(entry_count0, max_i);
+
 	for (i = 0; i < max_i; ++i) {
 		const git_status_entry *entry = git_status_byindex(status, i);
 		cl_assert_equal_i(entry_statuses0[i], entry->status);
@@ -904,35 +774,26 @@ void test_status_worktree__update_stat_cache_0(void)
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
 	git_status_list *status;
 	git_diff_perfdata perf = GIT_DIFF_PERFDATA_INIT;
-
 	opts.flags = GIT_STATUS_OPT_DEFAULTS;
-
 	cl_git_pass(git_status_list_new(&status, repo, &opts));
 	check_status0(status);
 	cl_git_pass(git_status_list_get_perfdata(&perf, status));
 	cl_assert_equal_sz(13 + 3, perf.stat_calls);
 	cl_assert_equal_sz(5, perf.oid_calculations);
-
 	git_status_list_free(status);
-
 	opts.flags |= GIT_STATUS_OPT_UPDATE_INDEX;
-
 	cl_git_pass(git_status_list_new(&status, repo, &opts));
 	check_status0(status);
 	cl_git_pass(git_status_list_get_perfdata(&perf, status));
 	cl_assert_equal_sz(13 + 3, perf.stat_calls);
 	cl_assert_equal_sz(5, perf.oid_calculations);
-
 	git_status_list_free(status);
-
 	opts.flags &= ~GIT_STATUS_OPT_UPDATE_INDEX;
-
 	cl_git_pass(git_status_list_new(&status, repo, &opts));
 	check_status0(status);
 	cl_git_pass(git_status_list_get_perfdata(&perf, status));
 	cl_assert_equal_sz(13 + 3, perf.stat_calls);
 	cl_assert_equal_sz(0, perf.oid_calculations);
-
 	git_status_list_free(status);
 }
 
@@ -941,29 +802,22 @@ void test_status_worktree__unreadable(void)
 #ifndef GIT_WIN32
 	const char *expected_paths[] = { "no_permission/foo" };
 	const unsigned int expected_statuses[] = {GIT_STATUS_WT_UNREADABLE};
-
 	git_repository *repo = cl_git_sandbox_init("empty_standard_repo");
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
 	status_entry_counts counts = {0};
-
 	/* Create directory with no read permission */
 	cl_git_pass(git_futils_mkdir_r("empty_standard_repo/no_permission", NULL, 0777));
 	cl_git_mkfile("empty_standard_repo/no_permission/foo", "dummy");
 	p_chmod("empty_standard_repo/no_permission", 0644);
-
 	counts.expected_entry_count = 1;
 	counts.expected_paths = expected_paths;
 	counts.expected_statuses = expected_statuses;
-
 	opts.show = GIT_STATUS_SHOW_WORKDIR_ONLY;
 	opts.flags = GIT_STATUS_OPT_DEFAULTS | GIT_STATUS_OPT_INCLUDE_UNREADABLE;
-
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__normal, &counts) );
-
+	    git_status_foreach_ext(repo, &opts, cb_status__normal, &counts) );
 	/* Restore permissions so we can cleanup :) */
 	p_chmod("empty_standard_repo/no_permission", 0777);
-
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
@@ -975,29 +829,22 @@ void test_status_worktree__unreadable_not_included(void)
 #ifndef GIT_WIN32
 	const char *expected_paths[] = { "no_permission/" };
 	const unsigned int expected_statuses[] = {GIT_STATUS_WT_NEW};
-
 	git_repository *repo = cl_git_sandbox_init("empty_standard_repo");
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
 	status_entry_counts counts = {0};
-
 	/* Create directory with no read permission */
 	cl_git_pass(git_futils_mkdir_r("empty_standard_repo/no_permission", NULL, 0777));
 	cl_git_mkfile("empty_standard_repo/no_permission/foo", "dummy");
 	p_chmod("empty_standard_repo/no_permission", 0644);
-
 	counts.expected_entry_count = 1;
 	counts.expected_paths = expected_paths;
 	counts.expected_statuses = expected_statuses;
-
 	opts.show = GIT_STATUS_SHOW_WORKDIR_ONLY;
 	opts.flags = (GIT_STATUS_OPT_INCLUDE_IGNORED | GIT_STATUS_OPT_INCLUDE_UNTRACKED);
-
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__normal, &counts) );
-
+	    git_status_foreach_ext(repo, &opts, cb_status__normal, &counts) );
 	/* Restore permissions so we can cleanup :) */
 	p_chmod("empty_standard_repo/no_permission", 0777);
-
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);
@@ -1008,31 +855,24 @@ void test_status_worktree__unreadable_as_untracked(void)
 {
 	const char *expected_paths[] = { "no_permission/foo" };
 	const unsigned int expected_statuses[] = {GIT_STATUS_WT_NEW};
-
 	git_repository *repo = cl_git_sandbox_init("empty_standard_repo");
 	git_status_options opts = GIT_STATUS_OPTIONS_INIT;
 	status_entry_counts counts = {0};
-
 	/* Create directory with no read permission */
 	cl_git_pass(git_futils_mkdir_r("empty_standard_repo/no_permission", NULL, 0777));
 	cl_git_mkfile("empty_standard_repo/no_permission/foo", "dummy");
 	p_chmod("empty_standard_repo/no_permission", 0644);
-
 	counts.expected_entry_count = 1;
 	counts.expected_paths = expected_paths;
 	counts.expected_statuses = expected_statuses;
-
 	opts.show = GIT_STATUS_SHOW_WORKDIR_ONLY;
 	opts.flags = GIT_STATUS_OPT_DEFAULTS |
-		GIT_STATUS_OPT_INCLUDE_UNREADABLE |
-		GIT_STATUS_OPT_INCLUDE_UNREADABLE_AS_UNTRACKED;
-
+	             GIT_STATUS_OPT_INCLUDE_UNREADABLE |
+	             GIT_STATUS_OPT_INCLUDE_UNREADABLE_AS_UNTRACKED;
 	cl_git_pass(
-		git_status_foreach_ext(repo, &opts, cb_status__normal, &counts) );
-
+	    git_status_foreach_ext(repo, &opts, cb_status__normal, &counts) );
 	/* Restore permissions so we can cleanup :) */
 	p_chmod("empty_standard_repo/no_permission", 0777);
-
 	cl_assert_equal_i(counts.expected_entry_count, counts.entry_count);
 	cl_assert_equal_i(0, counts.wrong_status_flags_count);
 	cl_assert_equal_i(0, counts.wrong_sorted_path);

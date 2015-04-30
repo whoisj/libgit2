@@ -32,7 +32,7 @@ typedef struct cvar_t {
 typedef struct git_config_file_iter {
 	git_config_iterator parent;
 	git_strmap_iter iter;
-	cvar_t* next_var;
+	cvar_t *next_var;
 } git_config_file_iter;
 
 /* Max depth for [include] directives */
@@ -125,7 +125,7 @@ static int config_snapshot(git_config_backend **out, git_config_backend *in);
 static void set_parse_error(struct reader *reader, int col, const char *error_str)
 {
 	giterr_set(GITERR_CONFIG, "Failed to parse config file: %s (in %s:%d, column %d)",
-		error_str, reader->file_path, reader->line_number, col);
+	           error_str, reader->file_path, reader->line_number, col);
 }
 
 static int config_error_readonly(void)
@@ -139,7 +139,7 @@ static void cvar_free(cvar_t *var)
 	if (var == NULL)
 		return;
 
-	git__free((char*)var->entry->name);
+	git__free((char *)var->entry->name);
 	git__free((char *)var->entry->value);
 	git__free(var->entry);
 	git__free(var);
@@ -156,6 +156,7 @@ int git_config_file_normalize_section(char *start, char *end)
 	for (scan = start; *scan; ++scan) {
 		if (end && scan >= end)
 			break;
+
 		if (isalnum(*scan))
 			*scan = (char)tolower(*scan);
 		else if (*scan != '-' || scan == start)
@@ -174,15 +175,16 @@ static int append_entry(git_strmap *values, cvar_t *var)
 	git_strmap_iter pos;
 	cvar_t *existing;
 	int error = 0;
-
 	pos = git_strmap_lookup_index(values, var->entry->name);
-	if (!git_strmap_valid_index(values, pos)) {
+
+	if (!git_strmap_valid_index(values, pos))
 		git_strmap_insert(values, var->entry->name, var, error);
-	} else {
+	else {
 		existing = git_strmap_value_at(values, pos);
-		while (existing->next != NULL) {
+
+		while (existing->next != NULL)
 			existing = existing->next;
-		}
+
 		existing->next = var;
 	}
 
@@ -200,12 +202,12 @@ static void free_vars(git_strmap *values)
 		return;
 
 	git_strmap_foreach_value(values, var,
-		while (var != NULL) {
-			cvar_t *next = CVAR_LIST_NEXT(var);
-			cvar_free(var);
-			var = next;
-		});
 
+	while (var != NULL) {
+	cvar_t *next = CVAR_LIST_NEXT(var);
+		cvar_free(var);
+		var = next;
+	});
 	git_strmap_free(values);
 }
 
@@ -229,14 +231,10 @@ static void refcounted_strmap_free(refcounted_strmap *map)
 static refcounted_strmap *refcounted_strmap_take(diskfile_header *h)
 {
 	refcounted_strmap *map;
-
 	git_mutex_lock(&h->values_mutex);
-
 	map = h->values;
 	git_atomic_inc(&map->refcount);
-
 	git_mutex_unlock(&h->values_mutex);
-
 	return map;
 }
 
@@ -244,10 +242,8 @@ static int refcounted_strmap_alloc(refcounted_strmap **out)
 {
 	refcounted_strmap *map;
 	int error;
-
 	map = git__calloc(1, sizeof(refcounted_strmap));
 	GITERR_CHECK_ALLOC(map);
-
 	git_atomic_set(&map->refcount, 1);
 
 	if ((error = git_strmap_alloc(&map->values)) < 0)
@@ -263,7 +259,6 @@ static int config_open(git_config_backend *cfg, git_config_level_t level)
 	int res;
 	struct reader *reader;
 	diskfile_backend *b = (diskfile_backend *)cfg;
-
 	b->level = level;
 
 	if ((res = refcounted_strmap_alloc(&b->header.values)) < 0)
@@ -271,18 +266,18 @@ static int config_open(git_config_backend *cfg, git_config_level_t level)
 
 	git_array_init(b->readers);
 	reader = git_array_alloc(b->readers);
+
 	if (!reader) {
 		refcounted_strmap_free(b->header.values);
 		return -1;
 	}
-	memset(reader, 0, sizeof(struct reader));
 
+	memset(reader, 0, sizeof(struct reader));
 	reader->file_path = git__strdup(b->file_path);
 	GITERR_CHECK_ALLOC(reader->file_path);
-
 	git_buf_init(&reader->buffer, 0);
 	res = git_futils_readbuffer_updated(
-		&reader->buffer, b->file_path, &reader->file_mtime, &reader->file_size, NULL);
+	          &reader->buffer, b->file_path, &reader->file_mtime, &reader->file_size, NULL);
 
 	/* It's fine if the file doesn't exist */
 	if (res == GIT_ENOTFOUND)
@@ -295,7 +290,6 @@ static int config_open(git_config_backend *cfg, git_config_level_t level)
 
 	reader = git_array_get(b->readers, 0);
 	git_buf_free(&reader->buffer);
-
 	return res;
 }
 
@@ -317,17 +311,16 @@ static int config__refresh(git_config_backend *cfg)
 		goto out;
 
 	git_mutex_lock(&b->header.values_mutex);
-
 	tmp = b->header.values;
 	b->header.values = values;
 	values = tmp;
-
 	git_mutex_unlock(&b->header.values_mutex);
-
 out:
 	refcounted_strmap_free(values);
+
 	if (reader)
 		git_buf_free(&reader->buffer);
+
 	return error;
 }
 
@@ -341,8 +334,8 @@ static int config_refresh(git_config_backend *cfg)
 	for (i = 0; i < git_array_size(b->readers); i++) {
 		reader = git_array_get(b->readers, i);
 		error = git_futils_readbuffer_updated(
-			&reader->buffer, reader->file_path,
-			&reader->file_mtime, &reader->file_size, &updated);
+		            &reader->buffer, reader->file_path,
+		            &reader->file_mtime, &reader->file_size, &updated);
 
 		if (error < 0 && error != GIT_ENOTFOUND)
 			return error;
@@ -369,8 +362,8 @@ static void backend_free(git_config_backend *_backend)
 		struct reader *r = git_array_get(backend->readers, i);
 		git__free(r->file_path);
 	}
-	git_array_clear(backend->readers);
 
+	git_array_clear(backend->readers);
 	git__free(backend->file_path);
 	refcounted_strmap_free(backend->header.values);
 	git_mutex_free(&backend->header.values_mutex);
@@ -378,27 +371,26 @@ static void backend_free(git_config_backend *_backend)
 }
 
 static void config_iterator_free(
-	git_config_iterator* iter)
+    git_config_iterator *iter)
 {
 	iter->backend->free(iter->backend);
 	git__free(iter);
 }
 
 static int config_iterator_next(
-	git_config_entry **entry,
-	git_config_iterator *iter)
+    git_config_entry **entry,
+    git_config_iterator *iter)
 {
 	git_config_file_iter *it = (git_config_file_iter *) iter;
 	diskfile_header *h = (diskfile_header *) it->parent.backend;
 	git_strmap *values = h->values->values;
 	int err = 0;
-	cvar_t * var;
+	cvar_t *var;
 
-	if (it->next_var == NULL) {
-		err = git_strmap_next((void**) &var, &(it->iter), values);
-	} else {
+	if (it->next_var == NULL)
+		err = git_strmap_next((void **) &var, &(it->iter), values);
+	else
 		var = it->next_var;
-	}
 
 	if (err < 0) {
 		it->next_var = NULL;
@@ -407,13 +399,12 @@ static int config_iterator_next(
 
 	*entry = var->entry;
 	it->next_var = CVAR_LIST_NEXT(var);
-
 	return 0;
 }
 
 static int config_iterator_new(
-	git_config_iterator **iter,
-	struct git_config_backend* backend)
+    git_config_iterator **iter,
+    struct git_config_backend *backend)
 {
 	diskfile_header *h;
 	git_config_file_iter *it;
@@ -429,20 +420,15 @@ static int config_iterator_new(
 
 	it = git__calloc(1, sizeof(git_config_file_iter));
 	GITERR_CHECK_ALLOC(it);
-
 	h = (diskfile_header *)snapshot;
-
 	/* strmap_begin() is currently a macro returning 0 */
 	GIT_UNUSED(h);
-
 	it->parent.backend = snapshot;
 	it->iter = git_strmap_begin(h->values);
 	it->next_var = NULL;
-
 	it->parent.next = config_iterator_next;
 	it->parent.free = config_iterator_free;
 	*iter = (git_config_iterator *) it;
-
 	return 0;
 }
 
@@ -460,12 +446,12 @@ static int config_set(git_config_backend *cfg, const char *name, const char *val
 
 	map = refcounted_strmap_take(&b->header);
 	values = map->values;
-
 	/*
 	 * Try to find it in the existing values and update it if it
 	 * only has one value.
 	 */
 	pos = git_strmap_lookup_index(values, key);
+
 	if (git_strmap_valid_index(values, pos)) {
 		cvar_t *existing = git_strmap_value_at(values, pos);
 
@@ -477,8 +463,8 @@ static int config_set(git_config_backend *cfg, const char *name, const char *val
 
 		/* don't update if old and new values already match */
 		if ((!existing->entry->value && !value) ||
-			(existing->entry->value && value &&
-			 !strcmp(existing->entry->value, value))) {
+		    (existing->entry->value && value &&
+		     !strcmp(existing->entry->value, value))) {
 			ret = 0;
 			goto out;
 		}
@@ -495,7 +481,6 @@ static int config_set(git_config_backend *cfg, const char *name, const char *val
 		goto out;
 
 	ret = config_refresh(cfg);
-
 out:
 	refcounted_strmap_free(map);
 	git__free(esc_value);
@@ -527,7 +512,6 @@ static int config_get(git_config_backend *cfg, const char *key, git_config_entry
 
 	map = refcounted_strmap_take(h);
 	values = map->values;
-
 	pos = git_strmap_lookup_index(values, key);
 
 	/* no error message; the config system will write one */
@@ -537,18 +521,18 @@ static int config_get(git_config_backend *cfg, const char *key, git_config_entry
 	}
 
 	var = git_strmap_value_at(values, pos);
+
 	while (var->next)
 		var = var->next;
 
 	*out = var->entry;
 	(*out)->free = release_map;
 	(*out)->payload = map;
-
 	return error;
 }
 
 static int config_set_multivar(
-	git_config_backend *cfg, const char *name, const char *regexp, const char *value)
+    git_config_backend *cfg, const char *name, const char *regexp, const char *value)
 {
 	diskfile_backend *b = (diskfile_backend *)cfg;
 	refcounted_strmap *map;
@@ -557,7 +541,6 @@ static int config_set_multivar(
 	regex_t preg;
 	int result;
 	khiter_t pos;
-
 	assert(regexp);
 
 	if ((result = git_config__normalize_name(name, &key)) < 0)
@@ -565,8 +548,8 @@ static int config_set_multivar(
 
 	map = refcounted_strmap_take(&b->header);
 	values = b->header.values->values;
-
 	pos = git_strmap_lookup_index(values, key);
+
 	if (!git_strmap_valid_index(values, pos)) {
 		/* If we don't have it, behave like a normal set */
 		result = config_set(cfg, name, value);
@@ -576,6 +559,7 @@ static int config_set_multivar(
 	}
 
 	result = regcomp(&preg, regexp, REG_EXTENDED);
+
 	if (result != 0) {
 		giterr_set_regex(&preg, result);
 		result = -1;
@@ -587,12 +571,10 @@ static int config_set_multivar(
 		goto out;
 
 	result = config_refresh(cfg);
-
 out:
 	refcounted_strmap_free(map);
 	git__free(key);
 	regfree(&preg);
-
 	return result;
 }
 
@@ -600,7 +582,8 @@ static int config_delete(git_config_backend *cfg, const char *name)
 {
 	cvar_t *var;
 	diskfile_backend *b = (diskfile_backend *)cfg;
-	refcounted_strmap *map;	git_strmap *values;
+	refcounted_strmap *map;
+	git_strmap *values;
 	char *key;
 	int result;
 	khiter_t pos;
@@ -610,7 +593,6 @@ static int config_delete(git_config_backend *cfg, const char *name)
 
 	map = refcounted_strmap_take(&b->header);
 	values = b->header.values->values;
-
 	pos = git_strmap_lookup_index(values, key);
 	git__free(key);
 
@@ -649,7 +631,6 @@ static int config_delete_multivar(git_config_backend *cfg, const char *name, con
 
 	map = refcounted_strmap_take(&b->header);
 	values = b->header.values->values;
-
 	pos = git_strmap_lookup_index(values, key);
 
 	if (!git_strmap_valid_index(values, pos)) {
@@ -660,8 +641,8 @@ static int config_delete_multivar(git_config_backend *cfg, const char *name, con
 	}
 
 	refcounted_strmap_free(map);
-
 	result = regcomp(&preg, regexp, REG_EXTENDED);
+
 	if (result != 0) {
 		giterr_set_regex(&preg, result);
 		result = -1;
@@ -672,7 +653,6 @@ static int config_delete_multivar(git_config_backend *cfg, const char *name, con
 		goto out;
 
 	result = config_refresh(cfg);
-
 out:
 	git__free(key);
 	regfree(&preg);
@@ -682,23 +662,18 @@ out:
 static int config_snapshot(git_config_backend **out, git_config_backend *in)
 {
 	diskfile_backend *b = (diskfile_backend *) in;
-
 	return git_config_file__snapshot(out, b);
 }
 
 int git_config_file__ondisk(git_config_backend **out, const char *path)
 {
 	diskfile_backend *backend;
-
 	backend = git__calloc(1, sizeof(diskfile_backend));
 	GITERR_CHECK_ALLOC(backend);
-
 	backend->header.parent.version = GIT_CONFIG_BACKEND_VERSION;
 	git_mutex_init(&backend->header.values_mutex);
-
 	backend->file_path = git__strdup(path);
 	GITERR_CHECK_ALLOC(backend->file_path);
-
 	backend->header.parent.open = config_open;
 	backend->header.parent.get = config_get;
 	backend->header.parent.set = config_set;
@@ -708,9 +683,7 @@ int git_config_file__ondisk(git_config_backend **out, const char *path)
 	backend->header.parent.iterator = config_iterator_new;
 	backend->header.parent.snapshot = config_snapshot;
 	backend->header.parent.free = backend_free;
-
 	*out = (git_config_backend *)backend;
-
 	return 0;
 }
 
@@ -719,18 +692,16 @@ static int config_set_readonly(git_config_backend *cfg, const char *name, const 
 	GIT_UNUSED(cfg);
 	GIT_UNUSED(name);
 	GIT_UNUSED(value);
-
 	return config_error_readonly();
 }
 
 static int config_set_multivar_readonly(
-	git_config_backend *cfg, const char *name, const char *regexp, const char *value)
+    git_config_backend *cfg, const char *name, const char *regexp, const char *value)
 {
 	GIT_UNUSED(cfg);
 	GIT_UNUSED(name);
 	GIT_UNUSED(regexp);
 	GIT_UNUSED(value);
-
 	return config_error_readonly();
 }
 
@@ -739,7 +710,6 @@ static int config_delete_multivar_readonly(git_config_backend *cfg, const char *
 	GIT_UNUSED(cfg);
 	GIT_UNUSED(name);
 	GIT_UNUSED(regexp);
-
 	return config_error_readonly();
 }
 
@@ -747,7 +717,6 @@ static int config_delete_readonly(git_config_backend *cfg, const char *name)
 {
 	GIT_UNUSED(cfg);
 	GIT_UNUSED(name);
-
 	return config_error_readonly();
 }
 
@@ -776,25 +745,19 @@ static int config_readonly_open(git_config_backend *cfg, git_config_level_t leve
 
 	/* We're just copying data, don't care about the level */
 	GIT_UNUSED(level);
-
 	src_map = refcounted_strmap_take(src_header);
 	b->header.values = src_map;
-
 	return 0;
 }
 
 int git_config_file__snapshot(git_config_backend **out, diskfile_backend *in)
 {
 	diskfile_readonly_backend *backend;
-
 	backend = git__calloc(1, sizeof(diskfile_readonly_backend));
 	GITERR_CHECK_ALLOC(backend);
-
 	backend->header.parent.version = GIT_CONFIG_BACKEND_VERSION;
 	git_mutex_init(&backend->header.values_mutex);
-
 	backend->snapshot_from = in;
-
 	backend->header.parent.readonly = 1;
 	backend->header.parent.version = GIT_CONFIG_BACKEND_VERSION;
 	backend->header.parent.open = config_readonly_open;
@@ -805,16 +768,13 @@ int git_config_file__snapshot(git_config_backend **out, diskfile_backend *in)
 	backend->header.parent.del_multivar = config_delete_multivar_readonly;
 	backend->header.parent.iterator = config_iterator_new;
 	backend->header.parent.free = backend_readonly_free;
-
 	*out = (git_config_backend *)backend;
-
 	return 0;
 }
 
 static int reader_getchar_raw(struct reader *reader)
 {
 	int c;
-
 	c = *reader->read_ptr++;
 
 	/*
@@ -845,13 +805,12 @@ static int reader_getchar(struct reader *reader, int flags)
 	const int skip_whitespace = (flags & SKIP_WHITESPACE);
 	const int skip_comments = (flags & SKIP_COMMENTS);
 	int c;
-
 	assert(reader->read_ptr);
 
 	do {
 		c = reader_getchar_raw(reader);
 	} while (skip_whitespace && git__isspace(c) &&
-	       !reader->eof);
+	         !reader->eof);
 
 	if (skip_comments && (c == '#' || c == ';')) {
 		do {
@@ -870,19 +829,14 @@ static int reader_peek(struct reader *reader, int flags)
 	void *old_read_ptr;
 	int old_lineno, old_eof;
 	int ret;
-
 	assert(reader->read_ptr);
-
 	old_read_ptr = reader->read_ptr;
 	old_lineno = reader->line_number;
 	old_eof = reader->eof;
-
 	ret = reader_getchar(reader, flags);
-
 	reader->read_ptr = old_read_ptr;
 	reader->line_number = old_lineno;
 	reader->eof = old_eof;
-
 	return ret;
 }
 
@@ -894,7 +848,6 @@ static char *reader_readline(struct reader *reader, bool skip_whitespace)
 	char *line = NULL;
 	char *line_src, *line_end;
 	size_t line_len, alloc_len;
-
 	line_src = reader->read_ptr;
 
 	if (skip_whitespace) {
@@ -912,13 +865,13 @@ static char *reader_readline(struct reader *reader, bool skip_whitespace)
 	line_len = line_end - line_src;
 
 	if (GIT_ADD_SIZET_OVERFLOW(&alloc_len, line_len, 1) ||
-		(line = git__malloc(alloc_len)) == NULL) {
+	    (line = git__malloc(alloc_len)) == NULL)
 		return NULL;
-	}
 
 	memcpy(line, line_src, line_len);
 
 	do line[line_len] = '\0';
+
 	while (line_len-- > 0 && git__isspace(line[line_len]));
 
 	if (*line_end == '\n')
@@ -929,7 +882,6 @@ static char *reader_readline(struct reader *reader, bool skip_whitespace)
 
 	reader->line_number++;
 	reader->read_ptr = line_end;
-
 	return line;
 }
 
@@ -939,13 +891,12 @@ static char *reader_readline(struct reader *reader, bool skip_whitespace)
 static void reader_consume_line(struct reader *reader)
 {
 	char *line_start, *line_end;
-
 	line_start = reader->read_ptr;
 	line_end = strchr(line_start, '\n');
+
 	/* No newline at EOF */
-	if(line_end == NULL){
+	if (line_end == NULL)
 		line_end = strchr(line_start, '\0');
-	}
 
 	if (*line_end == '\n')
 		line_end++;
@@ -968,13 +919,11 @@ static int parse_section_header_ext(struct reader *reader, const char *line, con
 	char *first_quote, *last_quote;
 	git_buf buf = GIT_BUF_INIT;
 	size_t quoted_len, alloc_len, base_name_len = strlen(base_name);
-
 	/*
 	 * base_name is what came before the space. We should be at the
 	 * first quotation mark, except for now, line isn't being kept in
 	 * sync so we only really use it to calculate the length.
 	 */
-
 	first_quote = strchr(line, '"');
 	last_quote = strrchr(line, '"');
 	quoted_len = last_quote - first_quote;
@@ -986,12 +935,9 @@ static int parse_section_header_ext(struct reader *reader, const char *line, con
 
 	GITERR_CHECK_ALLOC_ADD(&alloc_len, base_name_len, quoted_len);
 	GITERR_CHECK_ALLOC_ADD(&alloc_len, alloc_len, 2);
-
 	git_buf_grow(&buf, alloc_len);
 	git_buf_printf(&buf, "%s.", base_name);
-
 	rpos = 0;
-
 	line = first_quote;
 	c = line[++rpos];
 
@@ -1000,7 +946,6 @@ static int parse_section_header_ext(struct reader *reader, const char *line, con
 	 * added to the string. In case of error, jump to out
 	 */
 	do {
-
 		switch (c) {
 		case 0:
 			set_parse_error(reader, 0, "Unexpected end-of-line in section header");
@@ -1028,6 +973,7 @@ static int parse_section_header_ext(struct reader *reader, const char *line, con
 	} while (line + rpos < last_quote);
 
 end_parse:
+
 	if (line[rpos] != '"' || line[rpos + 1] != ']') {
 		set_parse_error(reader, rpos, "Unexpected text after closing quotes");
 		git_buf_free(&buf);
@@ -1045,13 +991,14 @@ static int parse_section_header(struct reader *reader, char **section_out)
 	int result;
 	char *line;
 	size_t line_len;
-
 	line = reader_readline(reader, true);
+
 	if (line == NULL)
 		return -1;
 
 	/* find the end of the variable's name */
 	name_end = strrchr(line, ']');
+
 	if (name_end == NULL) {
 		git__free(line);
 		set_parse_error(reader, 0, "Missing ']' in section header");
@@ -1061,18 +1008,15 @@ static int parse_section_header(struct reader *reader, char **section_out)
 	GITERR_CHECK_ALLOC_ADD(&line_len, (size_t)(name_end - line), 1);
 	name = git__malloc(line_len);
 	GITERR_CHECK_ALLOC(name);
-
 	name_length = 0;
 	pos = 0;
-
 	/* Make sure we were given a section header */
 	c = line[pos++];
 	assert(c == '[');
-
 	c = line[pos++];
 
 	do {
-		if (git__isspace(c)){
+		if (git__isspace(c)) {
 			name[name_length] = '\0';
 			result = parse_section_header_ext(reader, line, name, section_out);
 			git__free(line);
@@ -1086,7 +1030,6 @@ static int parse_section_header(struct reader *reader, char **section_out)
 		}
 
 		name[name_length++] = (char) tolower(c);
-
 	} while ((c = line[pos++]) != ']');
 
 	if (line[pos - 1] != ']') {
@@ -1095,12 +1038,9 @@ static int parse_section_header(struct reader *reader, char **section_out)
 	}
 
 	git__free(line);
-
 	name[name_length] = 0;
 	*section_out = name;
-
 	return 0;
-
 fail_parse:
 	git__free(line);
 	git__free(name);
@@ -1111,13 +1051,12 @@ static int skip_bom(struct reader *reader)
 {
 	git_bom_t bom;
 	int bom_offset = git_buf_text_detect_bom(&bom,
-		&reader->buffer, reader->read_ptr - reader->buffer.ptr);
+	                 &reader->buffer, reader->read_ptr - reader->buffer.ptr);
 
 	if (bom == GIT_BOM_UTF8)
 		reader->read_ptr += bom_offset;
 
 	/* TODO: reference implementation is pretty stupid with BoM */
-
 	return 0;
 }
 
@@ -1170,8 +1109,8 @@ static int strip_comments(char *line, int in_quotes)
 			quote_count++;
 
 		if ((ptr[0] == ';' || ptr[0] == '#') &&
-			(quote_count % 2) == 0 &&
-			(backslash_count % 2) == 0) {
+		    (quote_count % 2) == 0 &&
+		    (backslash_count % 2) == 0) {
 			ptr[0] = '\0';
 			break;
 		}
@@ -1183,11 +1122,10 @@ static int strip_comments(char *line, int in_quotes)
 	}
 
 	/* skip any space at the end */
-	while (ptr > line && git__isspace(ptr[-1])) {
+	while (ptr > line && git__isspace(ptr[-1]))
 		ptr--;
-	}
-	ptr[0] = '\0';
 
+	ptr[0] = '\0';
 	return quote_count;
 }
 
@@ -1228,7 +1166,6 @@ static int config_parse(git_strmap *values, diskfile_backend *cfg_file, struct r
 	skip_bom(reader);
 
 	while (result == 0 && !reader->eof) {
-
 		c = reader_peek(reader, SKIP_WHITESPACE);
 
 		switch (c) {
@@ -1249,6 +1186,7 @@ static int config_parse(git_strmap *values, diskfile_backend *cfg_file, struct r
 
 		default: /* assume variable declaration */
 			result = parse_variable(reader, &var_name, &var_value);
+
 			if (result < 0)
 				break;
 
@@ -1265,12 +1203,10 @@ static int config_parse(git_strmap *values, diskfile_backend *cfg_file, struct r
 			GITERR_CHECK_ALLOC(var);
 			var->entry = git__calloc(1, sizeof(git_config_entry));
 			GITERR_CHECK_ALLOC(var->entry);
-
 			var->entry->name = git_buf_detach(&buf);
 			var->entry->value = var_value;
 			var->entry->level = level;
 			var->included = !!depth;
-
 
 			if ((result = append_entry(values, var)) < 0)
 				break;
@@ -1283,11 +1219,11 @@ static int config_parse(git_strmap *values, diskfile_backend *cfg_file, struct r
 				git_buf path = GIT_BUF_INIT;
 				char *dir;
 				uint32_t index;
-
 				r = git_array_alloc(cfg_file->readers);
 				/* The reader may have been reallocated */
 				reader = git_array_get(cfg_file->readers, reader_idx);
 				memset(r, 0, sizeof(struct reader));
+
 				if ((result = git_path_dirname_r(&path, reader->file_path)) < 0)
 					break;
 
@@ -1303,14 +1239,13 @@ static int config_parse(git_strmap *values, diskfile_backend *cfg_file, struct r
 				r->file_path = git_buf_detach(&path);
 				git_buf_init(&r->buffer, 0);
 				result = git_futils_readbuffer_updated(&r->buffer, r->file_path, &r->file_mtime,
-									    &r->file_size, NULL);
+				                                       &r->file_size, NULL);
 
 				if (result == 0) {
-					result = config_parse(values, cfg_file, r, level, depth+1);
+					result = config_parse(values, cfg_file, r, level, depth + 1);
 					r = git_array_get(cfg_file->readers, index);
 					reader = git_array_get(cfg_file->readers, reader_idx);
-				}
-				else if (result == GIT_ENOTFOUND) {
+				} else if (result == GIT_ENOTFOUND) {
 					giterr_clear();
 					result = 0;
 				}
@@ -1334,13 +1269,13 @@ static int write_section(git_filebuf *file, const char *key)
 	int result;
 	const char *dot;
 	git_buf buf = GIT_BUF_INIT;
-
 	/* All of this just for [section "subsection"] */
 	dot = strchr(key, '.');
 	git_buf_putc(&buf, '[');
-	if (dot == NULL) {
+
+	if (dot == NULL)
 		git_buf_puts(&buf, key);
-	} else {
+	else {
 		char *escaped;
 		git_buf_put(&buf, key, dot - key);
 		escaped = escape_value(dot + 1);
@@ -1348,6 +1283,7 @@ static int write_section(git_filebuf *file, const char *key)
 		git_buf_printf(&buf, " \"%s\"", escaped);
 		git__free(escaped);
 	}
+
 	git_buf_puts(&buf, "]\n");
 
 	if (git_buf_oom(&buf))
@@ -1355,7 +1291,6 @@ static int write_section(git_filebuf *file, const char *key)
 
 	result = git_filebuf_write(file, git_buf_cstr(&buf), buf.size);
 	git_buf_free(&buf);
-
 	return result;
 }
 
@@ -1380,7 +1315,7 @@ static const char *quotes_for_value(const char *value)
 /*
  * This is pretty much the parsing, except we write out anything we don't have
  */
-static int config_write(diskfile_backend *cfg, const char *key, const regex_t *preg, const char* value)
+static int config_write(diskfile_backend *cfg, const char *key, const regex_t *preg, const char *value)
 {
 	int result, c;
 	int section_matches = 0, last_section_matched = 0, preg_replaced = 0, write_trailer = 0;
@@ -1388,7 +1323,6 @@ static int config_write(diskfile_backend *cfg, const char *key, const regex_t *p
 	char *current_section = NULL, *section, *name, *ldot;
 	git_filebuf file = GIT_FILEBUF_INIT;
 	struct reader *reader = git_array_get(cfg->readers, 0);
-
 	/* We need to read in our own config file */
 	result = git_futils_readbuffer(&reader->buffer, cfg->file_path);
 
@@ -1410,9 +1344,9 @@ static int config_write(diskfile_backend *cfg, const char *key, const regex_t *p
 
 	/* Lock the file */
 	if ((result = git_filebuf_open(
-		&file, cfg->file_path, 0, GIT_CONFIG_FILE_MODE)) < 0) {
-			git_buf_free(&reader->buffer);
-			return result;
+	                  &file, cfg->file_path, 0, GIT_CONFIG_FILE_MODE)) < 0) {
+		git_buf_free(&reader->buffer);
+		return result;
 	}
 
 	skip_bom(reader);
@@ -1423,10 +1357,9 @@ static int config_write(diskfile_backend *cfg, const char *key, const regex_t *p
 	while (!reader->eof) {
 		c = reader_peek(reader, SKIP_WHITESPACE);
 
-		if (c == '\n') { /* We've arrived at the end of the file */
+		if (c == '\n')   /* We've arrived at the end of the file */
 			break;
-
-		} else if (c == '[') { /* section header, new section begins */
+		else if (c == '[') { /* section header, new section begins */
 			/*
 			 * We set both positions to the current one in case we
 			 * need to add a variable to the end of a section. In that
@@ -1435,21 +1368,17 @@ static int config_write(diskfile_backend *cfg, const char *key, const regex_t *p
 			 * default case will take care of updating them.
 			 */
 			pre_end = post_start = reader->read_ptr;
-
 			git__free(current_section);
 			current_section = NULL;
+
 			if (parse_section_header(reader, &current_section) < 0)
 				goto rewrite_fail;
 
 			/* Keep track of when it stops matching */
 			last_section_matched = section_matches;
 			section_matches = !strcmp(current_section, section);
-		}
-
-		else if (c == ';' || c == '#') {
+		} else if (c == ';' || c == '#')
 			reader_consume_line(reader);
-		}
-
 		else {
 			/*
 			 * If the section doesn't match, but the last section did,
@@ -1472,8 +1401,8 @@ static int config_write(diskfile_backend *cfg, const char *key, const regex_t *p
 			} else {
 				int has_matched = 0;
 				char *var_name, *var_value;
-
 				pre_end = reader->read_ptr;
+
 				if (parse_variable(reader, &var_name, &var_value) < 0)
 					goto rewrite_fail;
 
@@ -1543,11 +1472,10 @@ static int config_write(diskfile_backend *cfg, const char *key, const regex_t *p
 		/* Write out rest of the file */
 		git_filebuf_write(&file, post_start, reader->buffer.size - (post_start - data_start));
 	} else {
-		if (preg_replaced) {
+		if (preg_replaced)
 			git_filebuf_printf(&file, "\n%s", write_start);
-		} else {
+		else {
 			const char *q;
-
 			git_filebuf_write(&file, reader->buffer.ptr, reader->buffer.size);
 
 			if (reader->buffer.size > 0 && *(reader->buffer.ptr + reader->buffer.size - 1) != '\n')
@@ -1562,7 +1490,7 @@ static int config_write(diskfile_backend *cfg, const char *key, const regex_t *p
 			 * this, but instead we'll handle it gracefully with an error. */
 			if (value == NULL) {
 				giterr_set(GITERR_CONFIG,
-					"race condition when writing a config file (a cvar has been removed)");
+				           "race condition when writing a config file (a cvar has been removed)");
 				goto rewrite_fail;
 			}
 
@@ -1574,19 +1502,14 @@ static int config_write(diskfile_backend *cfg, const char *key, const regex_t *p
 
 	git__free(section);
 	git__free(current_section);
-
 	/* refresh stats - if this errors, then commit will error too */
 	(void)git_filebuf_stats(&reader->file_mtime, &reader->file_size, &file);
-
 	result = git_filebuf_commit(&file);
 	git_buf_free(&reader->buffer);
-
 	return result;
-
 rewrite_fail:
 	git__free(section);
 	git__free(current_section);
-
 	git_filebuf_cleanup(&file);
 	git_buf_free(&reader->buffer);
 	return -1;
@@ -1601,10 +1524,9 @@ static char *escape_value(const char *ptr)
 	git_buf buf = GIT_BUF_INIT;
 	size_t len;
 	const char *esc;
-
 	assert(ptr);
-
 	len = strlen(ptr);
+
 	if (!len)
 		return git__calloc(1, sizeof(char));
 
@@ -1614,9 +1536,9 @@ static char *escape_value(const char *ptr)
 		if ((esc = strchr(escaped, *ptr)) != NULL) {
 			git_buf_putc(&buf, '\\');
 			git_buf_putc(&buf, escapes[esc - escaped]);
-		} else {
+		} else
 			git_buf_putc(&buf, *ptr);
-		}
+
 		ptr++;
 	}
 
@@ -1630,48 +1552,48 @@ static char *escape_value(const char *ptr)
 
 /* '\"' -> '"' etc */
 static int unescape_line(
-	char **out, bool *is_multi, const char *ptr, int quote_count)
+    char **out, bool *is_multi, const char *ptr, int quote_count)
 {
 	char *str, *fixed, *esc;
 	size_t ptr_len = strlen(ptr), alloc_len;
-
 	*is_multi = false;
 
 	if (GIT_ADD_SIZET_OVERFLOW(&alloc_len, ptr_len, 1) ||
-		(str = git__malloc(alloc_len)) == NULL) {
+	    (str = git__malloc(alloc_len)) == NULL)
 		return -1;
-	}
 
 	fixed = str;
 
 	while (*ptr != '\0') {
-		if (*ptr == '"') {
+		if (*ptr == '"')
 			quote_count++;
-		} else if (*ptr != '\\') {
+		else if (*ptr != '\\')
 			*fixed++ = *ptr;
-		} else {
+		else {
 			/* backslash, check the next char */
 			ptr++;
+
 			/* if we're at the end, it's a multiline, so keep the backslash */
 			if (*ptr == '\0') {
 				*is_multi = true;
 				goto done;
 			}
-			if ((esc = strchr(escapes, *ptr)) != NULL) {
-				*fixed++ = escaped[esc - escapes];
-			} else {
+
+			if ((esc = strchr(escapes, *ptr)) != NULL)
+				* fixed++ = escaped[esc - escapes];
+			else {
 				git__free(str);
 				giterr_set(GITERR_CONFIG, "Invalid escape at %s", ptr);
 				return -1;
 			}
 		}
+
 		ptr++;
 	}
 
 done:
 	*fixed = '\0';
 	*out = str;
-
 	return 0;
 }
 
@@ -1680,9 +1602,9 @@ static int parse_multiline_variable(struct reader *reader, git_buf *value, int i
 	char *line = NULL, *proc_line = NULL;
 	int quote_count;
 	bool multiline;
-
 	/* Check that the next line exists */
 	line = reader_readline(reader, false);
+
 	if (line == NULL)
 		return -1;
 
@@ -1707,8 +1629,8 @@ static int parse_multiline_variable(struct reader *reader, git_buf *value, int i
 		git__free(line);
 		return -1;
 	}
-	/* add this line to the multiline var */
 
+	/* add this line to the multiline var */
 	git_buf_puts(value, proc_line);
 	git__free(line);
 	git__free(proc_line);
@@ -1729,10 +1651,9 @@ GIT_INLINE(bool) is_namechar(char c)
 }
 
 static int parse_name(
-	char **name, const char **value, struct reader *reader, const char *line)
+    char **name, const char **value, struct reader *reader, const char *line)
 {
 	const char *name_end = line, *value_start;
-
 	*name = NULL;
 	*value = NULL;
 
@@ -1749,9 +1670,9 @@ static int parse_name(
 	while (*value_start && git__isspace(*value_start))
 		value_start++;
 
-	if (*value_start == '=') {
+	if (*value_start == '=')
 		*value = value_start + 1;
-	} else if (*value_start) {
+	else if (*value_start) {
 		set_parse_error(reader, 0, "Invalid configuration key");
 		return -1;
 	}
@@ -1768,8 +1689,8 @@ static int parse_variable(struct reader *reader, char **var_name, char **var_val
 	char *line;
 	int quote_count;
 	bool multiline;
-
 	line = reader_readline(reader, true);
+
 	if (line == NULL)
 		return -1;
 
@@ -1796,7 +1717,7 @@ static int parse_variable(struct reader *reader, char **var_name, char **var_val
 			git_buf_attach(&multi_value, *var_value, 0);
 
 			if (parse_multiline_variable(reader, &multi_value, quote_count) < 0 ||
-				git_buf_oom(&multi_value)) {
+			    git_buf_oom(&multi_value)) {
 				git_buf_free(&multi_value);
 				goto on_error;
 			}
@@ -1807,7 +1728,6 @@ static int parse_variable(struct reader *reader, char **var_name, char **var_val
 
 	git__free(line);
 	return 0;
-
 on_error:
 	git__free(*var_name);
 	git__free(line);

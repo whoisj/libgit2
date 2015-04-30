@@ -137,7 +137,7 @@ GIT_INLINE(int) git_atomic_dec(git_atomic *a)
 }
 
 GIT_INLINE(void *) git___compare_and_swap(
-	void * volatile *ptr, void *oldval, void *newval)
+    void *volatile *ptr, void *oldval, void *newval)
 {
 	volatile void *foundval;
 #if defined(GIT_WIN32)
@@ -151,7 +151,7 @@ GIT_INLINE(void *) git___compare_and_swap(
 }
 
 GIT_INLINE(volatile void *) git___swap(
-	void * volatile *ptr, void *newval)
+    void *volatile *ptr, void *newval)
 {
 #if defined(GIT_WIN32)
 	return InterlockedExchangePointer(ptr, newval);
@@ -184,9 +184,9 @@ GIT_INLINE(int64_t) git_atomic64_add(git_atomic64 *a, int64_t addend)
 /* Pthreads Mutex */
 #define git_mutex unsigned int
 GIT_INLINE(int) git_mutex_init(git_mutex *mutex) \
-	{ GIT_UNUSED(mutex); return 0; }
+{ GIT_UNUSED(mutex); return 0; }
 GIT_INLINE(int) git_mutex_lock(git_mutex *mutex) \
-	{ GIT_UNUSED(mutex); return 0; }
+{ GIT_UNUSED(mutex); return 0; }
 #define git_mutex_unlock(a) (void)0
 #define git_mutex_free(a) (void)0
 
@@ -231,17 +231,18 @@ GIT_INLINE(int) git_atomic_dec(git_atomic *a)
 }
 
 GIT_INLINE(void *) git___compare_and_swap(
-	void * volatile *ptr, void *oldval, void *newval)
+    void *volatile *ptr, void *oldval, void *newval)
 {
 	if (*ptr == oldval)
 		*ptr = newval;
 	else
 		oldval = newval;
+
 	return oldval;
 }
 
 GIT_INLINE(volatile void *) git___swap(
-	void * volatile *ptr, void *newval)
+    void *volatile *ptr, void *newval)
 {
 	volatile void *old = *ptr;
 	*ptr = newval;

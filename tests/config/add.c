@@ -14,7 +14,6 @@ void test_config_add__to_existing_section(void)
 {
 	git_config *cfg;
 	int32_t i;
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config10"));
 	cl_git_pass(git_config_set_int32(cfg, "empty.tmp", 5));
 	cl_git_pass(git_config_get_int32(&i, cfg, "empty.tmp"));
@@ -27,7 +26,6 @@ void test_config_add__to_new_section(void)
 {
 	git_config *cfg;
 	int32_t i;
-
 	cl_git_pass(git_config_open_ondisk(&cfg, "config10"));
 	cl_git_pass(git_config_set_int32(cfg, "section.tmp", 5));
 	cl_git_pass(git_config_get_int32(&i, cfg, "section.tmp"));

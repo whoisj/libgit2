@@ -5,8 +5,8 @@ typedef struct {
 	int wrong_status_flags_count;
 	int wrong_sorted_path;
 	int entry_count;
-	const unsigned int* expected_statuses;
-	const char** expected_paths;
+	const unsigned int *expected_statuses;
+	const char **expected_paths;
 	int expected_entry_count;
 	const char *file;
 	int line;
@@ -24,7 +24,7 @@ typedef struct {
 /* cb_status__normal takes payload of "status_entry_counts *" */
 
 extern int cb_status__normal(
-	const char *path, unsigned int status_flags, void *payload);
+    const char *path, unsigned int status_flags, void *payload);
 
 
 /* cb_status__count takes payload of "int *" */

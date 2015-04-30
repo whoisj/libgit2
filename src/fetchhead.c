@@ -23,6 +23,7 @@ int git_fetchhead_ref_cmp(const void *a, const void *b)
 
 	if (one->is_merge && !two->is_merge)
 		return -1;
+
 	if (two->is_merge && !one->is_merge)
 		return 1;
 
@@ -37,23 +38,18 @@ int git_fetchhead_ref_cmp(const void *a, const void *b)
 }
 
 int git_fetchhead_ref_create(
-	git_fetchhead_ref **out,
-	git_oid *oid,
-	unsigned int is_merge,
-	const char *ref_name,
-	const char *remote_url)
+    git_fetchhead_ref **out,
+    git_oid *oid,
+    unsigned int is_merge,
+    const char *ref_name,
+    const char *remote_url)
 {
 	git_fetchhead_ref *fetchhead_ref;
-
 	assert(out && oid);
-
 	*out = NULL;
-
 	fetchhead_ref = git__malloc(sizeof(git_fetchhead_ref));
 	GITERR_CHECK_ALLOC(fetchhead_ref);
-
 	memset(fetchhead_ref, 0x0, sizeof(git_fetchhead_ref));
-
 	git_oid_cpy(&fetchhead_ref->oid, oid);
 	fetchhead_ref->is_merge = is_merge;
 
@@ -64,33 +60,30 @@ int git_fetchhead_ref_create(
 		fetchhead_ref->remote_url = git__strdup(remote_url);
 
 	*out = fetchhead_ref;
-
 	return 0;
 }
 
 static int fetchhead_ref_write(
-	git_filebuf *file,
-	git_fetchhead_ref *fetchhead_ref)
+    git_filebuf *file,
+    git_fetchhead_ref *fetchhead_ref)
 {
 	char oid[GIT_OID_HEXSZ + 1];
 	const char *type, *name;
 	int head = 0;
-
 	assert(file && fetchhead_ref);
-
 	git_oid_fmt(oid, &fetchhead_ref->oid);
 	oid[GIT_OID_HEXSZ] = '\0';
 
 	if (git__prefixcmp(fetchhead_ref->ref_name, GIT_REFS_HEADS_DIR) == 0) {
 		type = "branch ";
 		name = fetchhead_ref->ref_name + strlen(GIT_REFS_HEADS_DIR);
-	} else if(git__prefixcmp(fetchhead_ref->ref_name,
-		GIT_REFS_TAGS_DIR) == 0) {
+	} else if (git__prefixcmp(fetchhead_ref->ref_name,
+	                          GIT_REFS_TAGS_DIR) == 0) {
 		type = "tag ";
 		name = fetchhead_ref->ref_name + strlen(GIT_REFS_TAGS_DIR);
-	} else if (!git__strcmp(fetchhead_ref->ref_name, GIT_HEAD_FILE)) {
+	} else if (!git__strcmp(fetchhead_ref->ref_name, GIT_HEAD_FILE))
 		head = 1;
-	} else {
+	else {
 		type = "";
 		name = fetchhead_ref->ref_name;
 	}
@@ -99,11 +92,11 @@ static int fetchhead_ref_write(
 		return git_filebuf_printf(file, "%s\t\t%s\n", oid, fetchhead_ref->remote_url);
 
 	return git_filebuf_printf(file, "%s\t%s\t%s'%s' of %s\n",
-		oid,
-		(fetchhead_ref->is_merge) ? "" : "not-for-merge",
-		type,
-		name,
-		fetchhead_ref->remote_url);
+	                          oid,
+	                          (fetchhead_ref->is_merge) ? "" : "not-for-merge",
+	                          type,
+	                          name,
+	                          fetchhead_ref->remote_url);
 }
 
 int git_fetchhead_write(git_repository *repo, git_vector *fetchhead_refs)
@@ -112,7 +105,6 @@ int git_fetchhead_write(git_repository *repo, git_vector *fetchhead_refs)
 	git_buf path = GIT_BUF_INIT;
 	unsigned int i;
 	git_fetchhead_ref *fetchhead_ref;
-
 	assert(repo && fetchhead_refs);
 
 	if (git_buf_joinpath(&path, repo->path_repository, GIT_FETCH_HEAD_FILE) < 0)
@@ -124,32 +116,28 @@ int git_fetchhead_write(git_repository *repo, git_vector *fetchhead_refs)
 	}
 
 	git_buf_free(&path);
-
 	git_vector_sort(fetchhead_refs);
-
 	git_vector_foreach(fetchhead_refs, i, fetchhead_ref)
-		fetchhead_ref_write(&file, fetchhead_ref);
-
+	fetchhead_ref_write(&file, fetchhead_ref);
 	return git_filebuf_commit(&file);
 }
 
 static int fetchhead_ref_parse(
-	git_oid *oid,
-	unsigned int *is_merge,
-	git_buf *ref_name,
-	const char **remote_url,
-	char *line,
-	size_t line_num)
+    git_oid *oid,
+    unsigned int *is_merge,
+    git_buf *ref_name,
+    const char **remote_url,
+    char *line,
+    size_t line_num)
 {
 	char *oid_str, *is_merge_str, *desc, *name = NULL;
 	const char *type = NULL;
 	int error = 0;
-
 	*remote_url = NULL;
 
 	if (!*line) {
 		giterr_set(GITERR_FETCHHEAD,
-			"Empty line in FETCH_HEAD line %d", line_num);
+		           "Empty line in FETCH_HEAD line %d", line_num);
 		return -1;
 	}
 
@@ -157,22 +145,20 @@ static int fetchhead_ref_parse(
 	if ((oid_str = git__strsep(&line, "\t")) == NULL) {
 		oid_str = line;
 		line += strlen(line);
-
 		*is_merge = 1;
 	}
 
 	if (strlen(oid_str) != GIT_OID_HEXSZ) {
 		giterr_set(GITERR_FETCHHEAD,
-			"Invalid object ID in FETCH_HEAD line %d", line_num);
+		           "Invalid object ID in FETCH_HEAD line %d", line_num);
 		return -1;
 	}
 
 	if (git_oid_fromstr(oid, oid_str) < 0) {
 		const git_error *oid_err = giterr_last();
 		const char *err_msg = oid_err ? oid_err->message : "Invalid object ID";
-
 		giterr_set(GITERR_FETCHHEAD, "%s in FETCH_HEAD line %d",
-			err_msg, line_num);
+		           err_msg, line_num);
 		return -1;
 	}
 
@@ -180,7 +166,7 @@ static int fetchhead_ref_parse(
 	if (*line) {
 		if ((is_merge_str = git__strsep(&line, "\t")) == NULL) {
 			giterr_set(GITERR_FETCHHEAD,
-				"Invalid description data in FETCH_HEAD line %d", line_num);
+			           "Invalid description data in FETCH_HEAD line %d", line_num);
 			return -1;
 		}
 
@@ -190,13 +176,13 @@ static int fetchhead_ref_parse(
 			*is_merge = 0;
 		else {
 			giterr_set(GITERR_FETCHHEAD,
-				"Invalid for-merge entry in FETCH_HEAD line %d", line_num);
+			           "Invalid for-merge entry in FETCH_HEAD line %d", line_num);
 			return -1;
 		}
 
 		if ((desc = line) == NULL) {
 			giterr_set(GITERR_FETCHHEAD,
-				"Invalid description in FETCH_HEAD line %d", line_num);
+			           "Invalid description in FETCH_HEAD line %d", line_num);
 			return -1;
 		}
 
@@ -211,9 +197,9 @@ static int fetchhead_ref_parse(
 
 		if (name) {
 			if ((desc = strstr(name, "' ")) == NULL ||
-				git__prefixcmp(desc, "' of ") != 0) {
+			    git__prefixcmp(desc, "' of ") != 0) {
 				giterr_set(GITERR_FETCHHEAD,
-					"Invalid description in FETCH_HEAD line %d", line_num);
+				           "Invalid description in FETCH_HEAD line %d", line_num);
 				return -1;
 			}
 
@@ -228,15 +214,15 @@ static int fetchhead_ref_parse(
 
 	if (type)
 		git_buf_join(ref_name, '/', type, name);
-	else if(name)
+	else if (name)
 		git_buf_puts(ref_name, name);
 
 	return error;
 }
 
 int git_repository_fetchhead_foreach(git_repository *repo,
-	git_repository_fetchhead_foreach_cb cb,
-	void *payload)
+                                     git_repository_fetchhead_foreach_cb cb,
+                                     void *payload)
 {
 	git_buf path = GIT_BUF_INIT, file = GIT_BUF_INIT, name = GIT_BUF_INIT;
 	const char *ref_name;
@@ -246,7 +232,6 @@ int git_repository_fetchhead_foreach(git_repository *repo,
 	char *buffer, *line;
 	size_t line_num = 0;
 	int error = 0;
-
 	assert(repo && cb);
 
 	if (git_buf_joinpath(&path, repo->path_repository, GIT_FETCH_HEAD_FILE) < 0)
@@ -261,7 +246,7 @@ int git_repository_fetchhead_foreach(git_repository *repo,
 		++line_num;
 
 		if ((error = fetchhead_ref_parse(
-				&oid, &is_merge, &name, &remote_url, line, line_num)) < 0)
+		                 &oid, &is_merge, &name, &remote_url, line, line_num)) < 0)
 			goto done;
 
 		if (git_buf_len(&name) > 0)
@@ -270,6 +255,7 @@ int git_repository_fetchhead_foreach(git_repository *repo,
 			ref_name = NULL;
 
 		error = cb(ref_name, remote_url, &oid, is_merge, payload);
+
 		if (error) {
 			giterr_set_after_callback(error);
 			goto done;
@@ -277,7 +263,7 @@ int git_repository_fetchhead_foreach(git_repository *repo,
 	}
 
 	if (*buffer) {
-		giterr_set(GITERR_FETCHHEAD, "No EOL at line %d", line_num+1);
+		giterr_set(GITERR_FETCHHEAD, "No EOL at line %d", line_num + 1);
 		error = -1;
 		goto done;
 	}
@@ -286,7 +272,6 @@ done:
 	git_buf_free(&file);
 	git_buf_free(&path);
 	git_buf_free(&name);
-
 	return error;
 }
 

@@ -56,10 +56,10 @@ typedef enum cl_trace_event {
 } cl_trace_event;
 
 typedef void (cl_trace_cb)(
-	cl_trace_event ev,
-	const char *suite_name,
-	const char *test_name,
-	void *payload);
+    cl_trace_event ev,
+    const char *suite_name,
+    const char *test_name,
+    void *payload);
 
 /**
  * Register a callback into CLAR to send global trace events.
@@ -136,26 +136,26 @@ void cl_fixture_cleanup(const char *fixture_name);
 void clar__skip(void);
 
 void clar__fail(
-	const char *file,
-	int line,
-	const char *error,
-	const char *description,
-	int should_abort);
+    const char *file,
+    int line,
+    const char *error,
+    const char *description,
+    int should_abort);
 
 void clar__assert(
-	int condition,
-	const char *file,
-	int line,
-	const char *error,
-	const char *description,
-	int should_abort);
+    int condition,
+    const char *file,
+    int line,
+    const char *error,
+    const char *description,
+    int should_abort);
 
 void clar__assert_equal(
-	const char *file,
-	int line,
-	const char *err,
-	int should_abort,
-	const char *fmt,
-	...);
+    const char *file,
+    int line,
+    const char *err,
+    int should_abort,
+    const char *fmt,
+    ...);
 
 #endif

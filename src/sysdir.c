@@ -62,7 +62,7 @@ static int git_sysdir_guess_template_dirs(git_buf *out)
 typedef int (*git_sysdir_guess_cb)(git_buf *out);
 
 static git_buf git_sysdir__dirs[GIT_SYSDIR__MAX] =
-	{ GIT_BUF_INIT, GIT_BUF_INIT, GIT_BUF_INIT, GIT_BUF_INIT };
+{ GIT_BUF_INIT, GIT_BUF_INIT, GIT_BUF_INIT, GIT_BUF_INIT };
 
 static git_sysdir_guess_cb git_sysdir__dir_guess[GIT_SYSDIR__MAX] = {
 	git_sysdir_guess_system_dirs,
@@ -88,6 +88,7 @@ int git_sysdir_global_init(void)
 void git_sysdir_global_shutdown(void)
 {
 	int i;
+
 	for (i = 0; i < GIT_SYSDIR__MAX; ++i)
 		git_buf_free(&git_sysdir__dirs[i]);
 
@@ -107,9 +108,7 @@ static int git_sysdir_check_selector(git_sysdir_t which)
 int git_sysdir_get(const git_buf **out, git_sysdir_t which)
 {
 	assert(out);
-
 	*out = NULL;
-
 	GITERR_CHECK_ERROR(git_sysdir_check_selector(which));
 
 	if (!git_buf_len(&git_sysdir__dirs[which])) {
@@ -120,7 +119,7 @@ int git_sysdir_get(const git_buf **out, git_sysdir_t which)
 		}
 
 		GITERR_CHECK_ERROR(
-			git_sysdir__dir_guess[which](&git_sysdir__dirs[which]));
+		    git_sysdir__dir_guess[which](&git_sysdir__dirs[which]));
 	}
 
 	*out = &git_sysdir__dirs[which];
@@ -128,12 +127,11 @@ int git_sysdir_get(const git_buf **out, git_sysdir_t which)
 }
 
 int git_sysdir_get_str(
-	char *out,
-	size_t outlen,
-	git_sysdir_t which)
+    char *out,
+    size_t outlen,
+    git_sysdir_t which)
 {
 	const git_buf *path = NULL;
-
 	GITERR_CHECK_ERROR(git_sysdir_check_selector(which));
 	GITERR_CHECK_ERROR(git_sysdir_get(&path, which));
 
@@ -152,7 +150,6 @@ int git_sysdir_set(git_sysdir_t which, const char *search_path)
 {
 	const char *expand_path = NULL;
 	git_buf merge = GIT_BUF_INIT;
-
 	GITERR_CHECK_ERROR(git_sysdir_check_selector(which));
 
 	if (search_path != NULL)
@@ -160,7 +157,7 @@ int git_sysdir_set(git_sysdir_t which, const char *search_path)
 
 	/* init with default if not yet done and needed (ignoring error) */
 	if ((!search_path || expand_path) &&
-		!git_buf_len(&git_sysdir__dirs[which]))
+	    !git_buf_len(&git_sysdir__dirs[which]))
 		git_sysdir__dir_guess[which](&git_sysdir__dirs[which]);
 
 	/* if $PATH is not referenced, then just set the path */
@@ -173,29 +170,29 @@ int git_sysdir_set(git_sysdir_t which, const char *search_path)
 
 	if (git_buf_len(&git_sysdir__dirs[which]))
 		git_buf_join(&merge, GIT_PATH_LIST_SEPARATOR,
-			merge.ptr, git_sysdir__dirs[which].ptr);
+		             merge.ptr, git_sysdir__dirs[which].ptr);
 
 	expand_path += strlen(PATH_MAGIC);
+
 	if (*expand_path)
 		git_buf_join(&merge, GIT_PATH_LIST_SEPARATOR, merge.ptr, expand_path);
 
 	git_buf_swap(&git_sysdir__dirs[which], &merge);
 	git_buf_free(&merge);
-
 	return git_buf_oom(&git_sysdir__dirs[which]) ? -1 : 0;
 }
 
 static int git_sysdir_find_in_dirlist(
-	git_buf *path,
-	const char *name,
-	git_sysdir_t which,
-	const char *label)
+    git_buf *path,
+    const char *name,
+    git_sysdir_t which,
+    const char *label)
 {
 	size_t len;
 	const char *scan, *next = NULL;
 	const git_buf *syspath;
-
 	GITERR_CHECK_ERROR(git_sysdir_get(&syspath, which));
+
 	if (!syspath || !git_buf_len(syspath))
 		goto done;
 
@@ -203,16 +200,18 @@ static int git_sysdir_find_in_dirlist(
 		/* find unescaped separator or end of string */
 		for (next = scan; *next; ++next) {
 			if (*next == GIT_PATH_LIST_SEPARATOR &&
-				(next <= scan || next[-1] != '\\'))
+			    (next <= scan || next[-1] != '\\'))
 				break;
 		}
 
 		len = (size_t)(next - scan);
 		next = (*next ? next + 1 : NULL);
+
 		if (!len)
 			continue;
 
 		GITERR_CHECK_ERROR(git_buf_set(path, scan, len));
+
 		if (name)
 			GITERR_CHECK_ERROR(git_buf_joinpath(path, path->ptr, name));
 
@@ -229,24 +228,24 @@ done:
 int git_sysdir_find_system_file(git_buf *path, const char *filename)
 {
 	return git_sysdir_find_in_dirlist(
-		path, filename, GIT_SYSDIR_SYSTEM, "system");
+	           path, filename, GIT_SYSDIR_SYSTEM, "system");
 }
 
 int git_sysdir_find_global_file(git_buf *path, const char *filename)
 {
 	return git_sysdir_find_in_dirlist(
-		path, filename, GIT_SYSDIR_GLOBAL, "global");
+	           path, filename, GIT_SYSDIR_GLOBAL, "global");
 }
 
 int git_sysdir_find_xdg_file(git_buf *path, const char *filename)
 {
 	return git_sysdir_find_in_dirlist(
-		path, filename, GIT_SYSDIR_XDG, "global/xdg");
+	           path, filename, GIT_SYSDIR_XDG, "global/xdg");
 }
 
 int git_sysdir_find_template_dir(git_buf *path)
 {
 	return git_sysdir_find_in_dirlist(
-		path, NULL, GIT_SYSDIR_TEMPLATE, "template");
+	           path, NULL, GIT_SYSDIR_TEMPLATE, "template");
 }
 

@@ -25,13 +25,13 @@ void git_diff_driver_update_options(uint32_t *option_flags, git_diff_driver *);
 
 /* returns -1 meaning "unknown", 0 meaning not binary, 1 meaning binary */
 int git_diff_driver_content_is_binary(
-	git_diff_driver *, const char *content, size_t content_len);
+    git_diff_driver *, const char *content, size_t content_len);
 
 typedef long (*git_diff_find_context_fn)(
-	const char *, long, char *, long, void *);
+    const char *, long, char *, long, void *);
 
 typedef int (*git_diff_find_context_line)(
-	git_diff_driver *, git_buf *);
+    git_diff_driver *, git_buf *);
 
 typedef struct {
 	git_diff_driver *driver;
@@ -40,9 +40,9 @@ typedef struct {
 } git_diff_find_context_payload;
 
 void git_diff_find_context_init(
-	git_diff_find_context_fn *findfn_out,
-	git_diff_find_context_payload *payload_out,
-	git_diff_driver *driver);
+    git_diff_find_context_fn *findfn_out,
+    git_diff_find_context_payload *payload_out,
+    git_diff_driver *driver);
 
 void git_diff_find_context_clear(git_diff_find_context_payload *);
 

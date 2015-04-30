@@ -59,8 +59,8 @@ GIT_EXTERN(void) git_repository__cleanup(git_repository *repo);
  * @return 0 on success, < 0 on error
  */
 GIT_EXTERN(int) git_repository_reinit_filesystem(
-	git_repository *repo,
-	int recurse_submodules);
+    git_repository *repo,
+    int recurse_submodules);
 
 /**
  * Set the configuration file for this repository

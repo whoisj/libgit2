@@ -137,7 +137,7 @@ struct git_repository {
 
 	git_array_t(git_buf) reserved_names;
 
-	unsigned is_bare:1;
+	unsigned is_bare: 1;
 
 	unsigned int lru_counter;
 
@@ -175,17 +175,16 @@ int git_repository__cvar(int *out, git_repository *repo, git_cvar_cached cvar);
 void git_repository__cvar_cache_clear(git_repository *repo);
 
 GIT_INLINE(int) git_repository__ensure_not_bare(
-	git_repository *repo,
-	const char *operation_name)
+    git_repository *repo,
+    const char *operation_name)
 {
 	if (!git_repository_is_bare(repo))
 		return 0;
 
 	giterr_set(
-		GITERR_REPOSITORY,
-		"Cannot %s. This operation is not allowed against bare repositories.",
-		operation_name);
-
+	    GITERR_REPOSITORY,
+	    "Cannot %s. This operation is not allowed against bare repositories.",
+	    operation_name);
 	return GIT_EBAREREPO;
 }
 
@@ -211,6 +210,6 @@ extern size_t git_repository__reserved_names_posix_len;
  * will still be populated with good defaults.
  */
 bool git_repository__reserved_names(
-	git_buf **out, size_t *outlen, git_repository *repo, bool include_ntfs);
+    git_buf **out, size_t *outlen, git_repository *repo, bool include_ntfs);
 
 #endif

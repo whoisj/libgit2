@@ -31,6 +31,7 @@ GIT_INLINE(int) git_bitvec_init(git_bitvec *bv, size_t capacity)
 	if (capacity >= 64) {
 		bv->length = (capacity / 64) + 1;
 		bv->u.words = git__calloc(bv->length, sizeof(uint64_t));
+
 		if (!bv->u.words)
 			return -1;
 	}

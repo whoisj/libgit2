@@ -122,9 +122,9 @@ GIT_EXTERN(const git_reflog_entry *) git_reflog_entry_byindex(const git_reflog *
  * or an error code.
  */
 GIT_EXTERN(int) git_reflog_drop(
-	git_reflog *reflog,
-	size_t idx,
-	int rewrite_previous_entry);
+    git_reflog *reflog,
+    size_t idx,
+    int rewrite_previous_entry);
 
 /**
  * Get the old oid

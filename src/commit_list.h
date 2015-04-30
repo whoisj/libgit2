@@ -23,11 +23,12 @@
 typedef struct git_commit_list_node {
 	git_oid oid;
 	uint32_t time;
-	unsigned int seen:1,
-			 uninteresting:1,
-			 topo_delay:1,
-			 parsed:1,
-			 flags : FLAG_BITS;
+	unsigned int seen: 1,
+	         uninteresting: 1,
+	         topo_delay: 1,
+	         parsed: 1,
+         flags :
+	         FLAG_BITS;
 
 	unsigned short in_degree;
 	unsigned short out_degree;

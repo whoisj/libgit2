@@ -31,14 +31,13 @@
 static void net_set_error(const char *str)
 {
 	int error = WSAGetLastError();
-	char * win32_error = git_win32_get_error_message(error);
+	char *win32_error = git_win32_get_error_message(error);
 
 	if (win32_error) {
 		giterr_set(GITERR_NET, "%s: %s", str, win32_error);
 		git__free(win32_error);
-	} else {
+	} else
 		giterr_set(GITERR_NET, str);
-	}
 }
 #else
 static void net_set_error(const char *str)
@@ -53,6 +52,7 @@ static int close_socket(GIT_SOCKET s)
 		return 0;
 
 #ifdef GIT_WIN32
+
 	if (SOCKET_ERROR == closesocket(s))
 		return -1;
 
@@ -65,7 +65,6 @@ static int close_socket(GIT_SOCKET s)
 #else
 	return close(s);
 #endif
-
 }
 
 int socket_connect(git_stream *stream)
@@ -75,13 +74,12 @@ int socket_connect(git_stream *stream)
 	git_socket_stream *st = (git_socket_stream *) stream;
 	GIT_SOCKET s = INVALID_SOCKET;
 	int ret;
-
 #ifdef GIT_WIN32
 	/* on win32, the WSA context needs to be initialized
 	 * before any socket calls can be performed */
 	WSADATA wsd;
 
-	if (WSAStartup(MAKEWORD(2,2), &wsd) != 0) {
+	if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0) {
 		giterr_set(GITERR_OS, "Winsock init failed");
 		return -1;
 	}
@@ -91,15 +89,15 @@ int socket_connect(git_stream *stream)
 		giterr_set(GITERR_OS, "Winsock init failed");
 		return -1;
 	}
-#endif
 
+#endif
 	memset(&hints, 0x0, sizeof(struct addrinfo));
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_family = AF_UNSPEC;
 
 	if ((ret = p_getaddrinfo(st->host, st->port, &hints, &info)) != 0) {
 		giterr_set(GITERR_NET,
-			   "Failed to resolve address for %s: %s", st->host, p_gai_strerror(ret));
+		           "Failed to resolve address for %s: %s", st->host, p_gai_strerror(ret));
 		return -1;
 	}
 
@@ -140,6 +138,7 @@ ssize_t socket_write(git_stream *stream, const char *data, size_t len, int flags
 	while (off < len) {
 		errno = 0;
 		ret = p_send(st->s, data + off, len - off, flags);
+
 		if (ret < 0) {
 			net_set_error("Error sending data");
 			return -1;
@@ -166,17 +165,14 @@ int socket_close(git_stream *stream)
 {
 	git_socket_stream *st = (git_socket_stream *) stream;
 	int error;
-
 	error = close_socket(st->s);
 	st->s = INVALID_SOCKET;
-
 	return error;
 }
 
 void socket_free(git_stream *stream)
 {
 	git_socket_stream *st = (git_socket_stream *) stream;
-
 	git__free(st->host);
 	git__free(st->port);
 	git__free(st);
@@ -185,12 +181,9 @@ void socket_free(git_stream *stream)
 int git_socket_stream_new(git_stream **out, const char *host, const char *port)
 {
 	git_socket_stream *st;
-
 	assert(out && host);
-
 	st = git__calloc(1, sizeof(git_socket_stream));
 	GITERR_CHECK_ALLOC(st);
-
 	st->host = git__strdup(host);
 	GITERR_CHECK_ALLOC(st->host);
 
@@ -206,7 +199,6 @@ int git_socket_stream_new(git_stream **out, const char *host, const char *port)
 	st->parent.close = socket_close;
 	st->parent.free = socket_free;
 	st->s = INVALID_SOCKET;
-
 	*out = (git_stream *) st;
 	return 0;
 }

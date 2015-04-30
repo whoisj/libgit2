@@ -8,9 +8,9 @@
 #include "strmap.h"
 
 int git_strmap_next(
-	void **data,
-	git_strmap_iter* iter,
-	git_strmap *map)
+    void **data,
+    git_strmap_iter *iter,
+    git_strmap *map)
 {
 	if (!map)
 		return GIT_ERROR;
@@ -22,9 +22,7 @@ int git_strmap_next(
 		}
 
 		*data = git_strmap_value_at(map, *iter);
-
 		++(*iter);
-
 		return GIT_OK;
 	}
 

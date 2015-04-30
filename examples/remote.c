@@ -45,7 +45,7 @@ static int cmd_seturl(git_repository *repo, struct opts *o);
 static int cmd_show(git_repository *repo, struct opts *o);
 
 static void parse_subcmd(
-	struct opts *opt, int argc, char **argv);
+    struct opts *opt, int argc, char **argv);
 static void usage(const char *msg, const char *arg);
 
 int main(int argc, char *argv[])
@@ -54,39 +54,37 @@ int main(int argc, char *argv[])
 	struct opts opt = {0};
 	git_buf buf = GIT_BUF_INIT_CONST(NULL, 0);
 	git_repository *repo = NULL;
-
 	parse_subcmd(&opt, argc, argv);
-
 	git_libgit2_init();
-
 	check_lg2(git_repository_discover(&buf, ".", 0, NULL),
-		"Could not find repository", NULL);
-
+	          "Could not find repository", NULL);
 	check_lg2(git_repository_open(&repo, buf.ptr),
-		"Could not open repository", NULL);
+	          "Could not open repository", NULL);
 	git_buf_free(&buf);
 
-	switch (opt.cmd)
-	{
+	switch (opt.cmd) {
 	case subcmd_add:
 		retval = cmd_add(repo, &opt);
 		break;
+
 	case subcmd_remove:
 		retval = cmd_remove(repo, &opt);
 		break;
+
 	case subcmd_rename:
 		retval = cmd_rename(repo, &opt);
 		break;
+
 	case subcmd_seturl:
 		retval = cmd_seturl(repo, &opt);
 		break;
+
 	case subcmd_show:
 		retval = cmd_show(repo, &opt);
 		break;
 	}
 
 	git_libgit2_shutdown();
-
 	return retval;
 }
 
@@ -100,10 +98,8 @@ static int cmd_add(git_repository *repo, struct opts *o)
 
 	name = o->argv[0];
 	url = o->argv[1];
-
 	check_lg2(git_remote_create(&remote, repo, name, url),
-			"could not create remote", NULL);
-
+	          "could not create remote", NULL);
 	return 0;
 }
 
@@ -115,10 +111,8 @@ static int cmd_remove(git_repository *repo, struct opts *o)
 		usage("you need to specify a name", NULL);
 
 	name = o->argv[0];
-
 	check_lg2(git_remote_delete(repo, name),
-			"could not delete remote", name);
-
+	          "could not delete remote", name);
 	return 0;
 }
 
@@ -133,17 +127,15 @@ static int cmd_rename(git_repository *repo, struct opts *o)
 
 	old = o->argv[0];
 	new = o->argv[1];
-
 	retval = git_remote_rename(&problems, repo, old, new);
+
 	if (!retval)
 		return 0;
 
-	for (i = 0; i < (int) problems.count; i++) {
+	for (i = 0; i < (int) problems.count; i++)
 		puts(problems.strings[0]);
-	}
 
 	git_strarray_free(&problems);
-
 	return retval;
 }
 
@@ -156,34 +148,31 @@ static int cmd_seturl(git_repository *repo, struct opts *o)
 	for (i = 0; i < o->argc; i++) {
 		char *arg = o->argv[i];
 
-		if (!strcmp(arg, "--push")) {
+		if (!strcmp(arg, "--push"))
 			push = 1;
-		} else if (arg[0] != '-' && name == NULL) {
+		else if (arg[0] != '-' && name == NULL)
 			name = arg;
-		} else if (arg[0] != '-' && url == NULL) {
+		else if (arg[0] != '-' && url == NULL)
 			url = arg;
-		} else {
+		else
 			usage("invalid argument to set-url", arg);
-		}
 	}
 
 	if (name == NULL || url == NULL)
 		usage("you need to specify remote and the new URL", NULL);
 
 	check_lg2(git_remote_lookup(&remote, repo, name),
-			"could not look up remote", name);
+	          "could not look up remote", name);
 
 	if (push)
 		retval = git_remote_set_pushurl(remote, url);
 	else
 		retval = git_remote_set_url(remote, url);
+
 	check_lg2(retval, "could not set URL", url);
-
 	check_lg2(git_remote_save(remote),
-			"could not save remote", NULL);
-
+	          "could not save remote", NULL);
 	git_remote_free(remote);
-
 	return 0;
 }
 
@@ -198,30 +187,32 @@ static int cmd_show(git_repository *repo, struct opts *o)
 	for (i = 0; i < o->argc; i++) {
 		arg = o->argv[i];
 
-		if (!strcmp(arg, "-v") || !strcmp(arg, "--verbose")) {
+		if (!strcmp(arg, "-v") || !strcmp(arg, "--verbose"))
 			verbose = 1;
-		}
 	}
 
 	check_lg2(git_remote_list(&remotes, repo),
-		"could not retrieve remotes", NULL);
+	          "could not retrieve remotes", NULL);
 
 	for (i = 0; i < (int) remotes.count; i++) {
 		name = remotes.strings[i];
+
 		if (!verbose) {
 			puts(name);
 			continue;
 		}
 
 		check_lg2(git_remote_lookup(&remote, repo, name),
-			"could not look up remote", name);
-
+		          "could not look up remote", name);
 		fetch = git_remote_url(remote);
+
 		if (fetch)
 			printf("%s\t%s (fetch)\n", name, fetch);
+
 		push = git_remote_pushurl(remote);
 		/* use fetch URL if no distinct push URL has been set */
 		push = push ? push : fetch;
+
 		if (push)
 			printf("%s\t%s (push)\n", name, push);
 
@@ -229,12 +220,11 @@ static int cmd_show(git_repository *repo, struct opts *o)
 	}
 
 	git_strarray_free(&remotes);
-
 	return 0;
 }
 
 static void parse_subcmd(
-	struct opts *opt, int argc, char **argv)
+    struct opts *opt, int argc, char **argv)
 {
 	char *arg = argv[1];
 	enum subcmd cmd = 0;
@@ -242,21 +232,20 @@ static void parse_subcmd(
 	if (argc < 2)
 		usage("no command specified", NULL);
 
-	if (!strcmp(arg, "add")) {
+	if (!strcmp(arg, "add"))
 		cmd = subcmd_add;
-	} else if (!strcmp(arg, "remove")) {
+	else if (!strcmp(arg, "remove"))
 		cmd = subcmd_remove;
-	} else if (!strcmp(arg, "rename")) {
+	else if (!strcmp(arg, "rename"))
 		cmd = subcmd_rename;
-	} else if (!strcmp(arg, "set-url")) {
+	else if (!strcmp(arg, "set-url"))
 		cmd = subcmd_seturl;
-	} else if (!strcmp(arg, "show")) {
+	else if (!strcmp(arg, "show"))
 		cmd = subcmd_show;
-	} else {
+	else
 		usage("command is not valid", arg);
-	}
-	opt->cmd = cmd;
 
+	opt->cmd = cmd;
 	opt->argc = argc - 2; /* executable and subcommand are removed */
 	opt->argv = argv + 2;
 }
@@ -273,5 +262,6 @@ static void usage(const char *msg, const char *arg)
 		fprintf(stderr, "\n%s\n", msg);
 	else if (msg && arg)
 		fprintf(stderr, "\n%s: %s\n", msg, arg);
+
 	exit(1);
 }

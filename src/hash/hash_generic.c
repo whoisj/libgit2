@@ -53,11 +53,11 @@
  */
 
 #if defined(__i386__) || defined(__x86_64__)
- #define setW(x, val) (*(volatile unsigned int *)&W(x) = (val))
+#define setW(x, val) (*(volatile unsigned int *)&W(x) = (val))
 #elif defined(__GNUC__) && defined(__arm__)
- #define setW(x, val) do { W(x) = (val); __asm__("":::"memory"); } while (0)
+#define setW(x, val) do { W(x) = (val); __asm__("":::"memory"); } while (0)
 #else
- #define setW(x, val) (W(x) = (val))
+#define setW(x, val) (W(x) = (val))
 #endif
 
 /*
@@ -115,15 +115,13 @@
 
 static void hash__block(git_hash_ctx *ctx, const unsigned int *data)
 {
-	unsigned int A,B,C,D,E;
+	unsigned int A, B, C, D, E;
 	unsigned int array[16];
-
 	A = ctx->H[0];
 	B = ctx->H[1];
 	C = ctx->H[2];
 	D = ctx->H[3];
 	E = ctx->H[4];
-
 	/* Round 1 - iterations 0-16 take their input from 'data' */
 	T_0_15( 0, A, B, C, D, E);
 	T_0_15( 1, E, A, B, C, D);
@@ -141,13 +139,11 @@ static void hash__block(git_hash_ctx *ctx, const unsigned int *data)
 	T_0_15(13, C, D, E, A, B);
 	T_0_15(14, B, C, D, E, A);
 	T_0_15(15, A, B, C, D, E);
-
 	/* Round 1 - tail. Input from 512-bit mixing array */
 	T_16_19(16, E, A, B, C, D);
 	T_16_19(17, D, E, A, B, C);
 	T_16_19(18, C, D, E, A, B);
 	T_16_19(19, B, C, D, E, A);
-
 	/* Round 2 */
 	T_20_39(20, A, B, C, D, E);
 	T_20_39(21, E, A, B, C, D);
@@ -169,7 +165,6 @@ static void hash__block(git_hash_ctx *ctx, const unsigned int *data)
 	T_20_39(37, D, E, A, B, C);
 	T_20_39(38, C, D, E, A, B);
 	T_20_39(39, B, C, D, E, A);
-
 	/* Round 3 */
 	T_40_59(40, A, B, C, D, E);
 	T_40_59(41, E, A, B, C, D);
@@ -191,7 +186,6 @@ static void hash__block(git_hash_ctx *ctx, const unsigned int *data)
 	T_40_59(57, D, E, A, B, C);
 	T_40_59(58, C, D, E, A, B);
 	T_40_59(59, B, C, D, E, A);
-
 	/* Round 4 */
 	T_60_79(60, A, B, C, D, E);
 	T_60_79(61, E, A, B, C, D);
@@ -213,7 +207,6 @@ static void hash__block(git_hash_ctx *ctx, const unsigned int *data)
 	T_60_79(77, D, E, A, B, C);
 	T_60_79(78, C, D, E, A, B);
 	T_60_79(79, B, C, D, E, A);
-
 	ctx->H[0] += A;
 	ctx->H[1] += B;
 	ctx->H[2] += C;
@@ -224,41 +217,44 @@ static void hash__block(git_hash_ctx *ctx, const unsigned int *data)
 int git_hash_init(git_hash_ctx *ctx)
 {
 	ctx->size = 0;
-
 	/* Initialize H with the magic constants (see FIPS180 for constants) */
 	ctx->H[0] = 0x67452301;
 	ctx->H[1] = 0xefcdab89;
 	ctx->H[2] = 0x98badcfe;
 	ctx->H[3] = 0x10325476;
 	ctx->H[4] = 0xc3d2e1f0;
-
 	return 0;
 }
 
 int git_hash_update(git_hash_ctx *ctx, const void *data, size_t len)
 {
 	unsigned int lenW = ctx->size & 63;
-
 	ctx->size += len;
 
 	/* Read the data into W and process blocks as they get full */
 	if (lenW) {
 		unsigned int left = 64 - lenW;
+
 		if (len < left)
 			left = (unsigned int)len;
+
 		memcpy(lenW + (char *)ctx->W, data, left);
 		lenW = (lenW + left) & 63;
 		len -= left;
 		data = ((const char *)data + left);
+
 		if (lenW)
 			return 0;
+
 		hash__block(ctx, ctx->W);
 	}
+
 	while (len >= 64) {
 		hash__block(ctx, data);
 		data = ((const char *)data + 64);
 		len -= 64;
 	}
+
 	if (len)
 		memcpy(ctx->W, data, len);
 
@@ -270,18 +266,16 @@ int git_hash_final(git_oid *out, git_hash_ctx *ctx)
 	static const unsigned char pad[64] = { 0x80 };
 	unsigned int padlen[2];
 	int i;
-
 	/* Pad with a binary 1 (ie 0x80), then zeroes, then length */
 	padlen[0] = htonl((uint32_t)(ctx->size >> 29));
 	padlen[1] = htonl((uint32_t)(ctx->size << 3));
-
 	i = ctx->size & 63;
-	git_hash_update(ctx, pad, 1+ (63 & (55 - i)));
+	git_hash_update(ctx, pad, 1 + (63 & (55 - i)));
 	git_hash_update(ctx, padlen, 8);
 
 	/* Output hash */
 	for (i = 0; i < 5; i++)
-		put_be32(out->id + i*4, ctx->H[i]);
+		put_be32(out->id + i * 4, ctx->H[i]);
 
 	return 0;
 }

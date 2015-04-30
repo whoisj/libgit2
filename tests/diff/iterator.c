@@ -21,47 +21,50 @@ void test_diff_iterator__cleanup(void)
 /* -- TREE ITERATOR TESTS -- */
 
 static void tree_iterator_test(
-	const char *sandbox,
-	const char *treeish,
-	const char *start,
-	const char *end,
-	int expected_count,
-	const char **expected_values)
+    const char *sandbox,
+    const char *treeish,
+    const char *start,
+    const char *end,
+    int expected_count,
+    const char **expected_values)
 {
 	git_tree *t;
 	git_iterator *i;
 	const git_index_entry *entry;
 	int error, count = 0, count_post_reset = 0;
 	git_repository *repo = cl_git_sandbox_init(sandbox);
-
 	cl_assert(t = resolve_commit_oid_to_tree(repo, treeish));
 	cl_git_pass(git_iterator_for_tree(
-		&i, t, GIT_ITERATOR_DONT_IGNORE_CASE, start, end));
+	                &i, t, GIT_ITERATOR_DONT_IGNORE_CASE, start, end));
 
 	/* test loop */
 	while (!(error = git_iterator_advance(&entry, i))) {
 		cl_assert(entry);
+
 		if (expected_values != NULL)
 			cl_assert_equal_s(expected_values[count], entry->path);
+
 		count++;
 	}
+
 	cl_assert_equal_i(GIT_ITEROVER, error);
 	cl_assert(!entry);
 	cl_assert_equal_i(expected_count, count);
-
 	/* test reset */
 	cl_git_pass(git_iterator_reset(i, NULL, NULL));
 
 	while (!(error = git_iterator_advance(&entry, i))) {
 		cl_assert(entry);
+
 		if (expected_values != NULL)
 			cl_assert_equal_s(expected_values[count_post_reset], entry->path);
+
 		count_post_reset++;
 	}
+
 	cl_assert_equal_i(GIT_ITEROVER, error);
 	cl_assert(!entry);
 	cl_assert_equal_i(count, count_post_reset);
-
 	git_iterator_free(i);
 	git_tree_free(t);
 }
@@ -185,16 +188,16 @@ const char *expected_tree_4[] = {
 void test_diff_iterator__tree_4(void)
 {
 	tree_iterator_test(
-		"attr", "24fa9a9fc4e202313e24b648087495441dab432b", NULL, NULL,
-		23, expected_tree_4);
+	    "attr", "24fa9a9fc4e202313e24b648087495441dab432b", NULL, NULL,
+	    23, expected_tree_4);
 }
 
 void test_diff_iterator__tree_4_ranged(void)
 {
 	tree_iterator_test(
-		"attr", "24fa9a9fc4e202313e24b648087495441dab432b",
-		"sub", "sub",
-		11, &expected_tree_4[12]);
+	    "attr", "24fa9a9fc4e202313e24b648087495441dab432b",
+	    "sub", "sub",
+	    11, &expected_tree_4[12]);
 }
 
 const char *expected_tree_ranged_0[] = {
@@ -211,9 +214,9 @@ const char *expected_tree_ranged_0[] = {
 void test_diff_iterator__tree_ranged_0(void)
 {
 	tree_iterator_test(
-		"attr", "24fa9a9fc4e202313e24b648087495441dab432b",
-		"git", "root",
-		7, expected_tree_ranged_0);
+	    "attr", "24fa9a9fc4e202313e24b648087495441dab432b",
+	    "git", "root",
+	    7, expected_tree_ranged_0);
 }
 
 const char *expected_tree_ranged_1[] = {
@@ -224,48 +227,46 @@ const char *expected_tree_ranged_1[] = {
 void test_diff_iterator__tree_ranged_1(void)
 {
 	tree_iterator_test(
-		"attr", "24fa9a9fc4e202313e24b648087495441dab432b",
-		"sub/subdir_test2.txt", "sub/subdir_test2.txt",
-		1, expected_tree_ranged_1);
+	    "attr", "24fa9a9fc4e202313e24b648087495441dab432b",
+	    "sub/subdir_test2.txt", "sub/subdir_test2.txt",
+	    1, expected_tree_ranged_1);
 }
 
 void test_diff_iterator__tree_range_empty_0(void)
 {
 	tree_iterator_test(
-		"attr", "24fa9a9fc4e202313e24b648087495441dab432b",
-		"empty", "empty", 0, NULL);
+	    "attr", "24fa9a9fc4e202313e24b648087495441dab432b",
+	    "empty", "empty", 0, NULL);
 }
 
 void test_diff_iterator__tree_range_empty_1(void)
 {
 	tree_iterator_test(
-		"attr", "24fa9a9fc4e202313e24b648087495441dab432b",
-		"z_empty_after", NULL, 0, NULL);
+	    "attr", "24fa9a9fc4e202313e24b648087495441dab432b",
+	    "z_empty_after", NULL, 0, NULL);
 }
 
 void test_diff_iterator__tree_range_empty_2(void)
 {
 	tree_iterator_test(
-		"attr", "24fa9a9fc4e202313e24b648087495441dab432b",
-		NULL, ".aaa_empty_before", 0, NULL);
+	    "attr", "24fa9a9fc4e202313e24b648087495441dab432b",
+	    NULL, ".aaa_empty_before", 0, NULL);
 }
 
 static void check_tree_entry(
-	git_iterator *i,
-	const char *oid,
-	const char *oid_p,
-	const char *oid_pp,
-	const char *oid_ppp)
+    git_iterator *i,
+    const char *oid,
+    const char *oid_p,
+    const char *oid_pp,
+    const char *oid_ppp)
 {
 	const git_index_entry *ie;
 	const git_tree_entry *te;
 	const git_tree *tree;
 	git_buf path = GIT_BUF_INIT;
-
 	cl_git_pass(git_iterator_current_tree_entry(&te, i));
 	cl_assert(te);
 	cl_assert(git_oid_streq(&te->oid, oid) == 0);
-
 	cl_git_pass(git_iterator_current(&ie, i));
 	cl_git_pass(git_buf_sets(&path, ie->path));
 
@@ -301,13 +302,11 @@ void test_diff_iterator__tree_special_functions(void)
 	git_repository *repo = cl_git_sandbox_init("attr");
 	int error, cases = 0;
 	const char *rootoid = "ce39a97a7fb1fa90bcf5e711249c1e507476ae0e";
-
 	t = resolve_commit_oid_to_tree(
-		repo, "24fa9a9fc4e202313e24b648087495441dab432b");
+	        repo, "24fa9a9fc4e202313e24b648087495441dab432b");
 	cl_assert(t != NULL);
-
 	cl_git_pass(git_iterator_for_tree(
-		&i, t, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL));
+	                &i, t, GIT_ITERATOR_DONT_IGNORE_CASE, NULL, NULL));
 
 	while (!(error = git_iterator_advance(&entry, i))) {
 		cl_assert(entry);
@@ -315,36 +314,33 @@ void test_diff_iterator__tree_special_functions(void)
 		if (strcmp(entry->path, "sub/file") == 0) {
 			cases++;
 			check_tree_entry(
-				i, "45b983be36b73c0788dc9cbcb76cbb80fc7bb057",
-				"ecb97df2a174987475ac816e3847fc8e9f6c596b",
-				rootoid, NULL);
-		}
-		else if (strcmp(entry->path, "sub/sub/subsub.txt") == 0) {
+			    i, "45b983be36b73c0788dc9cbcb76cbb80fc7bb057",
+			    "ecb97df2a174987475ac816e3847fc8e9f6c596b",
+			    rootoid, NULL);
+		} else if (strcmp(entry->path, "sub/sub/subsub.txt") == 0) {
 			cases++;
 			check_tree_entry(
-				i, "9e5bdc47d6a80f2be0ea3049ad74231b94609242",
-				"4e49ba8c5b6c32ff28cd9dcb60be34df50fcc485",
-				"ecb97df2a174987475ac816e3847fc8e9f6c596b", rootoid);
-		}
-		else if (strcmp(entry->path, "subdir/.gitattributes") == 0) {
+			    i, "9e5bdc47d6a80f2be0ea3049ad74231b94609242",
+			    "4e49ba8c5b6c32ff28cd9dcb60be34df50fcc485",
+			    "ecb97df2a174987475ac816e3847fc8e9f6c596b", rootoid);
+		} else if (strcmp(entry->path, "subdir/.gitattributes") == 0) {
 			cases++;
 			check_tree_entry(
-				i, "99eae476896f4907224978b88e5ecaa6c5bb67a9",
-				"9fb40b6675dde60b5697afceae91b66d908c02d9",
-				rootoid, NULL);
-		}
-		else if (strcmp(entry->path, "subdir2/subdir2_test1") == 0) {
+			    i, "99eae476896f4907224978b88e5ecaa6c5bb67a9",
+			    "9fb40b6675dde60b5697afceae91b66d908c02d9",
+			    rootoid, NULL);
+		} else if (strcmp(entry->path, "subdir2/subdir2_test1") == 0) {
 			cases++;
 			check_tree_entry(
-				i, "dccada462d3df8ac6de596fb8c896aba9344f941",
-				"2929de282ce999e95183aedac6451d3384559c4b",
-				rootoid, NULL);
+			    i, "dccada462d3df8ac6de596fb8c896aba9344f941",
+			    "2929de282ce999e95183aedac6451d3384559c4b",
+			    rootoid, NULL);
 		}
 	}
+
 	cl_assert_equal_i(GIT_ITEROVER, error);
 	cl_assert(!entry);
 	cl_assert_equal_i(4, cases);
-
 	git_iterator_free(i);
 	git_tree_free(t);
 }
@@ -352,23 +348,21 @@ void test_diff_iterator__tree_special_functions(void)
 /* -- INDEX ITERATOR TESTS -- */
 
 static void index_iterator_test(
-	const char *sandbox,
-	const char *start,
-	const char *end,
-	git_iterator_flag_t flags,
-	int expected_count,
-	const char **expected_names,
-	const char **expected_oids)
+    const char *sandbox,
+    const char *start,
+    const char *end,
+    git_iterator_flag_t flags,
+    int expected_count,
+    const char **expected_names,
+    const char **expected_oids)
 {
 	git_index *index;
 	git_iterator *i;
 	const git_index_entry *entry;
 	int error, count = 0, caps;
 	git_repository *repo = cl_git_sandbox_init(sandbox);
-
 	cl_git_pass(git_repository_index(&index, repo));
 	caps = git_index_caps(index);
-
 	cl_git_pass(git_iterator_for_index(&i, index, flags, start, end));
 
 	while (!(error = git_iterator_advance(&entry, i))) {
@@ -389,9 +383,7 @@ static void index_iterator_test(
 	cl_assert_equal_i(GIT_ITEROVER, error);
 	cl_assert(!entry);
 	cl_assert_equal_i(expected_count, count);
-
 	git_iterator_free(i);
-
 	cl_assert(caps == git_index_caps(index));
 	git_index_free(index);
 }
@@ -451,8 +443,8 @@ static const char *expected_index_oids_0[] = {
 void test_diff_iterator__index_0(void)
 {
 	index_iterator_test(
-		"attr", NULL, NULL, 0, ARRAY_SIZE(expected_index_0),
-		expected_index_0, expected_index_oids_0);
+	    "attr", NULL, NULL, 0, ARRAY_SIZE(expected_index_0),
+	    expected_index_0, expected_index_oids_0);
 }
 
 static const char *expected_index_range[] = {
@@ -472,26 +464,26 @@ static const char *expected_index_oids_range[] = {
 void test_diff_iterator__index_range(void)
 {
 	index_iterator_test(
-		"attr", "root", "root", 0, ARRAY_SIZE(expected_index_range),
-		expected_index_range, expected_index_oids_range);
+	    "attr", "root", "root", 0, ARRAY_SIZE(expected_index_range),
+	    expected_index_range, expected_index_oids_range);
 }
 
 void test_diff_iterator__index_range_empty_0(void)
 {
 	index_iterator_test(
-		"attr", "empty", "empty", 0, 0, NULL, NULL);
+	    "attr", "empty", "empty", 0, 0, NULL, NULL);
 }
 
 void test_diff_iterator__index_range_empty_1(void)
 {
 	index_iterator_test(
-		"attr", "z_empty_after", NULL, 0, 0, NULL, NULL);
+	    "attr", "z_empty_after", NULL, 0, 0, NULL, NULL);
 }
 
 void test_diff_iterator__index_range_empty_2(void)
 {
 	index_iterator_test(
-		"attr", NULL, ".aaa_empty_before", 0, 0, NULL, NULL);
+	    "attr", NULL, ".aaa_empty_before", 0, 0, NULL, NULL);
 }
 
 static const char *expected_index_1[] = {
@@ -510,7 +502,7 @@ static const char *expected_index_1[] = {
 	"subdir/modified_file",
 };
 
-static const char* expected_index_oids_1[] = {
+static const char *expected_index_oids_1[] = {
 	"a0de7e0ac200c489c41c59dfa910154a70264e6e",
 	"5452d32f1dd538eb0405e8a83cc185f79e25e80f",
 	"452e4244b5d083ddf0460acf1ecc74db9dcfa11a",
@@ -529,8 +521,8 @@ static const char* expected_index_oids_1[] = {
 void test_diff_iterator__index_1(void)
 {
 	index_iterator_test(
-		"status", NULL, NULL, 0, ARRAY_SIZE(expected_index_1),
-		expected_index_1, expected_index_oids_1);
+	    "status", NULL, NULL, 0, ARRAY_SIZE(expected_index_1),
+	    expected_index_1, expected_index_oids_1);
 }
 
 static const char *expected_index_cs[] = {
@@ -547,50 +539,42 @@ void test_diff_iterator__index_case_folding(void)
 {
 	git_buf path = GIT_BUF_INIT;
 	int fs_is_ci = 0;
-
 	cl_git_pass(git_buf_joinpath(&path, cl_fixture("icase"), ".gitted/CoNfIg"));
 	fs_is_ci = git_path_exists(path.ptr);
 	git_buf_free(&path);
-
 	index_iterator_test(
-		"icase", NULL, NULL, 0, ARRAY_SIZE(expected_index_cs),
-		fs_is_ci ? expected_index_ci : expected_index_cs, NULL);
-
+	    "icase", NULL, NULL, 0, ARRAY_SIZE(expected_index_cs),
+	    fs_is_ci ? expected_index_ci : expected_index_cs, NULL);
 	cl_git_sandbox_cleanup();
-
 	index_iterator_test(
-		"icase", NULL, NULL, GIT_ITERATOR_IGNORE_CASE,
-		ARRAY_SIZE(expected_index_ci), expected_index_ci, NULL);
-
+	    "icase", NULL, NULL, GIT_ITERATOR_IGNORE_CASE,
+	    ARRAY_SIZE(expected_index_ci), expected_index_ci, NULL);
 	cl_git_sandbox_cleanup();
-
 	index_iterator_test(
-		"icase", NULL, NULL, GIT_ITERATOR_DONT_IGNORE_CASE,
-		ARRAY_SIZE(expected_index_cs), expected_index_cs, NULL);
+	    "icase", NULL, NULL, GIT_ITERATOR_DONT_IGNORE_CASE,
+	    ARRAY_SIZE(expected_index_cs), expected_index_cs, NULL);
 }
 
 /* -- WORKDIR ITERATOR TESTS -- */
 
 static void workdir_iterator_test(
-	const char *sandbox,
-	const char *start,
-	const char *end,
-	int expected_count,
-	int expected_ignores,
-	const char **expected_names,
-	const char *an_ignored_name)
+    const char *sandbox,
+    const char *start,
+    const char *end,
+    int expected_count,
+    int expected_ignores,
+    const char **expected_names,
+    const char *an_ignored_name)
 {
 	git_iterator *i;
 	const git_index_entry *entry;
 	int error, count = 0, count_all = 0, count_all_post_reset = 0;
 	git_repository *repo = cl_git_sandbox_init(sandbox);
-
 	cl_git_pass(git_iterator_for_workdir(
-		&i, repo, NULL, NULL, GIT_ITERATOR_DONT_AUTOEXPAND, start, end));
-
+	                &i, repo, NULL, NULL, GIT_ITERATOR_DONT_AUTOEXPAND, start, end));
 	error = git_iterator_current(&entry, i);
 	cl_assert((error == 0 && entry != NULL) ||
-			  (error == GIT_ITEROVER && entry == NULL));
+	          (error == GIT_ITEROVER && entry == NULL));
 
 	while (entry != NULL) {
 		int ignored = git_iterator_current_is_ignored(i);
@@ -603,27 +587,24 @@ static void workdir_iterator_test(
 		if (expected_names != NULL)
 			cl_assert_equal_s(expected_names[count_all], entry->path);
 
-		if (an_ignored_name && strcmp(an_ignored_name,entry->path)==0)
+		if (an_ignored_name && strcmp(an_ignored_name, entry->path) == 0)
 			cl_assert(ignored);
 
 		if (!ignored)
 			count++;
+
 		count_all++;
-
 		error = git_iterator_advance(&entry, i);
-
 		cl_assert((error == 0 && entry != NULL) ||
-				  (error == GIT_ITEROVER && entry == NULL));
+		          (error == GIT_ITEROVER && entry == NULL));
 	}
 
 	cl_assert_equal_i(expected_count, count);
 	cl_assert_equal_i(expected_count + expected_ignores, count_all);
-
 	cl_git_pass(git_iterator_reset(i, NULL, NULL));
-
 	error = git_iterator_current(&entry, i);
 	cl_assert((error == 0 && entry != NULL) ||
-			  (error == GIT_ITEROVER && entry == NULL));
+	          (error == GIT_ITEROVER && entry == NULL));
 
 	while (entry != NULL) {
 		if (S_ISDIR(entry->mode)) {
@@ -633,15 +614,14 @@ static void workdir_iterator_test(
 
 		if (expected_names != NULL)
 			cl_assert_equal_s(
-				expected_names[count_all_post_reset], entry->path);
-		count_all_post_reset++;
+			    expected_names[count_all_post_reset], entry->path);
 
+		count_all_post_reset++;
 		error = git_iterator_advance(&entry, i);
 		cl_assert(error == 0 || error == GIT_ITEROVER);
 	}
 
 	cl_assert_equal_i(count_all, count_all_post_reset);
-
 	git_iterator_free(i);
 }
 
@@ -671,7 +651,7 @@ static const char *status_paths[] = {
 void test_diff_iterator__workdir_1(void)
 {
 	workdir_iterator_test(
-		"status", NULL, NULL, 13, 1, status_paths, "ignored_file");
+	    "status", NULL, NULL, 13, 1, status_paths, "ignored_file");
 }
 
 static const char *status_paths_range_0[] = {
@@ -686,7 +666,7 @@ static const char *status_paths_range_0[] = {
 void test_diff_iterator__workdir_1_ranged_0(void)
 {
 	workdir_iterator_test(
-		"status", "staged", "staged", 5, 0, status_paths_range_0, NULL);
+	    "status", "staged", "staged", 5, 0, status_paths_range_0, NULL);
 }
 
 static const char *status_paths_range_1[] = {
@@ -696,8 +676,8 @@ static const char *status_paths_range_1[] = {
 void test_diff_iterator__workdir_1_ranged_1(void)
 {
 	workdir_iterator_test(
-		"status", "modified_file", "modified_file",
-		1, 0, status_paths_range_1, NULL);
+	    "status", "modified_file", "modified_file",
+	    1, 0, status_paths_range_1, NULL);
 }
 
 static const char *status_paths_range_3[] = {
@@ -710,8 +690,8 @@ static const char *status_paths_range_3[] = {
 void test_diff_iterator__workdir_1_ranged_3(void)
 {
 	workdir_iterator_test(
-		"status", "subdir", "subdir/modified_file",
-		3, 0, status_paths_range_3, NULL);
+	    "status", "subdir", "subdir/modified_file",
+	    3, 0, status_paths_range_3, NULL);
 }
 
 static const char *status_paths_range_4[] = {
@@ -725,7 +705,7 @@ static const char *status_paths_range_4[] = {
 void test_diff_iterator__workdir_1_ranged_4(void)
 {
 	workdir_iterator_test(
-		"status", "subdir/", NULL, 4, 0, status_paths_range_4, NULL);
+	    "status", "subdir/", NULL, 4, 0, status_paths_range_4, NULL);
 }
 
 static const char *status_paths_range_5[] = {
@@ -736,29 +716,29 @@ static const char *status_paths_range_5[] = {
 void test_diff_iterator__workdir_1_ranged_5(void)
 {
 	workdir_iterator_test(
-		"status", "subdir/modified_file", "subdir/modified_file",
-		1, 0, status_paths_range_5, NULL);
+	    "status", "subdir/modified_file", "subdir/modified_file",
+	    1, 0, status_paths_range_5, NULL);
 }
 
 void test_diff_iterator__workdir_1_ranged_empty_0(void)
 {
 	workdir_iterator_test(
-		"status", "\xff_does_not_exist", NULL,
-		0, 0, NULL, NULL);
+	    "status", "\xff_does_not_exist", NULL,
+	    0, 0, NULL, NULL);
 }
 
 void test_diff_iterator__workdir_1_ranged_empty_1(void)
 {
 	workdir_iterator_test(
-		"status", "empty", "empty",
-		0, 0, NULL, NULL);
+	    "status", "empty", "empty",
+	    0, 0, NULL, NULL);
 }
 
 void test_diff_iterator__workdir_1_ranged_empty_2(void)
 {
 	workdir_iterator_test(
-		"status", NULL, "aaaa_empty_before",
-		0, 0, NULL, NULL);
+	    "status", NULL, "aaaa_empty_before",
+	    0, 0, NULL, NULL);
 }
 
 void test_diff_iterator__workdir_builtin_ignores(void)
@@ -792,24 +772,20 @@ void test_diff_iterator__workdir_builtin_ignores(void)
 		{ "sub/sub/file", false },
 		{ NULL, false }
 	};
-
 	cl_git_pass(p_mkdir("attr/sub/sub/.git", 0777));
 	cl_git_mkfile("attr/sub/.git", "whatever");
-
 	cl_git_pass(git_iterator_for_workdir(
-		&i, repo, NULL, NULL, GIT_ITERATOR_DONT_AUTOEXPAND, "dir", "sub/sub/file"));
+	                &i, repo, NULL, NULL, GIT_ITERATOR_DONT_AUTOEXPAND, "dir", "sub/sub/file"));
 	cl_git_pass(git_iterator_current(&entry, i));
 
 	for (idx = 0; entry != NULL; ++idx) {
 		int ignored = git_iterator_current_is_ignored(i);
-
 		cl_assert_equal_s(expected[idx].path, entry->path);
 		cl_assert_(ignored == expected[idx].ignored, expected[idx].path);
 
 		if (!ignored &&
-			(entry->mode == GIT_FILEMODE_TREE ||
-			 entry->mode == GIT_FILEMODE_COMMIT))
-		{
+		    (entry->mode == GIT_FILEMODE_TREE ||
+		     entry->mode == GIT_FILEMODE_COMMIT)) {
 			/* it is possible to advance "into" a submodule */
 			cl_git_pass(git_iterator_advance_into(&entry, i));
 		} else {
@@ -819,48 +795,41 @@ void test_diff_iterator__workdir_builtin_ignores(void)
 	}
 
 	cl_assert(expected[idx].path == NULL);
-
 	git_iterator_free(i);
 }
 
 static void check_wd_first_through_third_range(
-	git_repository *repo, const char *start, const char *end)
+    git_repository *repo, const char *start, const char *end)
 {
 	git_iterator *i;
 	const git_index_entry *entry;
 	int error, idx;
 	static const char *expected[] = { "FIRST", "second", "THIRD", NULL };
-
 	cl_git_pass(git_iterator_for_workdir(
-		&i, repo, NULL, NULL, GIT_ITERATOR_IGNORE_CASE, start, end));
+	                &i, repo, NULL, NULL, GIT_ITERATOR_IGNORE_CASE, start, end));
 	cl_git_pass(git_iterator_current(&entry, i));
 
 	for (idx = 0; entry != NULL; ++idx) {
 		cl_assert_equal_s(expected[idx], entry->path);
-
 		error = git_iterator_advance(&entry, i);
 		cl_assert(!error || error == GIT_ITEROVER);
 	}
 
 	cl_assert(expected[idx] == NULL);
-
 	git_iterator_free(i);
 }
 
 void test_diff_iterator__workdir_handles_icase_range(void)
 {
 	git_repository *repo;
-
 	repo = cl_git_sandbox_init("empty_standard_repo");
 	cl_git_remove_placeholders(git_repository_path(repo), "dummy-marker.txt");
-
 	cl_git_mkfile("empty_standard_repo/before", "whatever\n");
 	cl_git_mkfile("empty_standard_repo/FIRST", "whatever\n");
 	cl_git_mkfile("empty_standard_repo/second", "whatever\n");
 	cl_git_mkfile("empty_standard_repo/THIRD", "whatever\n");
 	cl_git_mkfile("empty_standard_repo/zafter", "whatever\n");
 	cl_git_mkfile("empty_standard_repo/Zlast", "whatever\n");
-
 	check_wd_first_through_third_range(repo, "first", "third");
 	check_wd_first_through_third_range(repo, "FIRST", "THIRD");
 	check_wd_first_through_third_range(repo, "first", "THIRD");
@@ -869,29 +838,26 @@ void test_diff_iterator__workdir_handles_icase_range(void)
 }
 
 static void check_tree_range(
-	git_repository *repo,
-	const char *start,
-	const char *end,
-	bool ignore_case,
-	int expected_count)
+    git_repository *repo,
+    const char *start,
+    const char *end,
+    bool ignore_case,
+    int expected_count)
 {
 	git_tree *head;
 	git_iterator *i;
 	int error, count;
-
 	cl_git_pass(git_repository_head_tree(&head, repo));
-
 	cl_git_pass(git_iterator_for_tree(
-		&i, head,
-		ignore_case ? GIT_ITERATOR_IGNORE_CASE : GIT_ITERATOR_DONT_IGNORE_CASE,
-		start, end));
+	                &i, head,
+	                ignore_case ? GIT_ITERATOR_IGNORE_CASE : GIT_ITERATOR_DONT_IGNORE_CASE,
+	                start, end));
 
 	for (count = 0; !(error = git_iterator_advance(NULL, i)); ++count)
 		/* count em up */;
 
 	cl_assert_equal_i(GIT_ITEROVER, error);
 	cl_assert_equal_i(expected_count, count);
-
 	git_iterator_free(i);
 	git_tree_free(head);
 }
@@ -899,14 +865,11 @@ static void check_tree_range(
 void test_diff_iterator__tree_handles_icase_range(void)
 {
 	git_repository *repo;
-
 	repo = cl_git_sandbox_init("testrepo");
-
 	check_tree_range(repo, "B", "C", false, 0);
 	check_tree_range(repo, "B", "C", true, 1);
 	check_tree_range(repo, "b", "c", false, 1);
 	check_tree_range(repo, "b", "c", true, 1);
-
 	check_tree_range(repo, "a", "z", false, 3);
 	check_tree_range(repo, "a", "z", true, 4);
 	check_tree_range(repo, "A", "Z", false, 1);
@@ -915,7 +878,6 @@ void test_diff_iterator__tree_handles_icase_range(void)
 	check_tree_range(repo, "a", "Z", true, 4);
 	check_tree_range(repo, "A", "z", false, 4);
 	check_tree_range(repo, "A", "z", true, 4);
-
 	check_tree_range(repo, "new.txt", "new.txt", true, 1);
 	check_tree_range(repo, "new.txt", "new.txt", false, 1);
 	check_tree_range(repo, "README", "README", true, 1);
@@ -923,19 +885,17 @@ void test_diff_iterator__tree_handles_icase_range(void)
 }
 
 static void check_index_range(
-	git_repository *repo,
-	const char *start,
-	const char *end,
-	bool ignore_case,
-	int expected_count)
+    git_repository *repo,
+    const char *start,
+    const char *end,
+    bool ignore_case,
+    int expected_count)
 {
 	git_index *index;
 	git_iterator *i;
 	int error, count, caps;
 	bool is_ignoring_case;
-
 	cl_git_pass(git_repository_index(&index, repo));
-
 	caps = git_index_caps(index);
 	is_ignoring_case = ((caps & GIT_INDEXCAP_IGNORE_CASE) != 0);
 
@@ -943,7 +903,6 @@ static void check_index_range(
 		cl_git_pass(git_index_set_caps(index, caps ^ GIT_INDEXCAP_IGNORE_CASE));
 
 	cl_git_pass(git_iterator_for_index(&i, index, 0, start, end));
-
 	cl_assert(git_iterator_ignore_case(i) == ignore_case);
 
 	for (count = 0; !(error = git_iterator_advance(NULL, i)); ++count)
@@ -951,7 +910,6 @@ static void check_index_range(
 
 	cl_assert_equal_i(GIT_ITEROVER, error);
 	cl_assert_equal_i(expected_count, count);
-
 	git_iterator_free(i);
 	git_index_free(index);
 }
@@ -961,9 +919,7 @@ void test_diff_iterator__index_handles_icase_range(void)
 	git_repository *repo;
 	git_index *index;
 	git_tree *head;
-
 	repo = cl_git_sandbox_init("testrepo");
-
 	/* reset index to match HEAD */
 	cl_git_pass(git_repository_head_tree(&head, repo));
 	cl_git_pass(git_repository_index(&index, repo));
@@ -971,7 +927,6 @@ void test_diff_iterator__index_handles_icase_range(void)
 	cl_git_pass(git_index_write(index));
 	git_tree_free(head);
 	git_index_free(index);
-
 	/* do some ranged iterator checks toggling case sensitivity */
 	check_index_range(repo, "B", "C", false, 0);
 	check_index_range(repo, "B", "C", true, 1);

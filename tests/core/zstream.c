@@ -7,35 +7,30 @@ static const char *data = "This is a test test test of This is a test";
 #define INFLATE_EXTRA 2
 
 static void assert_zlib_equal_(
-	const void *expected, size_t e_len,
-	const void *compressed, size_t c_len,
-	const char *msg, const char *file, int line)
+    const void *expected, size_t e_len,
+    const void *compressed, size_t c_len,
+    const char *msg, const char *file, int line)
 {
 	z_stream stream;
 	char *expanded = git__calloc(1, e_len + INFLATE_EXTRA);
 	cl_assert(expanded);
-
 	memset(&stream, 0, sizeof(stream));
 	stream.next_out  = (Bytef *)expanded;
 	stream.avail_out = (uInt)(e_len + INFLATE_EXTRA);
 	stream.next_in   = (Bytef *)compressed;
 	stream.avail_in  = (uInt)c_len;
-
 	cl_assert(inflateInit(&stream) == Z_OK);
 	cl_assert(inflate(&stream, Z_FINISH));
 	inflateEnd(&stream);
-
 	clar__assert_equal(
-		file, line, msg, 1,
-		"%d", (int)stream.total_out, (int)e_len);
+	    file, line, msg, 1,
+	    "%d", (int)stream.total_out, (int)e_len);
 	clar__assert_equal(
-		file, line, "Buffer len was not exact match", 1,
-		"%d", (int)stream.avail_out, (int)INFLATE_EXTRA);
-
+	    file, line, "Buffer len was not exact match", 1,
+	    "%d", (int)stream.avail_out, (int)INFLATE_EXTRA);
 	clar__assert(
-		memcmp(expanded, expected, e_len) == 0,
-		file, line, "uncompressed data did not match", NULL, 1);
-
+	    memcmp(expanded, expected, e_len) == 0,
+	    file, line, "uncompressed data did not match", NULL, 1);
 	git__free(expanded);
 }
 
@@ -47,14 +42,12 @@ void test_core_zstream__basic(void)
 	git_zstream z = GIT_ZSTREAM_INIT;
 	char out[128];
 	size_t outlen = sizeof(out);
-
 	cl_git_pass(git_zstream_init(&z));
 	cl_git_pass(git_zstream_set_input(&z, data, strlen(data) + 1));
 	cl_git_pass(git_zstream_get_output(out, &outlen, &z));
 	cl_assert(git_zstream_done(&z));
 	cl_assert(outlen > 0);
 	git_zstream_free(&z);
-
 	assert_zlib_equal(data, strlen(data) + 1, out, outlen);
 }
 
@@ -74,9 +67,7 @@ static void compress_input_various_ways(git_buf *input)
 	size_t i, fixed_size = max(input->size / 2, 256);
 	char *fixed = git__malloc(fixed_size);
 	cl_assert(fixed);
-
 	/* compress with deflatebuf */
-
 	cl_git_pass(git_zstream_deflatebuf(&out1, input->ptr, input->size));
 	assert_zlib_equal(input->ptr, input->size, out1.ptr, out1.size);
 
@@ -87,12 +78,20 @@ static void compress_input_various_ways(git_buf *input)
 		size_t use_fixed_size;
 
 		switch (i) {
-		case 0: use_fixed_size = 256; break;
-		case 1: use_fixed_size = fixed_size / 2; break;
-		case 2: use_fixed_size = fixed_size; break;
-		}
-		cl_assert(use_fixed_size <= fixed_size);
+		case 0:
+			use_fixed_size = 256;
+			break;
 
+		case 1:
+			use_fixed_size = fixed_size / 2;
+			break;
+
+		case 2:
+			use_fixed_size = fixed_size;
+			break;
+		}
+
+		cl_assert(use_fixed_size <= fixed_size);
 		cl_git_pass(git_zstream_init(&zs));
 		cl_git_pass(git_zstream_set_input(&zs, input->ptr, input->size));
 
@@ -104,11 +103,9 @@ static void compress_input_various_ways(git_buf *input)
 
 		git_zstream_free(&zs);
 		assert_zlib_equal(input->ptr, input->size, out2.ptr, out2.size);
-
 		/* did both approaches give the same data? */
 		cl_assert_equal_sz(out1.size, out2.size);
 		cl_assert(!memcmp(out1.ptr, out2.ptr, out1.size));
-
 		git_buf_free(&out2);
 	}
 
@@ -122,17 +119,17 @@ void test_core_zstream__big_data(void)
 	size_t scan, target;
 
 	for (target = 1024; target <= 1024 * 1024 * 4; target *= 8) {
-
 		/* make a big string that's easy to compress */
 		git_buf_clear(&in);
+
 		while (in.size < target)
 			cl_git_pass(
-				git_buf_put(&in, BIG_STRING_PART, strlen(BIG_STRING_PART)));
+			    git_buf_put(&in, BIG_STRING_PART, strlen(BIG_STRING_PART)));
 
 		compress_input_various_ways(&in);
-
 		/* make a big string that's hard to compress */
 		srand(0xabad1dea);
+
 		for (scan = 0; scan < in.size; ++scan)
 			in.ptr[scan] = (char)rand();
 

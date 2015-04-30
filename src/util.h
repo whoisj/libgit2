@@ -65,21 +65,27 @@
 GIT_INLINE(void *) git__crtdbg__malloc(size_t len, const char *file, int line)
 {
 	void *ptr = _malloc_dbg(len, _NORMAL_BLOCK, file, line);
+
 	if (!ptr) giterr_set_oom();
+
 	return ptr;
 }
 
 GIT_INLINE(void *) git__crtdbg__calloc(size_t nelem, size_t elsize, const char *file, int line)
 {
 	void *ptr = _calloc_dbg(nelem, elsize, _NORMAL_BLOCK, file, line);
+
 	if (!ptr) giterr_set_oom();
+
 	return ptr;
 }
 
 GIT_INLINE(char *) git__crtdbg__strdup(const char *str, const char *file, int line)
 {
 	char *ptr = _strdup_dbg(str, _NORMAL_BLOCK, file, line);
+
 	if (!ptr) giterr_set_oom();
+
 	return ptr;
 }
 
@@ -87,18 +93,16 @@ GIT_INLINE(char *) git__crtdbg__strndup(const char *str, size_t n, const char *f
 {
 	size_t length = 0, alloclength;
 	char *ptr;
-
 	length = p_strnlen(str, n);
 
 	if (GIT_ADD_SIZET_OVERFLOW(&alloclength, length, 1) ||
-		!(ptr = git__crtdbg__malloc(alloclength, file, line)))
+	    !(ptr = git__crtdbg__malloc(alloclength, file, line)))
 		return NULL;
 
 	if (length)
 		memcpy(ptr, str, length);
 
 	ptr[length] = '\0';
-
 	return ptr;
 }
 
@@ -108,7 +112,7 @@ GIT_INLINE(char *) git__crtdbg__substrdup(const char *start, size_t n, const cha
 	size_t alloclen;
 
 	if (GIT_ADD_SIZET_OVERFLOW(&alloclen, n, 1) ||
-		!(ptr = git__crtdbg__malloc(alloclen, file, line)))
+	    !(ptr = git__crtdbg__malloc(alloclen, file, line)))
 		return NULL;
 
 	memcpy(ptr, start, n);
@@ -119,7 +123,9 @@ GIT_INLINE(char *) git__crtdbg__substrdup(const char *start, size_t n, const cha
 GIT_INLINE(void *) git__crtdbg__realloc(void *ptr, size_t size, const char *file, int line)
 {
 	void *new_ptr = _realloc_dbg(ptr, size, _NORMAL_BLOCK, file, line);
+
 	if (!new_ptr) giterr_set_oom();
+
 	return new_ptr;
 }
 
@@ -127,7 +133,7 @@ GIT_INLINE(void *) git__crtdbg__reallocarray(void *ptr, size_t nelem, size_t els
 {
 	size_t newsize;
 	return GIT_MULTIPLY_SIZET_OVERFLOW(&newsize, nelem, elsize) ?
-		NULL : _realloc_dbg(ptr, newsize, _NORMAL_BLOCK, file, line);
+	       NULL : _realloc_dbg(ptr, newsize, _NORMAL_BLOCK, file, line);
 }
 
 GIT_INLINE(void *) git__crtdbg__mallocarray(size_t nelem, size_t elsize, const char *file, int line)
@@ -154,21 +160,27 @@ GIT_INLINE(void *) git__crtdbg__mallocarray(size_t nelem, size_t elsize, const c
 GIT_INLINE(void *) git__malloc(size_t len)
 {
 	void *ptr = malloc(len);
+
 	if (!ptr) giterr_set_oom();
+
 	return ptr;
 }
 
 GIT_INLINE(void *) git__calloc(size_t nelem, size_t elsize)
 {
 	void *ptr = calloc(nelem, elsize);
+
 	if (!ptr) giterr_set_oom();
+
 	return ptr;
 }
 
 GIT_INLINE(char *) git__strdup(const char *str)
 {
 	char *ptr = strdup(str);
+
 	if (!ptr) giterr_set_oom();
+
 	return ptr;
 }
 
@@ -176,18 +188,16 @@ GIT_INLINE(char *) git__strndup(const char *str, size_t n)
 {
 	size_t length = 0, alloclength;
 	char *ptr;
-
 	length = p_strnlen(str, n);
 
 	if (GIT_ADD_SIZET_OVERFLOW(&alloclength, length, 1) ||
-		!(ptr = git__malloc(alloclength)))
+	    !(ptr = git__malloc(alloclength)))
 		return NULL;
 
 	if (length)
 		memcpy(ptr, str, length);
 
 	ptr[length] = '\0';
-
 	return ptr;
 }
 
@@ -198,7 +208,7 @@ GIT_INLINE(char *) git__substrdup(const char *start, size_t n)
 	size_t alloclen;
 
 	if (GIT_ADD_SIZET_OVERFLOW(&alloclen, n, 1) ||
-		!(ptr = git__malloc(alloclen)))
+	    !(ptr = git__malloc(alloclen)))
 		return NULL;
 
 	memcpy(ptr, start, n);
@@ -209,7 +219,9 @@ GIT_INLINE(char *) git__substrdup(const char *start, size_t n)
 GIT_INLINE(void *) git__realloc(void *ptr, size_t size)
 {
 	void *new_ptr = realloc(ptr, size);
+
 	if (!new_ptr) giterr_set_oom();
+
 	return new_ptr;
 }
 
@@ -222,7 +234,7 @@ GIT_INLINE(void *) git__reallocarray(void *ptr, size_t nelem, size_t elsize)
 {
 	size_t newsize;
 	return GIT_MULTIPLY_SIZET_OVERFLOW(&newsize, nelem, elsize) ?
-		NULL : realloc(ptr, newsize);
+	       NULL : realloc(ptr, newsize);
 }
 
 /**
@@ -278,7 +290,9 @@ extern void git__strtolower(char *str);
 GIT_INLINE(const char *) git__next_line(const char *s)
 {
 	while (*s && *s != '\n') s++;
+
 	while (*s == '\n' || *s == '\r') s++;
+
 	return s;
 }
 
@@ -288,6 +302,7 @@ GIT_INLINE(const void *) git__memrchr(const void *s, int c, size_t n)
 
 	if (n != 0) {
 		cp = (unsigned char *)s + n;
+
 		do {
 			if (*(--cp) == (unsigned char)c)
 				return cp;
@@ -304,14 +319,14 @@ extern void git__tsort(void **dst, size_t size, git__tsort_cmp cmp);
 typedef int (*git__sort_r_cmp)(const void *a, const void *b, void *payload);
 
 extern void git__tsort_r(
-	void **dst, size_t size, git__sort_r_cmp cmp, void *payload);
+    void **dst, size_t size, git__sort_r_cmp cmp, void *payload);
 
 extern void git__qsort_r(
-	void *els, size_t nel, size_t elsize, git__sort_r_cmp cmp, void *payload);
+    void *els, size_t nel, size_t elsize, git__sort_r_cmp cmp, void *payload);
 
 extern void git__insertsort_r(
-	void *els, size_t nel, size_t elsize, void *swapel,
-	git__sort_r_cmp cmp, void *payload);
+    void *els, size_t nel, size_t elsize, void *swapel,
+    git__sort_r_cmp cmp, void *payload);
 
 /**
  * @param position If non-NULL, this will be set to the position where the
@@ -319,19 +334,19 @@ extern void git__insertsort_r(
  * @return 0 if found; GIT_ENOTFOUND if not found
  */
 extern int git__bsearch(
-	void **array,
-	size_t array_len,
-	const void *key,
-	int (*compare)(const void *key, const void *element),
-	size_t *position);
+    void **array,
+    size_t array_len,
+    const void *key,
+    int (*compare)(const void *key, const void *element),
+    size_t *position);
 
 extern int git__bsearch_r(
-	void **array,
-	size_t array_len,
-	const void *key,
-	int (*compare_r)(const void *key, const void *element, void *payload),
-	void *payload,
-	size_t *position);
+    void **array,
+    size_t array_len,
+    const void *key,
+    int (*compare_r)(const void *key, const void *element, void *payload),
+    void *payload,
+    size_t *position);
 
 extern int git__strcmp_cb(const void *a, const void *b);
 extern int git__strcasecmp_cb(const void *a, const void *b);
@@ -372,22 +387,22 @@ typedef void (*git_refcount_freeptr)(void *r);
 
 
 static signed char from_hex[] = {
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 00 */
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 10 */
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 20 */
- 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, -1, -1, -1, -1, -1, /* 30 */
--1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 40 */
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 50 */
--1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 60 */
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 70 */
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 80 */
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 90 */
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* a0 */
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* b0 */
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* c0 */
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* d0 */
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* e0 */
--1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* f0 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 00 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 10 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 20 */
+	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, -1, -1, -1, -1, -1, /* 30 */
+	-1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 40 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 50 */
+	-1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 60 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 70 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 80 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 90 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* a0 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* b0 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* c0 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* d0 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* e0 */
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* f0 */
 };
 
 GIT_INLINE(int) git__fromhex(char h)
@@ -398,9 +413,11 @@ GIT_INLINE(int) git__fromhex(char h)
 GIT_INLINE(int) git__ishex(const char *str)
 {
 	unsigned i;
-	for (i=0; str[i] != '\0'; i++)
+
+	for (i = 0; str[i] != '\0'; i++)
 		if (git__fromhex(str[i]) < 0)
 			return 0;
+
 	return 1;
 }
 
@@ -412,7 +429,6 @@ GIT_INLINE(size_t) git__size_t_bitmask(size_t v)
 	v |= v >> 4;
 	v |= v >> 8;
 	v |= v >> 16;
-
 	return v;
 }
 
@@ -512,6 +528,7 @@ GIT_INLINE(void) git__memzero(void *data, size_t size)
 
 	while (size--)
 		*scan++ = 0x0;
+
 #endif
 }
 
@@ -522,14 +539,13 @@ GIT_INLINE(double) git__timer(void)
 	/* We need the initial tick count to detect if the tick
 	 * count has rolled over. */
 	static DWORD initial_tick_count = 0;
-
 	/* GetTickCount returns the number of milliseconds that have
 	 * elapsed since the system was started. */
 	DWORD count = GetTickCount();
 
-	if(initial_tick_count == 0) {
+	if (initial_tick_count == 0)
 		initial_tick_count = count;
-	} else if (count < initial_tick_count) {
+	else if (count < initial_tick_count) {
 		/* The tick count has rolled over - adjust for it. */
 		count = (0xFFFFFFFF - initial_tick_count) + count;
 	}
@@ -543,16 +559,16 @@ GIT_INLINE(double) git__timer(void)
 
 GIT_INLINE(double) git__timer(void)
 {
-   uint64_t time = mach_absolute_time();
-   static double scaling_factor = 0;
+	uint64_t time = mach_absolute_time();
+	static double scaling_factor = 0;
 
-   if (scaling_factor == 0) {
-       mach_timebase_info_data_t info;
-       (void)mach_timebase_info(&info);
-       scaling_factor = (double)info.numer / (double)info.denom;
-   }
+	if (scaling_factor == 0) {
+		mach_timebase_info_data_t info;
+		(void)mach_timebase_info(&info);
+		scaling_factor = (double)info.numer / (double)info.denom;
+	}
 
-   return (double)time * scaling_factor / 1.0E9;
+	return (double)time * scaling_factor / 1.0E9;
 }
 
 #elif defined(AMIGA)
@@ -574,9 +590,9 @@ GIT_INLINE(double) git__timer(void)
 {
 	struct timespec tp;
 
-	if (clock_gettime(CLOCK_MONOTONIC, &tp) == 0) {
+	if (clock_gettime(CLOCK_MONOTONIC, &tp) == 0)
 		return (double) tp.tv_sec + (double) tp.tv_nsec / 1.0E9;
-	} else {
+	else {
 		/* Fall back to using gettimeofday */
 		struct timeval tv;
 		struct timezone tz;

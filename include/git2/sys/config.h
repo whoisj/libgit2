@@ -81,8 +81,8 @@ struct git_config_backend {
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_config_init_backend(
-	git_config_backend *backend,
-	unsigned int version);
+    git_config_backend *backend,
+    unsigned int version);
 
 /**
  * Add a generic config file instance to an existing config
@@ -103,10 +103,10 @@ GIT_EXTERN(int) git_config_init_backend(
  *  for a given priority level (and force_replace set to 0), or error code
  */
 GIT_EXTERN(int) git_config_add_backend(
-	git_config *cfg,
-	git_config_backend *file,
-	git_config_level_t level,
-	int force);
+    git_config *cfg,
+    git_config_backend *file,
+    git_config_level_t level,
+    int force);
 
 /** @} */
 GIT_END_DECL

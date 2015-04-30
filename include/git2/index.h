@@ -139,7 +139,7 @@ typedef enum {
 
 /** Callback for APIs that add/remove/update files matching pathspec */
 typedef int (*git_index_matched_path_cb)(
-	const char *path, const char *matched_pathspec, void *payload);
+    const char *path, const char *matched_pathspec, void *payload);
 
 /** Flags for APIs that add files matching pathspec */
 typedef enum {
@@ -359,7 +359,7 @@ GIT_EXTERN(int) git_index_clear(git_index *index);
  * @return a pointer to the entry; NULL if out of bounds
  */
 GIT_EXTERN(const git_index_entry *) git_index_get_byindex(
-	git_index *index, size_t n);
+    git_index *index, size_t n);
 
 /**
  * Get a pointer to one of the entries in the index
@@ -374,7 +374,7 @@ GIT_EXTERN(const git_index_entry *) git_index_get_byindex(
  * @return a pointer to the entry; NULL if it was not found
  */
 GIT_EXTERN(const git_index_entry *) git_index_get_bypath(
-	git_index *index, const char *path, int stage);
+    git_index *index, const char *path, int stage);
 
 /**
  * Remove an entry from the index
@@ -395,7 +395,7 @@ GIT_EXTERN(int) git_index_remove(git_index *index, const char *path, int stage);
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_index_remove_directory(
-	git_index *index, const char *dir, int stage);
+    git_index *index, const char *dir, int stage);
 
 /**
  * Add or update an index entry from an in-memory struct
@@ -484,9 +484,9 @@ GIT_EXTERN(int) git_index_add_bypath(git_index *index, const char *path);
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_index_add_frombuffer(
-	git_index *index,
-	const git_index_entry *entry,
-	const void *buffer, size_t len);
+    git_index *index,
+    const git_index_entry *entry,
+    const void *buffer, size_t len);
 
 /**
  * Remove an index entry corresponding to a file on disk
@@ -550,11 +550,11 @@ GIT_EXTERN(int) git_index_remove_bypath(git_index *index, const char *path);
  * @return 0 on success, negative callback return value, or error code
  */
 GIT_EXTERN(int) git_index_add_all(
-	git_index *index,
-	const git_strarray *pathspec,
-	unsigned int flags,
-	git_index_matched_path_cb callback,
-	void *payload);
+    git_index *index,
+    const git_strarray *pathspec,
+    unsigned int flags,
+    git_index_matched_path_cb callback,
+    void *payload);
 
 /**
  * Remove all matching index entries.
@@ -572,10 +572,10 @@ GIT_EXTERN(int) git_index_add_all(
  * @return 0 on success, negative callback return value, or error code
  */
 GIT_EXTERN(int) git_index_remove_all(
-	git_index *index,
-	const git_strarray *pathspec,
-	git_index_matched_path_cb callback,
-	void *payload);
+    git_index *index,
+    const git_strarray *pathspec,
+    git_index_matched_path_cb callback,
+    void *payload);
 
 /**
  * Update all index entries to match the working directory
@@ -601,10 +601,10 @@ GIT_EXTERN(int) git_index_remove_all(
  * @return 0 on success, negative callback return value, or error code
  */
 GIT_EXTERN(int) git_index_update_all(
-	git_index *index,
-	const git_strarray *pathspec,
-	git_index_matched_path_cb callback,
-	void *payload);
+    git_index *index,
+    const git_strarray *pathspec,
+    git_index_matched_path_cb callback,
+    void *payload);
 
 /**
  * Find the first position of any entries which point to given
@@ -640,10 +640,10 @@ GIT_EXTERN(int) git_index_find(size_t *at_pos, git_index *index, const char *pat
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_index_conflict_add(
-	git_index *index,
-	const git_index_entry *ancestor_entry,
-	const git_index_entry *our_entry,
-	const git_index_entry *their_entry);
+    git_index *index,
+    const git_index_entry *ancestor_entry,
+    const git_index_entry *our_entry,
+    const git_index_entry *their_entry);
 
 /**
  * Get the index entries that represent a conflict of a single file.
@@ -660,11 +660,11 @@ GIT_EXTERN(int) git_index_conflict_add(
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_index_conflict_get(
-	const git_index_entry **ancestor_out,
-	const git_index_entry **our_out,
-	const git_index_entry **their_out,
-	git_index *index,
-	const char *path);
+    const git_index_entry **ancestor_out,
+    const git_index_entry **our_out,
+    const git_index_entry **their_out,
+    git_index *index,
+    const char *path);
 
 /**
  * Removes the index entries that represent a conflict of a single file.
@@ -700,8 +700,8 @@ GIT_EXTERN(int) git_index_has_conflicts(const git_index *index);
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_index_conflict_iterator_new(
-	git_index_conflict_iterator **iterator_out,
-	git_index *index);
+    git_index_conflict_iterator **iterator_out,
+    git_index *index);
 
 /**
  * Returns the current conflict (ancestor, ours and theirs entry) and
@@ -714,10 +714,10 @@ GIT_EXTERN(int) git_index_conflict_iterator_new(
  *         (negative value)
  */
 GIT_EXTERN(int) git_index_conflict_next(
-	const git_index_entry **ancestor_out,
-	const git_index_entry **our_out,
-	const git_index_entry **their_out,
-	git_index_conflict_iterator *iterator);
+    const git_index_entry **ancestor_out,
+    const git_index_entry **our_out,
+    const git_index_entry **their_out,
+    git_index_conflict_iterator *iterator);
 
 /**
  * Frees a `git_index_conflict_iterator`.
@@ -725,7 +725,7 @@ GIT_EXTERN(int) git_index_conflict_next(
  * @param iterator pointer to the iterator
  */
 GIT_EXTERN(void) git_index_conflict_iterator_free(
-	git_index_conflict_iterator *iterator);
+    git_index_conflict_iterator *iterator);
 
 /**@}*/
 

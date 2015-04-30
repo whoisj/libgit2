@@ -29,10 +29,10 @@ void check_lg2(int error, const char *message, const char *extra)
 
 	if (extra)
 		fprintf(stderr, "%s '%s' [%d]%s%s\n",
-			message, extra, error, lg2spacer, lg2msg);
+		        message, extra, error, lg2spacer, lg2msg);
 	else
 		fprintf(stderr, "%s [%d]%s%s\n",
-			message, error, lg2spacer, lg2msg);
+		        message, error, lg2spacer, lg2msg);
 
 	exit(1);
 }
@@ -54,7 +54,7 @@ size_t is_prefixed(const char *str, const char *pfx)
 }
 
 int optional_str_arg(
-	const char **out, struct args_info *args, const char *opt, const char *def)
+    const char **out, struct args_info *args, const char *opt, const char *def)
 {
 	const char *found = args->argv[args->pos];
 	size_t len = is_prefixed(found, opt);
@@ -67,6 +67,7 @@ int optional_str_arg(
 			*out = def;
 			return 1;
 		}
+
 		args->pos += 1;
 		*out = args->argv[args->pos];
 		return 1;
@@ -81,7 +82,7 @@ int optional_str_arg(
 }
 
 int match_str_arg(
-	const char **out, struct args_info *args, const char *opt)
+    const char **out, struct args_info *args, const char *opt)
 {
 	const char *found = args->argv[args->pos];
 	size_t len = is_prefixed(found, opt);
@@ -92,6 +93,7 @@ int match_str_arg(
 	if (!found[len]) {
 		if (args->pos + 1 == args->argc)
 			fatal("expected value following argument", opt);
+
 		args->pos += 1;
 		*out = args->argv[args->pos];
 		return 1;
@@ -116,10 +118,12 @@ static const char *match_numeric_arg(struct args_info *args, const char *opt)
 	if (!found[len]) {
 		if (args->pos + 1 == args->argc)
 			fatal("expected numeric value following argument", opt);
+
 		args->pos += 1;
 		found = args->argv[args->pos];
 	} else {
 		found = found + len;
+
 		if (*found == '=')
 			found++;
 	}
@@ -128,7 +132,7 @@ static const char *match_numeric_arg(struct args_info *args, const char *opt)
 }
 
 int match_uint16_arg(
-	uint16_t *out, struct args_info *args, const char *opt)
+    uint16_t *out, struct args_info *args, const char *opt)
 {
 	const char *found = match_numeric_arg(args, opt);
 	uint16_t val;
@@ -138,16 +142,18 @@ int match_uint16_arg(
 		return 0;
 
 	val = (uint16_t)strtoul(found, &endptr, 0);
+
 	if (!endptr || *endptr != '\0')
 		fatal("expected number after argument", opt);
 
 	if (out)
 		*out = val;
+
 	return 1;
 }
 
 static int match_int_internal(
-	int *out, const char *str, int allow_negative, const char *opt)
+    int *out, const char *str, int allow_negative, const char *opt)
 {
 	char *endptr = NULL;
 	int	  val = (int)strtol(str, &endptr, 10);
@@ -169,50 +175,48 @@ int is_integer(int *out, const char *str, int allow_negative)
 }
 
 int match_int_arg(
-	int *out, struct args_info *args, const char *opt, int allow_negative)
+    int *out, struct args_info *args, const char *opt, int allow_negative)
 {
 	const char *found = match_numeric_arg(args, opt);
+
 	if (!found)
 		return 0;
+
 	return match_int_internal(out, found, allow_negative, opt);
 }
 
 int diff_output(
-	const git_diff_delta *d,
-	const git_diff_hunk *h,
-	const git_diff_line *l,
-	void *p)
+    const git_diff_delta *d,
+    const git_diff_hunk *h,
+    const git_diff_line *l,
+    void *p)
 {
-	FILE *fp = (FILE*)p;
-
-	(void)d; (void)h;
+	FILE *fp = (FILE *)p;
+	(void)d;
+	(void)h;
 
 	if (!fp)
 		fp = stdout;
 
 	if (l->origin == GIT_DIFF_LINE_CONTEXT ||
-		l->origin == GIT_DIFF_LINE_ADDITION ||
-		l->origin == GIT_DIFF_LINE_DELETION)
+	    l->origin == GIT_DIFF_LINE_ADDITION ||
+	    l->origin == GIT_DIFF_LINE_DELETION)
 		fputc(l->origin, fp);
 
 	fwrite(l->content, 1, l->content_len, fp);
-
 	return 0;
 }
 
 void treeish_to_tree(
-	git_tree **out, git_repository *repo, const char *treeish)
+    git_tree **out, git_repository *repo, const char *treeish)
 {
 	git_object *obj = NULL;
-
 	check_lg2(
-		git_revparse_single(&obj, repo, treeish),
-		"looking up object", treeish);
-
+	    git_revparse_single(&obj, repo, treeish),
+	    "looking up object", treeish);
 	check_lg2(
-		git_object_peel((git_object **)out, obj, GIT_OBJ_TREE),
-		"resolving object to tree", treeish);
-
+	    git_object_peel((git_object **)out, obj, GIT_OBJ_TREE),
+	    "resolving object to tree", treeish);
 	git_object_free(obj);
 }
 

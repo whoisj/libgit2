@@ -2,11 +2,11 @@
 #include "thread_helpers.h"
 
 void run_in_parallel(
-	int repeats,
-	int threads,
-	void *(*func)(void *),
-	void (*before_test)(void),
-	void (*after_test)(void))
+    int repeats,
+    int threads,
+    void *(*func)(void *),
+    void (*before_test)(void),
+    void (*after_test)(void))
 {
 	int r, t, *id = git__calloc(threads, sizeof(int));
 #ifdef GIT_THREADS
@@ -15,7 +15,6 @@ void run_in_parallel(
 #else
 	void *th = NULL;
 #endif
-
 	cl_assert(id != NULL);
 
 	for (r = 0; r < repeats; ++r) {
@@ -31,8 +30,10 @@ void run_in_parallel(
 		}
 
 #ifdef GIT_THREADS
+
 		for (t = 0; t < threads; ++t)
 			cl_git_pass(git_thread_join(&th[t], NULL));
+
 		memset(th, 0, threads * sizeof(git_thread));
 #endif
 

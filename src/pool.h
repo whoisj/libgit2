@@ -58,7 +58,7 @@ typedef struct {
  * two most common patterns.
  */
 extern int git_pool_init(
-	git_pool *pool, uint32_t item_size, uint32_t items_per_page);
+    git_pool *pool, uint32_t item_size, uint32_t items_per_page);
 
 /**
  * Free all items in pool
@@ -81,8 +81,10 @@ extern void *git_pool_malloc(git_pool *pool, uint32_t items);
 GIT_INLINE(void *) git_pool_mallocz(git_pool *pool, uint32_t items)
 {
 	void *ptr = git_pool_malloc(pool, items);
+
 	if (ptr)
 		memset(ptr, 0, (size_t)items * (size_t)pool->item_size);
+
 	return ptr;
 }
 

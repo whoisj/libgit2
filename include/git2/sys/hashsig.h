@@ -60,10 +60,10 @@ typedef enum {
  * error code.
  */
 GIT_EXTERN(int) git_hashsig_create(
-	git_hashsig **out,
-	const char *buf,
-	size_t buflen,
-	git_hashsig_option_t opts);
+    git_hashsig **out,
+    const char *buf,
+    size_t buflen,
+    git_hashsig_option_t opts);
 
 /**
  * Compute a similarity signature for a text file
@@ -79,9 +79,9 @@ GIT_EXTERN(int) git_hashsig_create(
  * error code.
  */
 GIT_EXTERN(int) git_hashsig_create_fromfile(
-	git_hashsig **out,
-	const char *path,
-	git_hashsig_option_t opts);
+    git_hashsig **out,
+    const char *path,
+    git_hashsig_option_t opts);
 
 /**
  * Release memory for a content similarity signature
@@ -98,8 +98,8 @@ GIT_EXTERN(void) git_hashsig_free(git_hashsig *sig);
  * @return [0 to 100] on success as the similarity score, or error code.
  */
 GIT_EXTERN(int) git_hashsig_compare(
-	const git_hashsig *a,
-	const git_hashsig *b);
+    const git_hashsig *a,
+    const git_hashsig *b);
 
 GIT_END_DECL
 

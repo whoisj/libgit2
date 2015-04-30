@@ -21,36 +21,36 @@ GIT_INLINE(void) git_config_file_free(git_config_backend *cfg)
 }
 
 GIT_INLINE(int) git_config_file_get_string(
-	git_config_entry **out, git_config_backend *cfg, const char *name)
+    git_config_entry **out, git_config_backend *cfg, const char *name)
 {
 	return cfg->get(cfg, name, out);
 }
 
 GIT_INLINE(int) git_config_file_set_string(
-	git_config_backend *cfg, const char *name, const char *value)
+    git_config_backend *cfg, const char *name, const char *value)
 {
 	return cfg->set(cfg, name, value);
 }
 
 GIT_INLINE(int) git_config_file_delete(
-	git_config_backend *cfg, const char *name)
+    git_config_backend *cfg, const char *name)
 {
 	return cfg->del(cfg, name);
 }
 
 GIT_INLINE(int) git_config_file_foreach(
-	git_config_backend *cfg,
-	int (*fn)(const git_config_entry *entry, void *data),
-	void *data)
+    git_config_backend *cfg,
+    int (*fn)(const git_config_entry *entry, void *data),
+    void *data)
 {
 	return git_config_backend_foreach_match(cfg, NULL, fn, data);
 }
 
 GIT_INLINE(int) git_config_file_foreach_match(
-	git_config_backend *cfg,
-	const char *regexp,
-	int (*fn)(const git_config_entry *entry, void *data),
-	void *data)
+    git_config_backend *cfg,
+    const char *regexp,
+    int (*fn)(const git_config_entry *entry, void *data),
+    void *data)
 {
 	return git_config_backend_foreach_match(cfg, regexp, fn, data);
 }

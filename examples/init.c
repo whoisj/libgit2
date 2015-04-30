@@ -45,9 +45,7 @@ int main(int argc, char *argv[])
 {
 	git_repository *repo = NULL;
 	struct opts o = { 1, 0, 0, 0, GIT_REPOSITORY_INIT_SHARED_UMASK, 0, 0, 0 };
-
 	git_libgit2_init();
-
 	parse_opts(&o, argc, argv);
 
 	/* Initialize repository. */
@@ -58,9 +56,8 @@ int main(int argc, char *argv[])
 		 * simple case of git_repository_init() API usage...
 		 */
 		check_lg2(git_repository_init(&repo, o.dir, 0),
-			"Could not initialize repository", NULL);
-	}
-	else {
+		          "Could not initialize repository", NULL);
+	} else {
 		/**
 		 * Some command line options were specified, so we'll use the
 		 * extended init API to handle them
@@ -90,7 +87,7 @@ int main(int argc, char *argv[])
 			initopts.mode = o.shared;
 
 		check_lg2(git_repository_init_ext(&repo, o.dir, &initopts),
-				"Could not initialize repository", NULL);
+		          "Could not initialize repository", NULL);
 	}
 
 	/** Print a message to stdout like "git init" does. */
@@ -117,7 +114,6 @@ int main(int argc, char *argv[])
 
 	git_repository_free(repo);
 	git_libgit2_shutdown();
-
 	return 0;
 }
 
@@ -136,13 +132,13 @@ static void create_initial_commit(git_repository *repo)
 	/** First use the config to initialize a commit signature for the user. */
 
 	if (git_signature_default(&sig, repo) < 0)
-		fatal("Unable to create a commit signature.",
-		      "Perhaps 'user.name' and 'user.email' are not set");
+		    fatal("Unable to create a commit signature.",
+		          "Perhaps 'user.name' and 'user.email' are not set");
 
 	/* Now let's create an empty tree for this commit */
 
 	if (git_repository_index(&index, repo) < 0)
-		fatal("Could not open repository index", NULL);
+		    fatal("Could not open repository index", NULL);
 
 	/**
 	 * Outside of this example, you could call git_index_add_bypath()
@@ -151,12 +147,12 @@ static void create_initial_commit(git_repository *repo)
 	 */
 
 	if (git_index_write_tree(&tree_id, index) < 0)
-		fatal("Unable to write initial tree from index", NULL);
+		    fatal("Unable to write initial tree from index", NULL);
 
 	git_index_free(index);
 
 	if (git_tree_lookup(&tree, repo, &tree_id) < 0)
-		fatal("Could not look up initial tree", NULL);
+		    fatal("Could not look up initial tree", NULL);
 
 	/**
 	 * Ready to create the initial commit.
@@ -167,12 +163,11 @@ static void create_initial_commit(git_repository *repo)
 	 */
 
 	if (git_commit_create_v(
-			&commit_id, repo, "HEAD", sig, sig,
-			NULL, "Initial commit", tree, 0) < 0)
-		fatal("Could not create the initial commit", NULL);
+	        &commit_id, repo, "HEAD", sig, sig,
+	        NULL, "Initial commit", tree, 0) < 0)
+		    fatal("Could not create the initial commit", NULL);
 
 	/** Clean up so we don't leak memory. */
-
 	git_tree_free(tree);
 	git_signature_free(sig);
 }
@@ -181,9 +176,9 @@ static void usage(const char *error, const char *arg)
 {
 	fprintf(stderr, "error: %s '%s'\n", error, arg);
 	fprintf(stderr,
-			"usage: init [-q | --quiet] [--bare] [--template=<dir>]\n"
-			"            [--shared[=perms]] [--initial-commit]\n"
-			"            [--separate-git-dir] <directory>\n");
+	        "usage: init [-q | --quiet] [--bare] [--template=<dir>]\n"
+	        "            [--shared[=perms]] [--initial-commit]\n"
+	        "            [--separate-git-dir] <directory>\n");
 	exit(1);
 }
 
@@ -192,24 +187,21 @@ static uint32_t parse_shared(const char *shared)
 {
 	if (!strcmp(shared, "false") || !strcmp(shared, "umask"))
 		return GIT_REPOSITORY_INIT_SHARED_UMASK;
-
 	else if (!strcmp(shared, "true") || !strcmp(shared, "group"))
 		return GIT_REPOSITORY_INIT_SHARED_GROUP;
-
 	else if (!strcmp(shared, "all") || !strcmp(shared, "world") ||
-			 !strcmp(shared, "everybody"))
+	         !strcmp(shared, "everybody"))
 		return GIT_REPOSITORY_INIT_SHARED_ALL;
-
 	else if (shared[0] == '0') {
 		long val;
 		char *end = NULL;
 		val = strtol(shared + 1, &end, 8);
+
 		if (end == shared + 1 || *end != 0)
 			usage("invalid octal value for --shared", shared);
-		return (uint32_t)val;
-	}
 
-	else
+		return (uint32_t)val;
+	} else
 		usage("unknown value for --shared", shared);
 
 	return 0;
@@ -231,9 +223,9 @@ static void parse_opts(struct opts *o, int argc, char *argv[])
 		if (a[0] != '-') {
 			if (o->dir != NULL)
 				usage("extra argument", a);
+
 			o->dir = a;
-		}
-		else if (!strcmp(a, "-q") || !strcmp(a, "--quiet"))
+		} else if (!strcmp(a, "-q") || !strcmp(a, "--quiet"))
 			o->quiet = 1;
 		else if (!strcmp(a, "--bare"))
 			o->bare = 1;

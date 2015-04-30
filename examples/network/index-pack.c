@@ -25,7 +25,6 @@ static int index_cb(const git_transfer_progress *stats, void *data)
 {
 	(void)data;
 	printf("\rProcessing %d of %d", stats->indexed_objects, stats->total_objects);
-
 	return 0;
 }
 
@@ -38,7 +37,6 @@ int index_pack(git_repository *repo, int argc, char **argv)
 	int fd;
 	ssize_t read_bytes;
 	char buf[512];
-
 	(void)repo;
 
 	if (argc < 2) {
@@ -58,6 +56,7 @@ int index_pack(git_repository *repo, int argc, char **argv)
 
 	do {
 		read_bytes = read(fd, buf, sizeof(buf));
+
 		if (read_bytes < 0)
 			break;
 
@@ -77,11 +76,9 @@ int index_pack(git_repository *repo, int argc, char **argv)
 		goto cleanup;
 
 	printf("\rIndexing %d of %d\n", stats.indexed_objects, stats.total_objects);
-
 	git_oid_fmt(hash, git_indexer_hash(idx));
 	puts(hash);
-
- cleanup:
+cleanup:
 	close(fd);
 	git_indexer_free(idx);
 	return error;

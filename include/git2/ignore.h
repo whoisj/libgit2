@@ -35,8 +35,8 @@ GIT_BEGIN_DECL
  * @return 0 on success
  */
 GIT_EXTERN(int) git_ignore_add_rule(
-	git_repository *repo,
-	const char *rules);
+    git_repository *repo,
+    const char *rules);
 
 /**
  * Clear ignore rules that were explicitly added.
@@ -50,7 +50,7 @@ GIT_EXTERN(int) git_ignore_add_rule(
  * @return 0 on success
  */
 GIT_EXTERN(int) git_ignore_clear_internal_rules(
-	git_repository *repo);
+    git_repository *repo);
 
 /**
  * Test if the ignore rules apply to a given path.
@@ -69,9 +69,9 @@ GIT_EXTERN(int) git_ignore_clear_internal_rules(
  *         of whether it exists or not), or an error < 0 if they could not.
  */
 GIT_EXTERN(int) git_ignore_path_is_ignored(
-	int *ignored,
-	git_repository *repo,
-	const char *path);
+    int *ignored,
+    git_repository *repo,
+    const char *path);
 
 GIT_END_DECL
 

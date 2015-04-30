@@ -30,7 +30,7 @@ GIT_BEGIN_DECL
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_tree_lookup(
-	git_tree **out, git_repository *repo, const git_oid *id);
+    git_tree **out, git_repository *repo, const git_oid *id);
 
 /**
  * Lookup a tree object from the repository,
@@ -45,10 +45,10 @@ GIT_EXTERN(int) git_tree_lookup(
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_tree_lookup_prefix(
-	git_tree **out,
-	git_repository *repo,
-	const git_oid *id,
-	size_t len);
+    git_tree **out,
+    git_repository *repo,
+    const git_oid *id,
+    size_t len);
 
 /**
  * Close an open tree
@@ -97,7 +97,7 @@ GIT_EXTERN(size_t) git_tree_entrycount(const git_tree *tree);
  * @return the tree entry; NULL if not found
  */
 GIT_EXTERN(const git_tree_entry *) git_tree_entry_byname(
-	const git_tree *tree, const char *filename);
+    const git_tree *tree, const char *filename);
 
 /**
  * Lookup a tree entry by its position in the tree
@@ -110,7 +110,7 @@ GIT_EXTERN(const git_tree_entry *) git_tree_entry_byname(
  * @return the tree entry; NULL if not found
  */
 GIT_EXTERN(const git_tree_entry *) git_tree_entry_byindex(
-	const git_tree *tree, size_t idx);
+    const git_tree *tree, size_t idx);
 
 /**
  * Lookup a tree entry by SHA value.
@@ -125,7 +125,7 @@ GIT_EXTERN(const git_tree_entry *) git_tree_entry_byindex(
  * @return the tree entry; NULL if not found
  */
 GIT_EXTERN(const git_tree_entry *) git_tree_entry_byid(
-	const git_tree *tree, const git_oid *id);
+    const git_tree *tree, const git_oid *id);
 
 /**
  * Retrieve a tree entry contained in a tree or in any of its subtrees,
@@ -140,9 +140,9 @@ GIT_EXTERN(const git_tree_entry *) git_tree_entry_byid(
  * @return 0 on success; GIT_ENOTFOUND if the path does not exist
  */
 GIT_EXTERN(int) git_tree_entry_bypath(
-	git_tree_entry **out,
-	const git_tree *root,
-	const char *path);
+    git_tree_entry **out,
+    const git_tree *root,
+    const char *path);
 
 /**
  * Duplicate a tree entry
@@ -230,9 +230,9 @@ GIT_EXTERN(int) git_tree_entry_cmp(const git_tree_entry *e1, const git_tree_entr
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_tree_entry_to_object(
-	git_object **object_out,
-	git_repository *repo,
-	const git_tree_entry *entry);
+    git_object **object_out,
+    git_repository *repo,
+    const git_tree_entry *entry);
 
 /**
  * Create a new tree builder.
@@ -252,7 +252,7 @@ GIT_EXTERN(int) git_tree_entry_to_object(
  * @return 0 on success; error code otherwise
  */
 GIT_EXTERN(int) git_treebuilder_new(
-	git_treebuilder **out, git_repository *repo, const git_tree *source);
+    git_treebuilder **out, git_repository *repo, const git_tree *source);
 
 /**
  * Clear all the entires in the builder
@@ -291,7 +291,7 @@ GIT_EXTERN(void) git_treebuilder_free(git_treebuilder *bld);
  * @return pointer to the entry; NULL if not found
  */
 GIT_EXTERN(const git_tree_entry *) git_treebuilder_get(
-	git_treebuilder *bld, const char *filename);
+    git_treebuilder *bld, const char *filename);
 
 /**
  * Add or update an entry to the builder
@@ -321,11 +321,11 @@ GIT_EXTERN(const git_tree_entry *) git_treebuilder_get(
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_treebuilder_insert(
-	const git_tree_entry **out,
-	git_treebuilder *bld,
-	const char *filename,
-	const git_oid *id,
-	git_filemode_t filemode);
+    const git_tree_entry **out,
+    git_treebuilder *bld,
+    const char *filename,
+    const git_oid *id,
+    git_filemode_t filemode);
 
 /**
  * Remove an entry from the builder by its filename
@@ -334,7 +334,7 @@ GIT_EXTERN(int) git_treebuilder_insert(
  * @param filename Filename of the entry to remove
  */
 GIT_EXTERN(int) git_treebuilder_remove(
-	git_treebuilder *bld, const char *filename);
+    git_treebuilder *bld, const char *filename);
 
 /**
  * Callback for git_treebuilder_filter
@@ -344,7 +344,7 @@ GIT_EXTERN(int) git_treebuilder_remove(
  * entry should be removed from the treebuilder list (i.e. filtered out).
  */
 typedef int (*git_treebuilder_filter_cb)(
-	const git_tree_entry *entry, void *payload);
+    const git_tree_entry *entry, void *payload);
 
 /**
  * Selectively remove entries in the tree
@@ -358,9 +358,9 @@ typedef int (*git_treebuilder_filter_cb)(
  * @param payload Extra data to pass to filter callback
  */
 GIT_EXTERN(void) git_treebuilder_filter(
-	git_treebuilder *bld,
-	git_treebuilder_filter_cb filter,
-	void *payload);
+    git_treebuilder *bld,
+    git_treebuilder_filter_cb filter,
+    void *payload);
 
 /**
  * Write the contents of the tree builder as a tree object
@@ -373,12 +373,12 @@ GIT_EXTERN(void) git_treebuilder_filter(
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_treebuilder_write(
-	git_oid *id, git_treebuilder *bld);
+    git_oid *id, git_treebuilder *bld);
 
 
 /** Callback for the tree traversal method */
 typedef int (*git_treewalk_cb)(
-	const char *root, const git_tree_entry *entry, void *payload);
+    const char *root, const git_tree_entry *entry, void *payload);
 
 /** Tree traversal modes */
 typedef enum {
@@ -404,10 +404,10 @@ typedef enum {
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_tree_walk(
-	const git_tree *tree,
-	git_treewalk_mode mode,
-	git_treewalk_cb callback,
-	void *payload);
+    const git_tree *tree,
+    git_treewalk_mode mode,
+    git_treewalk_cb callback,
+    void *payload);
 
 /** @} */
 

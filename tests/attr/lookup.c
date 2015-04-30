@@ -8,22 +8,17 @@ void test_attr_lookup__simple(void)
 	git_attr_file *file;
 	git_attr_path path;
 	const char *value = NULL;
-
 	cl_git_pass(git_attr_file__load_standalone(&file, cl_fixture("attr/attr0")));
 	cl_assert_equal_s(cl_fixture("attr/attr0"), file->entry->path);
 	cl_assert(file->rules.length == 1);
-
 	cl_git_pass(git_attr_path__init(&path, "test", NULL));
 	cl_assert_equal_s("test", path.path);
 	cl_assert_equal_s("test", path.basename);
 	cl_assert(!path.is_dir);
-
-	cl_git_pass(git_attr_file__lookup_one(file,&path,"binary",&value));
+	cl_git_pass(git_attr_file__lookup_one(file, &path, "binary", &value));
 	cl_assert(GIT_ATTR_TRUE(value));
-
-	cl_git_pass(git_attr_file__lookup_one(file,&path,"missing",&value));
+	cl_git_pass(git_attr_file__lookup_one(file, &path, "missing", &value));
 	cl_assert(!value);
-
 	git_attr_path__free(&path);
 	git_attr_file__free(file);
 }
@@ -41,11 +36,9 @@ static void run_test_cases(git_attr_file *file, struct attr_expected *cases, int
 		if (force_dir)
 			path.is_dir = 1;
 
-		error = git_attr_file__lookup_one(file,&path,c->attr,&value);
+		error = git_attr_file__lookup_one(file, &path, c->attr, &value);
 		cl_git_pass(error);
-
 		attr_check_expected(c->expected, c->expected_str, c->attr, value);
-
 		git_attr_path__free(&path);
 	}
 }
@@ -54,7 +47,6 @@ void test_attr_lookup__match_variants(void)
 {
 	git_attr_file *file;
 	git_attr_path path;
-
 	struct attr_expected dir_cases[] = {
 		{ "pat2", "attr2", EXPECT_TRUE, NULL },
 		{ "/testing/for/pat2", "attr2", EXPECT_TRUE, NULL },
@@ -63,7 +55,6 @@ void test_attr_lookup__match_variants(void)
 		{ "foo.pat5", "attr5", EXPECT_TRUE, NULL },
 		{ NULL, NULL, 0, NULL }
 	};
-
 	struct attr_expected cases[] = {
 		/* pat0 -> simple match */
 		{ "pat0", "attr0", EXPECT_TRUE, NULL },
@@ -128,17 +119,13 @@ void test_attr_lookup__match_variants(void)
 		/* sentinel at end */
 		{ NULL, NULL, 0, NULL }
 	};
-
 	cl_git_pass(git_attr_file__load_standalone(&file, cl_fixture("attr/attr1")));
 	cl_assert_equal_s(cl_fixture("attr/attr1"), file->entry->path);
 	cl_assert(file->rules.length == 10);
-
 	cl_git_pass(git_attr_path__init(&path, "/testing/for/pat0", NULL));
 	cl_assert_equal_s("pat0", path.basename);
-
 	run_test_cases(file, cases, 0);
 	run_test_cases(file, dir_cases, 1);
-
 	git_attr_file__free(file);
 	git_attr_path__free(&path);
 }
@@ -146,7 +133,6 @@ void test_attr_lookup__match_variants(void)
 void test_attr_lookup__assign_variants(void)
 {
 	git_attr_file *file;
-
 	struct attr_expected cases[] = {
 		/* pat0 -> simple assign */
 		{ "pat0", "simple", EXPECT_TRUE, NULL },
@@ -189,19 +175,15 @@ void test_attr_lookup__assign_variants(void)
 		/* sentinel at end */
 		{ NULL, NULL, 0, NULL }
 	};
-
 	cl_git_pass(git_attr_file__load_standalone(&file, cl_fixture("attr/attr2")));
 	cl_assert(file->rules.length == 11);
-
 	run_test_cases(file, cases, 0);
-
 	git_attr_file__free(file);
 }
 
 void test_attr_lookup__check_attr_examples(void)
 {
 	git_attr_file *file;
-
 	struct attr_expected cases[] = {
 		{ "foo.java", "diff", EXPECT_STRING, "java" },
 		{ "foo.java", "crlf", EXPECT_FALSE, NULL },
@@ -224,19 +206,15 @@ void test_attr_lookup__check_attr_examples(void)
 		/* sentinel at end */
 		{ NULL, NULL, 0, NULL }
 	};
-
 	cl_git_pass(git_attr_file__load_standalone(&file, cl_fixture("attr/attr3")));
 	cl_assert(file->rules.length == 3);
-
 	run_test_cases(file, cases, 0);
-
 	git_attr_file__free(file);
 }
 
 void test_attr_lookup__from_buffer(void)
 {
 	git_attr_file *file;
-
 	struct attr_expected cases[] = {
 		{ "abc", "foo", EXPECT_TRUE, NULL },
 		{ "abc", "bar", EXPECT_TRUE, NULL },
@@ -249,14 +227,9 @@ void test_attr_lookup__from_buffer(void)
 		{ "qqq", "baz", EXPECT_TRUE, NULL },
 		{ NULL, NULL, 0, NULL }
 	};
-
 	cl_git_pass(git_attr_file__new(&file, NULL, 0));
-
 	cl_git_pass(git_attr_file__parse_buffer(NULL, file, "a* foo\nabc bar\n* baz"));
-
 	cl_assert(file->rules.length == 3);
-
 	run_test_cases(file, cases, 0);
-
 	git_attr_file__free(file);
 }

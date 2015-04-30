@@ -21,12 +21,12 @@ find_tmp_path(char *buffer, size_t length)
 	static const size_t var_count = 5;
 	static const char *env_vars[] = {
 		"CLAR_TMP", "TMPDIR", "TMP", "TEMP", "USERPROFILE"
- 	};
-
- 	size_t i;
+	};
+	size_t i;
 
 	for (i = 0; i < var_count; ++i) {
 		const char *env = getenv(env_vars[i]);
+
 		if (!env)
 			continue;
 
@@ -44,11 +44,13 @@ find_tmp_path(char *buffer, size_t length)
 
 #else
 	DWORD env_len = GetEnvironmentVariable("CLAR_TMP", buffer, (DWORD)length);
+
 	if (env_len > 0 && env_len < (DWORD)length)
 		return 0;
 
 	if (GetTempPath((DWORD)length, buffer))
 		return 0;
+
 #endif
 
 	/* This system doesn't like us, try to use the current directory */
@@ -66,7 +68,6 @@ static void clar_unsandbox(void)
 		return;
 
 	chdir("..");
-
 	fs_rm(_clar_path);
 }
 
@@ -77,17 +78,16 @@ static int build_sandbox_path(void)
 #else
 	const char path_tail[] = "clar_tmp_XXXXXX";
 #endif
-
 	size_t len;
 
 	if (find_tmp_path(_clar_path, sizeof(_clar_path)) < 0)
 		return -1;
 
 	len = strlen(_clar_path);
-
 #ifdef _WIN32
 	{ /* normalize path to POSIX forward slashes */
 		size_t i;
+
 		for (i = 0; i < len; ++i) {
 			if (_clar_path[i] == '\\')
 				_clar_path[i] = '/';
@@ -95,29 +95,32 @@ static int build_sandbox_path(void)
 	}
 #endif
 
-	if (_clar_path[len - 1] != '/') {
+	if (_clar_path[len - 1] != '/')
 		_clar_path[len++] = '/';
-	}
 
 	strncpy(_clar_path + len, path_tail, sizeof(_clar_path) - len);
-
 #if defined(__MINGW32__)
+
 	if (_mktemp(_clar_path) == NULL)
 		return -1;
 
 	if (mkdir(_clar_path, 0700) != 0)
 		return -1;
+
 #elif defined(_WIN32)
+
 	if (_mktemp_s(_clar_path, sizeof(_clar_path)) != 0)
 		return -1;
 
 	if (mkdir(_clar_path, 0700) != 0)
 		return -1;
+
 #else
+
 	if (mkdtemp(_clar_path) == NULL)
 		return -1;
-#endif
 
+#endif
 	return 0;
 }
 

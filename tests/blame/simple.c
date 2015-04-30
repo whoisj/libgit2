@@ -26,7 +26,6 @@ void test_blame_simple__trivial_testrepo(void)
 {
 	cl_git_pass(git_repository_open(&g_repo, cl_fixture("testrepo/.gitted")));
 	cl_git_pass(git_blame_file(&g_blame, g_repo, "branch_file.txt", NULL));
-
 	cl_assert_equal_i(2, git_blame_get_hunk_count(g_blame));
 	check_blame_hunk_index(g_repo, g_blame, 0, 1, 1, 0, "c47800c7", "branch_file.txt");
 	check_blame_hunk_index(g_repo, g_blame, 1, 2, 1, 0, "a65fedf3", "branch_file.txt");
@@ -56,7 +55,6 @@ void test_blame_simple__trivial_blamerepo(void)
 {
 	cl_git_pass(git_repository_open(&g_repo, cl_fixture("blametest.git")));
 	cl_git_pass(git_blame_file(&g_blame, g_repo, "b.txt", NULL));
-
 	cl_assert_equal_i(4, git_blame_get_hunk_count(g_blame));
 	check_blame_hunk_index(g_repo, g_blame, 0,  1, 4, 0, "da237394", "b.txt");
 	check_blame_hunk_index(g_repo, g_blame, 1,  5, 1, 1, "b99f7ac0", "b.txt");
@@ -148,9 +146,7 @@ void test_blame_simple__trivial_libgit2(void)
 
 	git_oid_cpy(&opts.newest_commit, git_object_id(obj));
 	git_object_free(obj);
-
 	cl_git_pass(git_blame_file(&g_blame, g_repo, "include/git2.h", &opts));
-
 	check_blame_hunk_index(g_repo, g_blame,  0,  1, 1, 0, "d12299fe", "src/git.h");
 	check_blame_hunk_index(g_repo, g_blame,  1,  2, 1, 0, "359fc2d2", "include/git2.h");
 	check_blame_hunk_index(g_repo, g_blame,  2,  3, 1, 0, "d12299fe", "src/git.h");
@@ -220,9 +216,7 @@ void test_blame_simple__trivial_libgit2(void)
 void test_blame_simple__can_restrict_lines_min(void)
 {
 	git_blame_options opts = GIT_BLAME_OPTIONS_INIT;
-
 	cl_git_pass(git_repository_open(&g_repo, cl_fixture("blametest.git")));
-
 	opts.min_line = 8;
 	cl_git_pass(git_blame_file(&g_blame, g_repo, "b.txt", &opts));
 	cl_assert_equal_i(2, git_blame_get_hunk_count(g_blame));
@@ -244,9 +238,7 @@ void test_blame_simple__can_restrict_lines_min(void)
 void test_blame_simple__can_restrict_lines_max(void)
 {
 	git_blame_options opts = GIT_BLAME_OPTIONS_INIT;
-
 	cl_git_pass(git_repository_open(&g_repo, cl_fixture("blametest.git")));
-
 	opts.max_line = 6;
 	cl_git_pass(git_blame_file(&g_blame, g_repo, "b.txt", &opts));
 	cl_assert_equal_i(3, git_blame_get_hunk_count(g_blame));
@@ -269,9 +261,7 @@ void test_blame_simple__can_restrict_lines_max(void)
 void test_blame_simple__can_restrict_lines_both(void)
 {
 	git_blame_options opts = GIT_BLAME_OPTIONS_INIT;
-
 	cl_git_pass(git_repository_open(&g_repo, cl_fixture("blametest.git")));
-
 	opts.min_line = 2;
 	opts.max_line = 7;
 	cl_git_pass(git_blame_file(&g_blame, g_repo, "b.txt", &opts));
@@ -291,18 +281,14 @@ void test_blame_simple__can_restrict_lines_both(void)
 void test_blame_simple__can_restrict_to_newish_commits(void)
 {
 	git_blame_options opts = GIT_BLAME_OPTIONS_INIT;
-
 	cl_git_pass(git_repository_open(&g_repo, cl_fixture("testrepo.git")));
-
 	{
 		git_object *obj;
 		cl_git_pass(git_revparse_single(&obj, g_repo, "be3563a"));
 		git_oid_cpy(&opts.oldest_commit, git_object_id(obj));
 		git_object_free(obj);
 	}
-
 	cl_git_pass(git_blame_file(&g_blame, g_repo, "branch_file.txt", &opts));
-
 	cl_assert_equal_i(2, git_blame_get_hunk_count(g_blame));
 	check_blame_hunk_index(g_repo, g_blame, 0,  1, 1, 1, "be3563a", "branch_file.txt");
 	check_blame_hunk_index(g_repo, g_blame, 1,  2, 1, 0, "a65fedf", "branch_file.txt");
@@ -312,9 +298,7 @@ void test_blame_simple__can_restrict_to_first_parent_commits(void)
 {
 	git_blame_options opts = GIT_BLAME_OPTIONS_INIT;
 	opts.flags |= GIT_BLAME_FIRST_PARENT;
-
 	cl_git_pass(git_repository_open(&g_repo, cl_fixture("blametest.git")));
-
 	cl_git_pass(git_blame_file(&g_blame, g_repo, "b.txt", &opts));
 	cl_assert_equal_i(4, git_blame_get_hunk_count(g_blame));
 	check_blame_hunk_index(g_repo, g_blame, 0,  1, 4, 0, "da237394", "b.txt");

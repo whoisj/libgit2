@@ -27,7 +27,7 @@
 
 long xdl_bogosqrt(long n);
 int xdl_emit_diffrec(char const *rec, long size, char const *pre, long psize,
-		     xdemitcb_t *ecb);
+                     xdemitcb_t *ecb);
 int xdl_cha_init(chastore_t *cha, long isize, long icount);
 void xdl_cha_free(chastore_t *cha);
 void *xdl_cha_alloc(chastore_t *cha);
@@ -40,9 +40,9 @@ unsigned int xdl_hashbits(unsigned int size);
 int xdl_num_out(char *out, long val);
 long xdl_atol(char const *str, char const **next);
 int xdl_emit_hunk_hdr(long s1, long c1, long s2, long c2,
-		      const char *func, long funclen, xdemitcb_t *ecb);
+                      const char *func, long funclen, xdemitcb_t *ecb);
 int xdl_fall_back_diff(xdfenv_t *diff_env, xpparam_t const *xpp,
-		       int line1, int count1, int line2, int count2);
+                       int line1, int count1, int line2, int count2);
 
 
 

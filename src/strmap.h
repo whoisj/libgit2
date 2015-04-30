@@ -71,8 +71,8 @@ typedef khiter_t git_strmap_iter;
 #define git_strmap_end		kh_end
 
 int git_strmap_next(
-	void **data,
-	git_strmap_iter* iter,
-	git_strmap *map);
+    void **data,
+    git_strmap_iter *iter,
+    git_strmap *map);
 
 #endif

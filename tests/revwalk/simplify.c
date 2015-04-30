@@ -31,18 +31,16 @@ void test_revwalk_simplify__first_parent(void)
 	git_oid id, expected[4];
 	int i, error;
 
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < 4; i++)
 		git_oid_fromstr(&expected[i], expected_str[i]);
-	}
 
 	repo = cl_git_sandbox_init("testrepo.git");
 	cl_git_pass(git_revwalk_new(&walk, repo));
-
 	git_oid_fromstr(&id, commit_head);
 	cl_git_pass(git_revwalk_push(walk, &id));
 	git_revwalk_simplify_first_parent(walk);
-
 	i = 0;
+
 	while ((error = git_revwalk_next(&id, walk)) == 0) {
 		cl_assert_equal_oid(&expected[i], &id);
 		i++;
@@ -50,6 +48,5 @@ void test_revwalk_simplify__first_parent(void)
 
 	cl_assert_equal_i(i, 4);
 	cl_assert_equal_i(error, GIT_ITEROVER);
-
 	git_revwalk_free(walk);
 }

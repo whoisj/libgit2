@@ -43,37 +43,33 @@ static git_vector custom_transports = GIT_VECTOR_INIT;
 
 #define GIT_TRANSPORT_COUNT (sizeof(transports)/sizeof(transports[0])) - 1
 
-static transport_definition * transport_find_by_url(const char *url)
+static transport_definition *transport_find_by_url(const char *url)
 {
 	size_t i = 0;
 	transport_definition *d;
-
 	/* Find a user transport who wants to deal with this URI */
 	git_vector_foreach(&custom_transports, i, d) {
-		if (strncasecmp(url, d->prefix, strlen(d->prefix)) == 0) {
+		if (strncasecmp(url, d->prefix, strlen(d->prefix)) == 0)
 			return d;
-		}
 	}
 
 	/* Find a system transport for this URI */
 	for (i = 0; i < GIT_TRANSPORT_COUNT; ++i) {
 		d = &transports[i];
 
-		if (strncasecmp(url, d->prefix, strlen(d->prefix)) == 0) {
+		if (strncasecmp(url, d->prefix, strlen(d->prefix)) == 0)
 			return d;
-		}
 	}
 
 	return NULL;
 }
 
 static int transport_find_fn(
-	git_transport_cb *out,
-	const char *url,
-	void **param)
+    git_transport_cb *out,
+    const char *url,
+    void **param)
 {
 	transport_definition *definition = transport_find_by_url(url);
-
 #ifdef GIT_WIN32
 	/* On Windows, it might not be possible to discern between absolute local
 	 * and ssh paths - first check if this is a valid local path that points
@@ -82,6 +78,7 @@ static int transport_find_fn(
 	/* Check to see if the path points to a file on the local file system */
 	if (!definition && git_path_exists(url) && git_path_isdir(url))
 		definition = &local_transport_definition;
+
 #endif
 
 	/* For other systems, perform the SSH check first, to avoid going to the
@@ -95,9 +92,11 @@ static int transport_find_fn(
 	}
 
 #ifndef GIT_WIN32
+
 	/* Check to see if the path points to a file on the local file system */
 	if (!definition && git_path_exists(url) && git_path_isdir(url))
 		definition = &local_transport_definition;
+
 #endif
 
 	if (!definition)
@@ -105,7 +104,6 @@ static int transport_find_fn(
 
 	*out = definition->fn;
 	*param = definition->param;
-
 	return 0;
 }
 
@@ -130,22 +128,19 @@ int git_transport_new(git_transport **out, git_remote *owner, const char *url)
 		return error;
 
 	GITERR_CHECK_VERSION(transport, GIT_TRANSPORT_VERSION, "git_transport");
-
 	*out = transport;
-
 	return 0;
 }
 
 int git_transport_register(
-	const char *scheme,
-	git_transport_cb cb,
-	void *param)
+    const char *scheme,
+    git_transport_cb cb,
+    void *param)
 {
 	git_buf prefix = GIT_BUF_INIT;
 	transport_definition *d, *definition = NULL;
 	size_t i;
 	int error = 0;
-
 	assert(scheme);
 	assert(cb);
 
@@ -158,10 +153,8 @@ int git_transport_register(
 			goto on_error;
 		}
 	}
-
 	definition = git__calloc(1, sizeof(transport_definition));
 	GITERR_CHECK_ALLOC(definition);
-
 	definition->prefix = git_buf_detach(&prefix);
 	definition->fn = cb;
 	definition->param = param;
@@ -170,7 +163,6 @@ int git_transport_register(
 		goto on_error;
 
 	return 0;
-
 on_error:
 	git_buf_free(&prefix);
 	git__free(definition);
@@ -183,7 +175,6 @@ int git_transport_unregister(const char *scheme)
 	transport_definition *d;
 	size_t i;
 	int error = 0;
-
 	assert(scheme);
 
 	if ((error = git_buf_printf(&prefix, "%s://", scheme)) < 0)
@@ -204,9 +195,7 @@ int git_transport_unregister(const char *scheme)
 			goto done;
 		}
 	}
-
 	error = GIT_ENOTFOUND;
-
 done:
 	git_buf_free(&prefix);
 	return error;
@@ -215,6 +204,6 @@ done:
 int git_transport_init(git_transport *opts, unsigned int version)
 {
 	GIT_INIT_STRUCTURE_FROM_TEMPLATE(
-		opts, version, git_transport, GIT_TRANSPORT_INIT);
+	    opts, version, git_transport, GIT_TRANSPORT_INIT);
 	return 0;
 }
